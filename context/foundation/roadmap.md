@@ -3,7 +3,7 @@ project: "Pairing Assistant"
 version: 1
 status: draft
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-06
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -40,7 +40,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 
 | ID   | Change ID                        | Outcome (user can …)                                                                | Prerequisites | PRD refs                                                              | Status   |
 | ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
-| F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | in-progress |
+| F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
 | S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | proposed |
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | proposed |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
@@ -70,7 +70,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Schema decisions here (roster-size flexibility, integer score representation — revised 2026-09-06 from the original color-band storage decision, see PRD FR-004) ripple into every downstream slice — worth getting right once, but scope stays to exactly the 5 tables S-01/S-02 need, not a speculative generalized schema. Live-match-session state (committed armies, current sub-round) is deliberately NOT part of this foundation — it's introduced in S-03, the only slice that needs it.
-- **Status:** in-progress
+- **Status:** done
 
 ## Slices
 
@@ -138,4 +138,4 @@ None — PRD had 0 Open Questions, and no cross-cutting questions surfaced durin
 
 ## Done
 
-(empty — no changes archived yet)
+- **F-01: (foundation) Team/opponent/pairing-matrix schema with RLS landed** — Archived 2026-09-06 → `context/archive/2026-09-04-schema-teams-opponents-matrix/`. Lesson: —.
