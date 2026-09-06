@@ -376,25 +376,25 @@ This creates a new schema — no existing data to migrate. Phases 1-3 run entire
 
 #### Automated
 
-- [x] 1.1 `supabase db reset` exits 0 and applies the new migration cleanly
-- [x] 1.2 `\dt public.*` lists all 5 new tables
-- [x] 1.3 `rowsecurity = t` for all 5 tables
+- [x] 1.1 `supabase db reset` exits 0 and applies the new migration cleanly — f4e8826
+- [x] 1.2 `\dt public.*` lists all 5 new tables — f4e8826
+- [x] 1.3 `rowsecurity = t` for all 5 tables — f4e8826
 
 #### Manual
 
-- [ ] 1.4 Studio Table Editor shows all 5 tables with expected columns
-- [ ] 1.5 Studio Policies shows exactly one policy per table
+- [x] 1.4 Studio Table Editor shows all 5 tables with expected columns — f4e8826
+- [x] 1.5 Studio Policies shows exactly one policy per table — f4e8826
 
 ### Phase 2: Seed data + RLS isolation verification
 
 #### Automated
 
-- [ ] 2.1 `supabase db reset` completes with no RLS `RAISE EXCEPTION`
-- [ ] 2.2 Second `supabase db reset` run is idempotent
+- [x] 2.1 `supabase db reset` completes with no RLS `RAISE EXCEPTION`
+- [x] 2.2 Second `supabase db reset` run is idempotent
 
 #### Manual
 
-- [ ] 2.3 Studio confirms both seeded teams exist
+- [x] 2.3 Studio confirms both seeded teams exist
 
 ### Phase 3: TypeScript type generation
 
