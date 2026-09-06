@@ -389,24 +389,24 @@ This creates a new schema — no existing data to migrate. Phases 1-3 run entire
 
 #### Automated
 
-- [x] 2.1 `supabase db reset` completes with no RLS `RAISE EXCEPTION`
-- [x] 2.2 Second `supabase db reset` run is idempotent
+- [x] 2.1 `supabase db reset` completes with no RLS `RAISE EXCEPTION` — b514d30
+- [x] 2.2 Second `supabase db reset` run is idempotent — b514d30
 
 #### Manual
 
-- [x] 2.3 Studio confirms both seeded teams exist
+- [x] 2.3 Studio confirms both seeded teams exist — b514d30
 
 ### Phase 3: TypeScript type generation
 
 #### Automated
 
-- [ ] 3.1 `npm run db:types` exits 0
-- [ ] 3.2 `src/db/database.types.ts` contains all 5 table names
-- [ ] 3.3 `npm run lint` passes
+- [x] 3.1 `npm run db:types` exits 0
+- [x] 3.2 `src/db/database.types.ts` contains all 5 table names
+- [x] 3.3 `npm run lint` passes
 
 #### Manual
 
-- [ ] 3.4 Generated types match Phase 1's schema
+- [x] 3.4 Generated types match Phase 1's schema
 
 ### Phase 4: Apply migration to production Supabase
 
