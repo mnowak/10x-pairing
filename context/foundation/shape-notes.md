@@ -93,8 +93,8 @@ Login required (email/password or OAuth). Every logged-in user acts as a captain
 ### Opponent & Matrix Preparation
 - FR-003: Captain can add an opponent team entry with its own roster of armies. Priority: must-have
   > Socratic: Counter-argument considered: opponent armies might not need names, just anonymous slots. Resolution: kept; no counter-argument stands as written.
-- FR-004: Captain can enter a pairing-matrix color-band estimate (red/orange/yellow/green/blue, plus purple for "unpredictable") for every one of our armies vs. every one of the opponent's armies. Priority: must-have
-  > Socratic: Counter-argument considered: raw numeric estimates may be the wrong input shape — captains actually think and prepare in color bands (per worksheet), not exact 0–20 scores. Resolution: FR revised — input shape is color bands, not numeric scores.
+- FR-004: Captain can enter a pairing-matrix point estimate (integer, 0–20 — how many of the 20 match points our army is expected to score) for every one of our armies vs. every one of the opponent's armies, leaving a pair unestimated when the matchup is too unpredictable to call. Priority: must-have
+  > Socratic: Counter-argument considered (revisited 2026-09-06, during F-01 implementation): color bands were originally chosen because captains think in bands during live prep (per worksheet) — but the raw 0–20 point estimate is strictly more precise, and a color-band display is a pure function of the number, so nothing is lost by storing the number and deriving the band in the application layer. Resolution: FR reverted to numeric input; the UI still shows color bands, derived from the stored integer, not stored directly.
 - FR-005: Captain can prepare matrices for multiple different opponent teams ahead of a tournament. Priority: must-have
   > Socratic: Counter-argument considered: also scope creep like FR-002 — MVP could support just one active opponent-matrix at a time. Resolution: kept; pre-tournament prep against multiple possible opponents is core to how captains actually operate (worksheet §8), unlike FR-002 which is about managing multiple of *our own* teams.
 - FR-006: Captain can edit/update previously entered matrix estimates. Priority: must-have
@@ -140,7 +140,7 @@ Login required (email/password or OAuth). Every logged-in user acts as a captain
 
 The app recommends, at each defender/attacker decision point, the choice that protects the team's total score — weighing both the immediate matchup and the quality of the pairing it leaves behind for later, including the forced final refused-attacker matchup.
 
-The rule consumes the captain's pre-entered pairing-matrix estimates (color-banded, per our-army-vs-opponent-army pair) together with the live state of which armies remain uncommitted on both sides at the current step of the reveal sequence.
+The rule consumes the captain's pre-entered pairing-matrix estimates (integer point estimate 0–20, per our-army-vs-opponent-army pair; displayed as a derived color band) together with the live state of which armies remain uncommitted on both sides at the current step of the reveal sequence.
 
 Its output is a single recommended choice at each of the three decision types — which army to put forward as defender, which pair of armies to send as attackers, and which of two offered attackers to accept — always drawn only from currently-available armies.
 

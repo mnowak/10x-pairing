@@ -2,6 +2,10 @@
 -- Runs automatically on every `supabase db reset` (local only — never applied to production).
 -- Fails loudly via RAISE EXCEPTION if row-level security stops isolating captains' data.
 -- See context/changes/schema-teams-opponents-matrix/plan.md (Phase 2) for design rationale.
+--
+-- WARNING: never run `supabase db reset --linked` against this project — it applies
+-- this file to the LINKED REMOTE database too, seeding fake test users into production.
+-- Only `supabase db push` (migrations only, no seed) is safe against the linked project.
 
 insert into auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, aud, role)
 values
@@ -10,7 +14,7 @@ values
 on conflict (id) do nothing;
 
 -- Insert captain A's team while impersonating captain A.
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, false);
 set role authenticated;
 insert into public.teams (id, captain_id, name)
 values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Captain A Team')
@@ -18,7 +22,7 @@ on conflict (id) do nothing;
 reset role;
 
 -- Insert captain B's team while impersonating captain B.
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000002', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000002', 'role', 'authenticated')::text, false);
 set role authenticated;
 insert into public.teams (id, captain_id, name)
 values ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Captain B Team')
@@ -36,7 +40,7 @@ end $$;
 reset role;
 
 -- Assert: captain A can see their own team.
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, false);
 set role authenticated;
 do $$
 declare own_count int;

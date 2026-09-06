@@ -121,18 +121,7 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
    - Identify any discrepancies or misunderstandings
    - Note assumptions that need verification
    - Determine true scope based on codebase reality
-
-4.5 **Build the requirements ledger — before any solution thinking**:
-
-   The request is written in the user's words, and every noun, quantity, state and rule in it is a requirement the user believes is obvious. Most expensive gaps hide there, not in the solution. Run this pass for every task, at every complexity level, with or without a frame — a frame settles *why* and *which problem*; it does not define the words.
-
-   1. **Extract the terms.** List every term the request and upstream artifacts rely on: nouns that name things (active user, order, contact, session), quantities and selections (latest, first, all, each, the, at most N), states and transitions (expired, archived, pending, locked), and rules (must, never, only, until). Include terms the user did not write but the feature implies — "latest" implies an ordering, "duplicate" implies an identity, "overdue" implies a clock.
-   2. **Define each term three ways**, as a table: the user's definition as stated (usually blank — that is a finding, not a failure), the code's current definition with file:line, and the behaviour on degenerate data.
-   3. **Walk one concrete degenerate example.** Write a small dataset (5–9 rows, real-looking values) that contains at least: two items equal on the value the user reasons about, a duplicate or near-duplicate identity, an empty or single-item group, a boundary value (zero, max, the exact limit), and a legacy or missing value. Narrate the feature step by step as the end user experiences it on that data. Every step where the narration needs a decision that is not in the request is a **gap**. Every step where the user would ask "why did it do that?" is a gap. Abstract reasoning ("the key is unique") passes where this table fails — that is why the table is mandatory.
-   4. **Classify each definition's origin**: `user` (stated or confirmed), `product` (a documented rule), `code` (only the implementation says so), `none`. A `code` origin is an assumption until the user confirms it is what they mean — a tiebreak, a default, a sort order or a uniqueness that only the implementation supplies is a technical choice, not a requirement. Never write "data guarantee" or "invariant" in the plan for anything whose origin is `code` or `none`.
-   5. **Gaps become definitional questions**, tagged `[DEF]`. They are asked in the first round, before any `[S]` question, and the upstream-artifact scaling in Step 1.0 never removes them — only a `user` or `product` origin does. Each `[DEF]` question shows the concrete example and asks the user to decide the outcome; recommend what the code does today only when that is also what a user would expect.
-
-   Present the ledger and its gaps in the step 5 summary, before the complexity assessment. If there are no gaps, say so in one line and name the terms you checked.
+   - **Run a smallest-counterexample pass before choosing interview questions.** For ordered selections, place equal comparison values across the cutoff; for counted sets, vary the identity/equivalence rule; for state thresholds, vary inclusivity and governing clock. Ask every case that yields different user-visible outcomes in the first round. Existing behaviour supplies one option, not the answer.
 
 5. **Present informed understanding and assess complexity**:
 
@@ -145,8 +134,6 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
    - [Key discovery — code reference, existing asset, prior work, or domain constraint]
    - [Relevant pattern, convention, or constraint discovered]
    - [Potential complexity or edge case identified]
-
-   Requirements ledger: [N] terms checked, [M] undefined — [term A] ([the degenerate case that makes it ambiguous]), [term B] (...). I'll ask about these first.
    ```
 
    Then assess the task complexity and present it to the user for confirmation:
@@ -158,8 +145,7 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
    number of systems touched, integration points, state management needs,
    data model changes, unknown unknowns, testing surface area, etc.]
 
-   I'd like to ask **[M] definitional questions** first (the undefined terms above — these are never scaled down),
-   then **[N] design questions** across multiple rounds to nail down the important
+   I'd like to ask **[N] questions** across multiple rounds to nail down the important
    decisions about [list key decision areas: architecture, edge cases, data model, UX, testing, etc.].
 
    Does this feel right, or would you adjust the complexity level?
@@ -235,19 +221,11 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
 
    First, identify the task domain: **software**, **content/education**, **strategy/process**, or **hybrid**. Then pick question categories that fit. The categories below are organized by domain — select what's relevant, don't force software categories onto non-software tasks.
 
-   **Each category is tagged `[D]` (diagnostic — about the problem) or `[S]` (solution — about how to build it).** When a frame brief was provided in Step 1.0, **skip all `[D]` categories** — frame settled them. Always ask `[S]` categories the user input still needs to drive. **`[DEF]` questions from the requirements ledger (step 4.5) are a third kind: they define the words in the request, precede every `[S]` question, and are never skipped by a frame, research, or a LOW complexity level.** A frame decides which problem to solve; it does not decide what "active", "latest", or "duplicate" means on real data.
+   **Each category is tagged `[D]` (diagnostic — about the problem) or `[S]` (solution — about how to build it).** When a frame brief was provided in Step 1.0, **skip all `[D]` categories** — frame settled them. Always ask `[S]` categories the user input still needs to drive.
 
    **Universal categories (all domains, all levels):**
    - **Scope boundaries** `[D]`: What's in vs out
-   - **Edge cases / failure modes** `[S]`: What happens when things go wrong or get weird (implementation handling, even if a frame named the observation class). Do not invent the list from scratch each time — walk this taxonomy and ask about every entry that plausibly applies:
-     - **Definitional edges**: already surfaced by the requirements ledger (step 4.5) as `[DEF]` questions — here you only confirm each decided definition has a test. Typical shapes: a selection word (*latest, first, unique, top N*) assumes an order the domain value does not provide, and the code's fallback on id or insertion order hides that; a state word (*active, expired, overdue*) assumes a clock and a boundary the request never placed ("overdue" on the due date itself?); an identity word (*same, duplicate, the user*) assumes a key the data does not enforce (two contacts differing only in email casing). The fixture that exercises the decided definition on degenerate data (the equal values at the boundary, the duplicate, the empty group, the exact limit) is a mandatory named test case.
-     - **Cardinality edges**: empty set, exactly one item, fewer items than the requirement names, more than the UI or page can show.
-     - **Boundary edges**: zero, negative, max size, off-by-one at inclusive/exclusive limits, unicode and encoding, time zones and clock skew.
-     - **Concurrency and partial failure**: two actors at once, a multi-step sequence that fails midway, retries and idempotency.
-     - **Existing data**: rows created before this change, defaults that legacy records lack, backward compatibility.
-     - **Access edges**: the actor lacks permission, the resource is gone, the actor is the owner vs. a viewer.
-
-     Every edge case the user selects must map to a named test or success criterion in the plan. Every edge case the user explicitly declines goes under "What We're NOT Doing" so the reviewer can see it was a decision, not an omission.
+   - **Edge cases / failure modes** `[S]`: What happens when things go wrong or get weird (implementation handling, even if a frame named the observation class)
    - **Success criteria** `[D]`: How do we know this worked — from the end user's or stakeholder's perspective
    - **Priority** `[D]`: Must-have vs nice-to-have — what gets cut if time is tight
 
@@ -432,14 +410,7 @@ After structure approval:
 
 ## Current State Analysis
 
-[What exists now, what's missing, key constraints discovered. Anything phrased as a guarantee or invariant must name its origin — `user`, `product`, or `code`. A `code` origin is an implementation choice the plan depends on, not a fact about the domain; say so.]
-
-## Definitions
-
-[The requirements ledger from Step 1.1, after the `[DEF]` answers. One row per term the plan relies on. Only origins `user` or `product` belong here — a term still at `code` or `none` is an open question and the plan is not ready to write.]
-
-| Term | Decided meaning | Origin | On degenerate data (tie, duplicate, empty, boundary, legacy) | Verified by |
-| ---- | --------------- | ------ | ------------------------------------------------------------- | ----------- |
+[What exists now, what's missing, key constraints discovered]
 
 ## Desired End State
 
@@ -720,8 +691,6 @@ Do this in Step 4 (right after the `change.md` → `planned` stamp). The lookup 
    - Identify potential issues early
    - Ask "why" and "what about"
    - Don't assume - verify with code, files, or context
-   - A code guarantee is not a requirement. What the implementation does today (its tiebreak, default, ordering, uniqueness) has origin `code` until the user confirms it is what they mean
-   - Verify definitions against what the end user sees on degenerate data, not against what the code enforces — "the key is unique" answers a code question, not the user's
 
 2. **Be Interactive**:
    - Don't write the full plan in one shot
@@ -776,8 +745,6 @@ Do this in Step 4 (right after the `change.md` → `planned` stamp). The lookup 
 
 1. **Automated Verification** — commands agents can run: `make test`, `npm run lint`, type checks, specific file existence
 2. **Manual Verification** — human testing: UI/UX, real-world performance, edge cases, user acceptance
-
-Every row of `## Definitions` with a degenerate-data behaviour maps to at least one named success criterion or test (fill its "Verified by" column). A definition nobody tests will drift back to whatever the code did before.
 
 Each phase's success criteria should use `- [ ]` checkboxes under `#### Automated Verification:` and `#### Manual Verification:` headings.
 

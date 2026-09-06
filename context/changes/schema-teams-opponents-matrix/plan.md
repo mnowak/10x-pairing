@@ -188,7 +188,7 @@ Prove RLS actually isolates rows between two different captains, via a determini
 
 **Intent**: Create two synthetic captains, insert one team each (as that captain, via simulated JWT claims), then assert — with `RAISE EXCEPTION` on failure — that captain B cannot see captain A's row and that captain A can see their own.
 
-**Contract**: Each simulated-user block follows the pattern `select set_config('request.jwt.claims', json_build_object('sub', '<uuid>', 'role', 'authenticated')::text, true); set role authenticated; <insert or assert>; reset role;` — the `set role` / `reset role` pair is mandatory (see Critical Implementation Details); omitting it makes the assertions vacuously pass under the superuser's `BYPASSRLS`.
+**Contract**: Each simulated-user block follows the pattern `select set_config('request.jwt.claims', json_build_object('sub', '<uuid>', 'role', 'authenticated')::text, false); set role authenticated; <insert or assert>; reset role;` — the `set role` / `reset role` pair is mandatory (see Critical Implementation Details); omitting it makes the assertions vacuously pass under the superuser's `BYPASSRLS`.
 
 ```sql
 insert into auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, aud, role)
@@ -197,14 +197,14 @@ values
   ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'captain-b@example.test', crypt('test-password', gen_salt('bf')), now(), now(), now(), 'authenticated', 'authenticated')
 on conflict (id) do nothing;
 
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, false);
 set role authenticated;
 insert into public.teams (id, captain_id, name)
 values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Captain A Team')
 on conflict (id) do nothing;
 reset role;
 
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000002', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000002', 'role', 'authenticated')::text, false);
 set role authenticated;
 insert into public.teams (id, captain_id, name)
 values ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Captain B Team')
@@ -220,7 +220,7 @@ begin
 end $$;
 reset role;
 
-select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, true);
+select set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001', 'role', 'authenticated')::text, false);
 set role authenticated;
 do $$
 declare own_count int;
@@ -282,7 +282,7 @@ Generate typed database access for S-01/S-02 to build against.
 
 #### Manual Verification:
 
-- Open `src/db/database.types.ts` and confirm the generated columns match Phase 1's schema (names, nullability, the `color` check-constraint values)
+- Open `src/db/database.types.ts` and confirm the generated columns match Phase 1's schema (names, nullability, the `score` integer range 0-20 enforced by the CHECK constraint)
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
