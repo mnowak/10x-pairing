@@ -40,9 +40,9 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 
 | ID   | Change ID                        | Outcome (user can …)                                                                | Prerequisites | PRD refs                                                              | Status   |
 | ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
-| F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | ready    |
+| F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | in-progress |
 | S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | proposed |
-| S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a color-banded pairing-matrix estimate against them, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | proposed |
+| S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | proposed |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 
 ## Baseline
@@ -61,7 +61,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### F-01: Team/opponent/pairing-matrix schema with RLS
 
-- **Outcome:** (foundation) Postgres schema landed for `teams`, `team_armies` (roster), `opponents`, `opponent_armies`, and `pairing_matrix_estimates` (color-band per our-army/opponent-army pair) — every table scoped to `auth.uid()` via Row Level Security so a captain's data is never visible to another account.
+- **Outcome:** (foundation) Postgres schema landed for `teams`, `team_armies` (roster), `opponents`, `opponent_armies`, and `pairing_matrix_estimates` (integer score 0-20 per our-army/opponent-army pair — revised 2026-09-06 from the original color-band-storage decision, see PRD FR-004) — every table scoped to `auth.uid()` via Row Level Security so a captain's data is never visible to another account.
 - **Change ID:** schema-teams-opponents-matrix
 - **PRD refs:** FR-001, FR-003, FR-004, FR-006, Access Control, NFR ("A captain's pairing-matrix estimates are never visible to anyone outside their own account")
 - **Unlocks:** S-01, S-02
@@ -69,8 +69,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Schema decisions here (roster-size flexibility, color-band representation) ripple into every downstream slice — worth getting right once, but scope stays to exactly the 5 tables S-01/S-02 need, not a speculative generalized schema. Live-match-session state (committed armies, current sub-round) is deliberately NOT part of this foundation — it's introduced in S-03, the only slice that needs it.
-- **Status:** ready
+- **Risk:** Schema decisions here (roster-size flexibility, integer score representation — revised 2026-09-06 from the original color-band storage decision, see PRD FR-004) ripple into every downstream slice — worth getting right once, but scope stays to exactly the 5 tables S-01/S-02 need, not a speculative generalized schema. Live-match-session state (committed armies, current sub-round) is deliberately NOT part of this foundation — it's introduced in S-03, the only slice that needs it.
+- **Status:** in-progress
 
 ## Slices
 
@@ -88,14 +88,14 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-02: Prepare an opponent pairing-matrix
 
-- **Outcome:** captain can add an opponent team's roster and enter/edit a color-banded pairing-matrix estimate against them, repeated for multiple different opponents ahead of a tournament.
+- **Outcome:** captain can add an opponent team's roster and enter/edit a point estimate (integer, 0-20) against them — displayed as a derived color band, not stored as one — repeated for multiple different opponents ahead of a tournament.
 - **Change ID:** prepare-opponent-matrix
 - **PRD refs:** FR-003, FR-004, FR-005, FR-006
 - **Prerequisites:** S-01, F-01
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Color-band input (not raw 0–20 scores) is a confirmed domain decision (`shape-notes.md`) — don't let this regress to numeric input under time pressure.
+- **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Numeric point input (0–20), with the color band derived for display, is the confirmed domain decision as of 2026-09-06 (PRD FR-004, `shape-notes.md`) — don't let this regress to storing a color enum directly.
 - **Status:** proposed
 
 ### S-03: Run a live match-mode session
