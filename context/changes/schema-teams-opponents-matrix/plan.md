@@ -400,22 +400,22 @@ This creates a new schema — no existing data to migrate. Phases 1-3 run entire
 
 #### Automated
 
-- [x] 3.1 `npm run db:types` exits 0
-- [x] 3.2 `src/db/database.types.ts` contains all 5 table names
-- [x] 3.3 `npm run lint` passes
+- [x] 3.1 `npm run db:types` exits 0 — c1d2d0e
+- [x] 3.2 `src/db/database.types.ts` contains all 5 table names — c1d2d0e
+- [x] 3.3 `npm run lint` passes — c1d2d0e
 
 #### Manual
 
-- [x] 3.4 Generated types match Phase 1's schema
+- [x] 3.4 Generated types match Phase 1's schema — c1d2d0e
 
 ### Phase 4: Apply migration to production Supabase
 
 #### Automated
 
-- [ ] 4.1 `supabase migration list --linked` shows the Phase 1 migration applied remotely
+- [x] 4.1 `supabase migration list --linked` shows the Phase 1 migration applied remotely
 
 #### Manual
 
-- [ ] 4.2 Human confirms the CLI's pre-push prompt before it applies
-- [ ] 4.3 Cloud Supabase Studio shows all 5 tables on the production project
-- [ ] 4.4 Live app still responds correctly on `/` and `/dashboard` after the push
+- [x] 4.2 Human confirms the CLI's pre-push prompt before it applies
+- [x] 4.3 Cloud Supabase Studio shows all 5 tables on the production project
+- [x] 4.4 Live app still responds correctly on `/` and `/dashboard` after the push
