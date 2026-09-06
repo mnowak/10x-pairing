@@ -412,10 +412,10 @@ This creates a new schema — no existing data to migrate. Phases 1-3 run entire
 
 #### Automated
 
-- [x] 4.1 `supabase migration list --linked` shows the Phase 1 migration applied remotely
+- [x] 4.1 `supabase migration list --linked` shows the Phase 1 migration applied remotely — 4317ac7
 
 #### Manual
 
-- [x] 4.2 Human confirms the CLI's pre-push prompt before it applies
-- [x] 4.3 Cloud Supabase Studio shows all 5 tables on the production project
-- [x] 4.4 Live app still responds correctly on `/` and `/dashboard` after the push
+- [x] 4.2 Human confirms the CLI's pre-push prompt before it applies — 4317ac7
+- [x] 4.3 Cloud Supabase Studio shows all 5 tables on the production project — 4317ac7
+- [x] 4.4 Live app still responds correctly on `/` and `/dashboard` after the push — 4317ac7

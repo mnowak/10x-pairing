@@ -1,7 +1,7 @@
 ---
 change_id: schema-teams-opponents-matrix
 title: Schema teams opponents matrix
-status: implementing
+status: implemented
 created: 2026-09-04
 updated: 2026-09-06
 
