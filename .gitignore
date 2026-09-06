@@ -26,3 +26,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# sublime text
+*.sublime-project
+*.sublime-workspace
