@@ -35,7 +35,7 @@ checkpoint:
     - topic: "timeline budget revision"
       decision: "actual budget is 2 weeks (revised down from initial 3-week estimate). FR-002 (managing multiple teams under one account) demoted from must-have to nice-have to fit — MVP scope is one team per captain."
     - topic: "matrix input shape"
-      decision: "pairing-matrix cells use color bands (red/orange/yellow/green/blue, plus purple for unpredictable), not raw numeric estimates — matches how captains actually prepare (FR-004 revised)"
+      decision: "REVISED 2026-09-06 (during F-01 implementation): pairing-matrix cells store a raw integer point estimate (0-20 — how many of the 20 match points our army is expected to score), not a color band. Color-band display is derived in the application layer from the stored number. \"Unpredictable\" (formerly the purple band) is represented by leaving the pair unestimated (no stored row), not a sentinel value. Originally decided as stored color bands in this same entry (see FR-004's Socratic note for the reversal rationale: the numeric value is strictly more precise and the band is a pure function of it, so nothing was lost by storing the number instead)."
     - topic: "defender suggestion scope"
       decision: "safest-defender suggestion (FR-008) must use the currently remaining matrix (armies not yet committed on either side), not the original full matrix — matters starting sub-round 2"
     - topic: "attacker-acceptance suggestion logic"
