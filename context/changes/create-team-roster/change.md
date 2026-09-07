@@ -1,9 +1,9 @@
 ---
 change_id: create-team-roster
 title: Create team roster
-status: implementing
+status: implemented
 created: 2026-09-06
-updated: 2026-09-06
+updated: 2026-09-07
 archived_at: null
 ---
 

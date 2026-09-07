@@ -249,14 +249,14 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes — 142af1c
 
 #### Manual
 
-- [x] 3.2 Create form shows 5 empty army fields for a captain with no team
-- [x] 3.3 Submitting creates a team with only the filled, non-duplicate army names
-- [x] 3.4 Reloading shows the view, not the create form
-- [x] 3.5 Add-army mini-form appends to the visible roster
-- [x] 3.6 Duplicate army name shows a friendly error, not a raw DB error
-- [x] 3.7 Supabase Studio rows have the correct `captain_id`
-- [x] 3.8 `dashboard.astro` links to `/dashboard/team`
+- [x] 3.2 Create form shows 5 empty army fields for a captain with no team — 142af1c
+- [x] 3.3 Submitting creates a team with only the filled, non-duplicate army names — 142af1c
+- [x] 3.4 Reloading shows the view, not the create form — 142af1c
+- [x] 3.5 Add-army mini-form appends to the visible roster — 142af1c
+- [x] 3.6 Duplicate army name shows a friendly error, not a raw DB error — 142af1c
+- [x] 3.7 Supabase Studio rows have the correct `captain_id` — 142af1c
+- [x] 3.8 `dashboard.astro` links to `/dashboard/team` — 142af1c
