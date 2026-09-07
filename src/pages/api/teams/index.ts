@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { createTeamWithArmies } from "@/lib/teams";
+import { createTeamWithArmies, getTeamWithArmies } from "@/lib/teams";
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
@@ -10,6 +10,16 @@ export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
     return context.redirect(`/dashboard/team?error=${encodeURIComponent("Supabase is not configured")}`);
+  }
+
+  let existingTeam;
+  try {
+    existingTeam = await getTeamWithArmies(supabase, context.locals.user.id);
+  } catch {
+    return context.redirect(`/dashboard/team?error=${encodeURIComponent("Something went wrong loading your team")}`);
+  }
+  if (existingTeam) {
+    return context.redirect("/dashboard/team");
   }
 
   const form = await context.request.formData();

@@ -5,11 +5,18 @@ import TeamView from "@/components/team/TeamView";
 import { createClient } from "@/lib/supabase";
 import { getTeamWithArmies } from "@/lib/teams";
 
-const error = Astro.url.searchParams.get("error");
+let error = Astro.url.searchParams.get("error");
 const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-const team = supabase && user ? await getTeamWithArmies(supabase, user.id) : null;
+let team = null;
+if (supabase && user) {
+  try {
+    team = await getTeamWithArmies(supabase, user.id);
+  } catch {
+    error ??= "Something went wrong loading your team";
+  }
+}
 ---
 
 <Layout title={team ? "Your Team" : "Create Your Team"}>

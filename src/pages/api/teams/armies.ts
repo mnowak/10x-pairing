@@ -20,7 +20,12 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/dashboard/team?error=${encodeURIComponent("Army name is required")}`);
   }
 
-  const team = await getTeamWithArmies(supabase, context.locals.user.id);
+  let team;
+  try {
+    team = await getTeamWithArmies(supabase, context.locals.user.id);
+  } catch {
+    return context.redirect(`/dashboard/team?error=${encodeURIComponent("Something went wrong loading your team")}`);
+  }
   if (!team) {
     return context.redirect(`/dashboard/team?error=${encodeURIComponent("Create a team first")}`);
   }
