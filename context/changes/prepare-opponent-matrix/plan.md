@@ -299,17 +299,17 @@ Also: to get past an `astro-eslint-parser` + `@typescript-eslint/no-misused-prom
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes — 367081c
 
 #### Manual
 
-- [x] 3.2 Opponents list + create form shown for a captain with no opponents yet
-- [x] 3.3 Creating an opponent lands on its detail page with correct roster and sized-correctly empty grid
-- [x] 3.4 Picking a cell color saves without page reload and persists across reload
-- [x] 3.5 Changing an already-picked cell updates in place (single row, not duplicated)
-- [x] 3.6 Second opponent has an independent, empty grid
-- [x] 3.7 Adding an army to an existing opponent adds a grid column
-- [x] 3.8 Supabase Studio rows have the correct `captain_id`
-- [x] 3.9 `dashboard.astro` links to `/dashboard/opponents`
-- [x] 3.10 Picking purple on a cell saves and persists across reload, visually distinct from both a scored cell and a blank/unestimated cell
-- [x] 3.11 In Supabase Studio, a purple pick has `score = null`, `is_purple = true`; a scored pick has `is_purple = false` and a non-null score
+- [x] 3.2 Opponents list + create form shown for a captain with no opponents yet — 367081c
+- [x] 3.3 Creating an opponent lands on its detail page with correct roster and sized-correctly empty grid — 367081c
+- [x] 3.4 Picking a cell color saves without page reload and persists across reload — 367081c
+- [x] 3.5 Changing an already-picked cell updates in place (single row, not duplicated) — 367081c
+- [x] 3.6 Second opponent has an independent, empty grid — 367081c
+- [x] 3.7 Adding an army to an existing opponent adds a grid column — 367081c
+- [x] 3.8 Supabase Studio rows have the correct `captain_id` — 367081c
+- [x] 3.9 `dashboard.astro` links to `/dashboard/opponents` — 367081c
+- [x] 3.10 Picking purple on a cell saves and persists across reload, visually distinct from both a scored cell and a blank/unestimated cell — 367081c
+- [x] 3.11 In Supabase Studio, a purple pick has `score = null`, `is_purple = true`; a scored pick has `is_purple = false` and a non-null score — 367081c
