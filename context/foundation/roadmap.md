@@ -3,7 +3,7 @@ project: "Pairing Assistant"
 version: 1
 status: draft
 created: 2026-09-04
-updated: 2026-09-06
+updated: 2026-09-07
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -24,7 +24,7 @@ milestone_status: open
 
 - **Intent:** Ship the full must-have MVP — team/roster setup, opponent matrix preparation, and live match-mode with suggestions at all three decision points across both sub-rounds — so a captain can use Pairing Assistant end-to-end at a real tournament before the 2026-09-13 deadline.
 - **Source materials:** `context/foundation/prd.md` (v1)
-- **Done when:** F-01, S-01, S-02, and S-03 below are all `done`.
+- **Done when:** F-01, S-01, S-02, S-03, and S-04 below are all `done`.
 
 ## Vision recap
 
@@ -41,9 +41,10 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | ID   | Change ID                        | Outcome (user can …)                                                                | Prerequisites | PRD refs                                                              | Status   |
 | ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
 | F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
-| S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | proposed |
+| S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | in-progress |
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | proposed |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
+| S-04 | remove-team-army                  | remove an army from their team roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01           | FR-017                                                                 | proposed |
 
 ## Baseline
 
@@ -84,7 +85,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Smallest possible vertical slice and the entry point every other slice depends on. Keep the roster-size field flexible (not hardcoded to exactly 5) so FR-016 (parked, see below) stays cheap to pick up later without a schema rewrite.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-02: Prepare an opponent pairing-matrix
 
@@ -92,7 +93,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Change ID:** prepare-opponent-matrix
 - **PRD refs:** FR-003, FR-004, FR-005, FR-006
 - **Prerequisites:** S-01, F-01
-- **Parallel with:** —
+- **Parallel with:** S-04 (both depend only on S-01, don't depend on each other)
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Numeric point input (0–20), with the color band derived for display, is the confirmed domain decision as of 2026-09-06 (PRD FR-004, `shape-notes.md`) — don't let this regress to storing a color enum directly.
@@ -111,6 +112,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Intentionally the largest slice — PRD's US-01 acceptance criteria treat the full two-sub-round sequence as one indivisible round-completion test (all 3 suggestion types plus the auto-paired refused attacker, in one Given/When/Then). Splitting by sub-round or by suggestion-type would produce a slice with no standalone captain-usable value and would be a horizontal, not vertical, cut. Given the 2-week after-hours budget and the 2026-09-13 deadline, this is also the slice most at risk of not landing in time — since it's the PRD's Primary Success Criterion, prefer descoping polish elsewhere before touching this.
 - **Status:** proposed
 
+### S-04: Remove an army from the roster
+
+- **Outcome:** captain can remove an army from their team roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.
+- **Change ID:** remove-team-army
+- **PRD refs:** FR-017
+- **Prerequisites:** S-01
+- **Parallel with:** S-02 (both depend only on S-01, don't depend on each other)
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — the confirmation step is what keeps this from silently violating the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." The estimate-count in the confirmation is only meaningful once S-02 exists; until then it will always read zero, which is still correct, just less useful. Added 2026-09-07 — not in the original PRD; surfaced as a real gap once S-01 shipped without any removal path.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                      | Suggested issue title                                              | Ready for `/10x-plan` | Notes                    |
@@ -119,6 +132,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01       | create-team-roster               | Captain can create a team with a roster of armies                      | no                      | Waiting on F-01           |
 | S-02       | prepare-opponent-matrix          | Captain can prepare a pairing-matrix estimate against an opponent      | no                      | Waiting on S-01            |
 | S-03       | live-match-mode-session          | Captain can run a full live match-mode session                         | no                      | Waiting on S-02            |
+| S-04       | remove-team-army                 | Captain can remove an army from their roster                           | no                      | Waiting on S-01            |
 
 ## Open Roadmap Questions
 

@@ -92,6 +92,8 @@ Primary persona: a team captain of a 5-player Warhammer 40k tournament team (ext
 ### Roster Flexibility
 - FR-016: Team roster size is configurable beyond 5 players, without requiring separate matrix/matching logic per size. Priority: nice-to-have
   > Socratic: Counter-argument considered: given the tighter 2-week budget, should this be demoted/dropped like FR-002? Resolution: kept as nice-to-have; not hard-coding to 5 costs little now and avoids a costly rewrite later.
+- FR-017: Captain can remove an army from their team roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost. Priority: nice-to-have
+  > Socratic: Counter-argument considered (added 2026-09-07, after S-01 shipped without this): F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — silently losing prepared estimates without warning would violate the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." Resolution: kept as nice-to-have (not required to prove the core live-match hypothesis), but the confirmation step is a hard requirement of the FR itself, not an optional nicety — it's what keeps this from violating the guardrail once built.
 
 ## Non-Functional Requirements
 
