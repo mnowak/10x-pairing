@@ -218,13 +218,13 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with the new/changed files
+- [x] 1.1 `npm run lint` passes with the new/changed files — a2d95fe
 
 ### Phase 2: API routes
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes
 
 ### Phase 3: UI
 
