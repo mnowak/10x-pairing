@@ -3,16 +3,24 @@ import Layout from "@/layouts/Layout.astro";
 import CreateTeamForm from "@/components/team/CreateTeamForm";
 import TeamView from "@/components/team/TeamView";
 import { createClient } from "@/lib/supabase";
-import { getTeamWithArmies } from "@/lib/teams";
+import { getTeamWithArmies, getEstimateCountsForTeamArmies } from "@/lib/teams";
 
 let error = Astro.url.searchParams.get("error");
 const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 let team = null;
+let estimateCounts: Record<string, number> = {};
 if (supabase && user) {
   try {
     team = await getTeamWithArmies(supabase, user.id);
+    if (team) {
+      estimateCounts = await getEstimateCountsForTeamArmies(
+        supabase,
+        user.id,
+        team.armies.map((army) => army.id),
+      );
+    }
   } catch {
     error ??= "Something went wrong loading your team";
   }
@@ -29,7 +37,7 @@ if (supabase && user) {
       </h1>
       {
         team ? (
-          <TeamView team={team} serverError={error} client:load />
+          <TeamView team={team} estimateCounts={estimateCounts} serverError={error} client:load />
         ) : (
           <CreateTeamForm serverError={error} client:load />
         )

@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import OpponentDetail from "@/components/opponent/OpponentDetail";
 import { createClient } from "@/lib/supabase";
-import { getOpponentWithArmies } from "@/lib/opponents";
+import { getOpponentWithArmies, getEstimateCountsForOpponentArmies } from "@/lib/opponents";
 import { getMatrixGrid } from "@/lib/matrix";
 
 const { id } = Astro.params;
@@ -35,6 +35,19 @@ try {
 if (!matrixGrid) {
   return Astro.redirect(`/dashboard/team?error=${encodeURIComponent("Create your team before building a matrix")}`);
 }
+
+let estimateCounts: Record<string, number>;
+try {
+  estimateCounts = await getEstimateCountsForOpponentArmies(
+    supabase,
+    user.id,
+    opponent.armies.map((army) => army.id),
+  );
+} catch {
+  return Astro.redirect(
+    `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading estimate counts")}`,
+  );
+}
 ---
 
 <Layout title={opponent.name}>
@@ -45,7 +58,13 @@ if (!matrixGrid) {
       >
         {opponent.name}
       </h1>
-      <OpponentDetail opponent={opponent} matrixGrid={matrixGrid} serverError={error} client:load />
+      <OpponentDetail
+        opponent={opponent}
+        matrixGrid={matrixGrid}
+        estimateCounts={estimateCounts}
+        serverError={error}
+        client:load
+      />
       <p class="mt-4 text-center text-sm text-blue-100/60">
         <a href="/dashboard/opponents" class="text-purple-300 hover:underline">← Back to opponents</a>
       </p>
