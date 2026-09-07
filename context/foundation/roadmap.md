@@ -24,7 +24,7 @@ milestone_status: open
 
 - **Intent:** Ship the full must-have MVP — team/roster setup, opponent matrix preparation, and live match-mode with suggestions at all three decision points across both sub-rounds — so a captain can use Pairing Assistant end-to-end at a real tournament before the 2026-09-13 deadline.
 - **Source materials:** `context/foundation/prd.md` (v1)
-- **Done when:** F-01, S-01, S-02, S-03, and S-04 below are all `done`.
+- **Done when:** F-01, S-01, S-02, S-03, S-04, and S-05 below are all `done`.
 
 ## Vision recap
 
@@ -45,6 +45,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | in-progress |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 | S-04 | remove-team-army                  | remove an army from their team roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01           | FR-017                                                                 | proposed |
+| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | proposed |
 
 ## Baseline
 
@@ -124,6 +125,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — the confirmation step is what keeps this from silently violating the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." The estimate-count in the confirmation is only meaningful once S-02 exists; until then it will always read zero, which is still correct, just less useful. Added 2026-09-07 — not in the original PRD; surfaced as a real gap once S-01 shipped without any removal path.
 - **Status:** proposed
 
+### S-05: Cap roster size at 5 armies
+
+- **Outcome:** captain is blocked (with a clear message) from adding a 6th army to our team roster or to any opponent's roster.
+- **Change ID:** cap-roster-size
+- **PRD refs:** FR-018
+- **Prerequisites:** S-01, S-02
+- **Parallel with:** S-03, S-04
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`, no schema change needed unless a DB-level `check` on roster count is also wanted (TBD at plan time). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                      | Suggested issue title                                              | Ready for `/10x-plan` | Notes                    |
@@ -133,6 +146,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02       | prepare-opponent-matrix          | Captain can prepare a pairing-matrix estimate against an opponent      | no                      | Waiting on S-01            |
 | S-03       | live-match-mode-session          | Captain can run a full live match-mode session                         | no                      | Waiting on S-02            |
 | S-04       | remove-team-army                 | Captain can remove an army from their roster                           | no                      | Waiting on S-01            |
+| S-05       | cap-roster-size                  | Cap team and opponent rosters at 5 armies                              | no                      | Waiting on S-01, S-02      |
 
 ## Open Roadmap Questions
 
