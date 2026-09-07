@@ -42,7 +42,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
 | F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
 | S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | done |
-| S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | in-progress |
+| S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 | S-04 | remove-team-army                  | remove an army from their team roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01           | FR-017                                                                 | proposed |
 | S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | proposed |
@@ -98,7 +98,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Numeric point input (0–20), with the color band derived for display, is the confirmed domain decision as of 2026-09-06 (PRD FR-004, `shape-notes.md`) — don't let this regress to storing a color enum directly.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-03: Run a live match-mode session
 
@@ -168,3 +168,4 @@ None — PRD had 0 Open Questions, and no cross-cutting questions surfaced durin
 
 - **F-01: (foundation) Team/opponent/pairing-matrix schema with RLS landed** — Archived 2026-09-06 → `context/archive/2026-09-04-schema-teams-opponents-matrix/`. Lesson: —.
 - **S-01: create a team with a name and a roster of armies** — Archived 2026-09-07 → `context/archive/2026-09-06-create-team-roster/`. Lesson: —.
+- **S-02: captain can add an opponent team's roster and enter/edit a point estimate (integer, 0-20) against them — displayed as a derived color band, not stored as one — repeated for multiple different opponents ahead of a tournament.** — Archived 2026-09-07 → `context/archive/2026-09-07-prepare-opponent-matrix/`. Lesson: —.
