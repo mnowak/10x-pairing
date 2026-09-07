@@ -1,10 +1,10 @@
 ---
 change_id: create-team-roster
 title: Create team roster
-status: impl_reviewed
+status: archived
 created: 2026-09-06
 updated: 2026-09-07
-archived_at: null
+archived_at: 2026-09-07T08:00:19Z
 ---
 
 ## Notes

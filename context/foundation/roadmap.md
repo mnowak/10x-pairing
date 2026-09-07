@@ -41,7 +41,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | ID   | Change ID                        | Outcome (user can …)                                                                | Prerequisites | PRD refs                                                              | Status   |
 | ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
 | F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
-| S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | in-progress |
+| S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | done |
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | proposed |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 | S-04 | remove-team-army                  | remove an army from their team roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01           | FR-017                                                                 | proposed |
@@ -85,7 +85,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Smallest possible vertical slice and the entry point every other slice depends on. Keep the roster-size field flexible (not hardcoded to exactly 5) so FR-016 (parked, see below) stays cheap to pick up later without a schema rewrite.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-02: Prepare an opponent pairing-matrix
 
@@ -153,3 +153,4 @@ None — PRD had 0 Open Questions, and no cross-cutting questions surfaced durin
 ## Done
 
 - **F-01: (foundation) Team/opponent/pairing-matrix schema with RLS landed** — Archived 2026-09-06 → `context/archive/2026-09-04-schema-teams-opponents-matrix/`. Lesson: —.
+- **S-01: create a team with a name and a roster of armies** — Archived 2026-09-07 → `context/archive/2026-09-06-create-team-roster/`. Lesson: —.
