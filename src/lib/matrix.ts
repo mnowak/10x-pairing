@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/db/database.types";
 import { getTeamWithArmies } from "@/lib/teams";
-import { getOpponentWithArmies } from "@/lib/opponents";
+import type { OpponentWithArmies } from "@/lib/opponents";
 import { scoreToBand, bandToScore, type Estimate } from "@/lib/colorBands";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
@@ -16,12 +16,11 @@ export interface MatrixGridData {
 export async function getMatrixGrid(
   supabase: TypedSupabaseClient,
   captainId: string,
-  opponentId: string,
+  opponent: OpponentWithArmies,
 ): Promise<MatrixGridData | null> {
   const team = await getTeamWithArmies(supabase, captainId);
-  const opponent = await getOpponentWithArmies(supabase, captainId, opponentId);
 
-  if (!team || !opponent) {
+  if (!team) {
     return null;
   }
 
@@ -46,7 +45,12 @@ export async function getMatrixGrid(
       if (row.is_purple) {
         estimates[key] = "purple";
       } else if (row.score !== null) {
-        estimates[key] = scoreToBand(row.score);
+        try {
+          estimates[key] = scoreToBand(row.score);
+        } catch {
+          // Out-of-range score shouldn't happen (DB CHECK enforces 0-20), but
+          // skip just this cell rather than failing the whole grid if it ever does.
+        }
       }
     }
   }
@@ -68,7 +72,12 @@ export async function upsertEstimate(
   opponentArmyId: string,
   estimate: Estimate,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const team = await getTeamWithArmies(supabase, captainId);
+  let team;
+  try {
+    team = await getTeamWithArmies(supabase, captainId);
+  } catch {
+    return { ok: false, error: "Something went wrong loading your team" };
+  }
   if (!team?.armies.some((army) => army.id === teamArmyId)) {
     return { ok: false, error: "That army is not on your team" };
   }

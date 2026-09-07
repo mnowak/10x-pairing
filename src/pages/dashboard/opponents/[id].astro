@@ -26,7 +26,12 @@ if (!opponent) {
   return Astro.redirect("/dashboard/opponents");
 }
 
-const matrixGrid = await getMatrixGrid(supabase, user.id, id);
+let matrixGrid;
+try {
+  matrixGrid = await getMatrixGrid(supabase, user.id, opponent);
+} catch {
+  return Astro.redirect(`/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading the matrix")}`);
+}
 if (!matrixGrid) {
   return Astro.redirect(`/dashboard/team?error=${encodeURIComponent("Create your team before building a matrix")}`);
 }
