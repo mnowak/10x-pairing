@@ -1,5 +1,11 @@
 export type ColorBand = "red" | "orange" | "yellow" | "green" | "dark-green";
 
+// "purple" marks a matchup deliberately judged too unpredictable to call —
+// distinct from an unestimated (blank) cell, which just means "not yet
+// assessed." It never maps to a point on the 0-20 scale, unlike the five
+// ColorBand values above.
+export type Estimate = ColorBand | "purple";
+
 interface BandRange {
   band: ColorBand;
   min: number;

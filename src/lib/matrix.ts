@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/db/database.types";
 import { getTeamWithArmies } from "@/lib/teams";
 import { getOpponentWithArmies } from "@/lib/opponents";
-import { scoreToBand, bandToScore, type ColorBand } from "@/lib/colorBands";
+import { scoreToBand, bandToScore, type Estimate } from "@/lib/colorBands";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -10,7 +10,7 @@ export interface MatrixGridData {
   ourArmies: Tables<"team_armies">[];
   theirArmies: Tables<"opponent_armies">[];
   // Keyed by `${teamArmyId}:${opponentArmyId}`.
-  estimates: Record<string, ColorBand>;
+  estimates: Record<string, Estimate>;
 }
 
 export async function getMatrixGrid(
@@ -25,12 +25,12 @@ export async function getMatrixGrid(
     return null;
   }
 
-  const estimates: Record<string, ColorBand> = {};
+  const estimates: Record<string, Estimate> = {};
 
   if (opponent.armies.length > 0) {
     const { data, error } = await supabase
       .from("pairing_matrix_estimates")
-      .select("team_army_id, opponent_army_id, score")
+      .select("team_army_id, opponent_army_id, score, is_purple")
       .eq("captain_id", captainId)
       .in(
         "opponent_army_id",
@@ -42,7 +42,12 @@ export async function getMatrixGrid(
     }
 
     for (const row of data) {
-      estimates[`${row.team_army_id}:${row.opponent_army_id}`] = scoreToBand(row.score);
+      const key = `${row.team_army_id}:${row.opponent_army_id}`;
+      if (row.is_purple) {
+        estimates[key] = "purple";
+      } else if (row.score !== null) {
+        estimates[key] = scoreToBand(row.score);
+      }
     }
   }
 
@@ -61,7 +66,7 @@ export async function upsertEstimate(
   captainId: string,
   teamArmyId: string,
   opponentArmyId: string,
-  band: ColorBand,
+  estimate: Estimate,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const team = await getTeamWithArmies(supabase, captainId);
   if (!team?.armies.some((army) => army.id === teamArmyId)) {
@@ -82,12 +87,13 @@ export async function upsertEstimate(
     return { ok: false, error: "That opponent army was not found" };
   }
 
-  const score = bandToScore(band);
+  const isPurple = estimate === "purple";
+  const score = isPurple ? null : bandToScore(estimate);
 
   const { error } = await supabase
     .from("pairing_matrix_estimates")
     .upsert(
-      { team_army_id: teamArmyId, opponent_army_id: opponentArmyId, score },
+      { team_army_id: teamArmyId, opponent_army_id: opponentArmyId, score, is_purple: isPurple },
       { onConflict: "team_army_id,opponent_army_id" },
     );
 

@@ -1,12 +1,12 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { upsertEstimate } from "@/lib/matrix";
-import { COLOR_BANDS, type ColorBand } from "@/lib/colorBands";
+import { COLOR_BANDS, type Estimate } from "@/lib/colorBands";
 
-const VALID_BANDS = new Set<string>(COLOR_BANDS.map((range) => range.band));
+const VALID_ESTIMATES = new Set<string>([...COLOR_BANDS.map((range) => range.band), "purple"]);
 
-function isColorBand(value: unknown): value is ColorBand {
-  return typeof value === "string" && VALID_BANDS.has(value);
+function isEstimate(value: unknown): value is Estimate {
+  return typeof value === "string" && VALID_ESTIMATES.has(value);
 }
 
 export const POST: APIRoute = async (context) => {
@@ -38,8 +38,8 @@ export const POST: APIRoute = async (context) => {
   if (typeof opponentArmyId !== "string" || !opponentArmyId) {
     return Response.json({ ok: false, error: "opponentArmyId is required" }, { status: 400 });
   }
-  if (!isColorBand(band)) {
-    return Response.json({ ok: false, error: "band must be a valid color band" }, { status: 400 });
+  if (!isEstimate(band)) {
+    return Response.json({ ok: false, error: "band must be a valid estimate" }, { status: 400 });
   }
 
   const result = await upsertEstimate(supabase, context.locals.user.id, teamArmyId, opponentArmyId, band);

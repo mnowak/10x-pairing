@@ -94,24 +94,27 @@ export type Database = {
         Row: {
           captain_id: string
           id: string
+          is_purple: boolean
           opponent_army_id: string
-          score: number
+          score: number | null
           team_army_id: string
           updated_at: string
         }
         Insert: {
           captain_id?: string
           id?: string
+          is_purple?: boolean
           opponent_army_id: string
-          score: number
+          score?: number | null
           team_army_id: string
           updated_at?: string
         }
         Update: {
           captain_id?: string
           id?: string
+          is_purple?: boolean
           opponent_army_id?: string
-          score?: number
+          score?: number | null
           team_army_id?: string
           updated_at?: string
         }

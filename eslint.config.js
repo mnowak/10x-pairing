@@ -65,6 +65,10 @@ const astroConfig = tseslint.config({
     "astro/no-set-html-directive": "error",
     "astro/no-unused-css-selector": "warn",
     "astro/prefer-class-list-directive": "warn",
+    // astro-eslint-parser doesn't give top-level frontmatter `return` statements a
+    // parent function node, which crashes this rule's return-statement check outright
+    // (reproduces even on `return 5;`) rather than reporting a false positive.
+    "@typescript-eslint/no-misused-promises": "off",
   },
 });
 

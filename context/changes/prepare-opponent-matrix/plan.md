@@ -263,6 +263,18 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 - Schema: `context/archive/2026-09-04-schema-teams-opponents-matrix/plan.md` (F-01, archived)
 - Domain source (superseded boundaries): `pairing-process-worksheet.md` §4
 
+## Addendum: purple estimate marker (2026-09-07, mid-Phase-3)
+
+Confirmed with the user during Phase 3 manual verification: a matrix cell needs a 6th pick, "purple," for a matchup deliberately judged too unpredictable to call — distinct from a blank/unestimated cell ("not yet assessed"). This reinstates and supersedes part of FR-004's 2026-09-06 reversal, which had folded "unpredictable" into "leave the pair unestimated" (see updated `prd.md` FR-004 Socratic note and `shape-notes.md`).
+
+This is a genuine, if small, schema change on top of F-01's already-production-migrated tables (the "No schema changes" line under Migration Notes above no longer holds):
+
+- New migration `supabase/migrations/20260907190708_add_purple_estimate_marker.sql`: `pairing_matrix_estimates.score` becomes nullable, adds `is_purple boolean not null default false`, plus a CHECK enforcing exactly one of `{score set, is_purple true}`. Applied and verified locally via `supabase db reset`; **not yet pushed to production** — that push needs the same explicit human-gated step F-01's Phase 4 used, not an automated one.
+- `src/lib/colorBands.ts` gains `Estimate = ColorBand | "purple"`, used in place of `ColorBand` by `src/lib/matrix.ts` (`getMatrixGrid`, `upsertEstimate`), `src/pages/api/matrix.ts`'s body validation, and `MatrixGrid.tsx`'s picker/legend (purple placed last, visually separated by a divider, per user confirmation).
+- Regenerated `src/db/database.types.ts` via `npm run db:types` to pick up the new column/nullability.
+
+Also: to get past an `astro-eslint-parser` + `@typescript-eslint/no-misused-promises` crash on any top-level `return <expr>;` in `.astro` frontmatter (reproduces even on `return 5;` — not specific to `Astro.redirect`), that rule is now disabled for `.astro` files in `eslint.config.js`, with a comment explaining why.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -277,25 +289,27 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes — 3142457
 
 #### Manual
 
-- [x] 2.2 Unauthenticated POST to `/api/matrix` returns 401 JSON, not a redirect
+- [x] 2.2 Unauthenticated POST to `/api/matrix` returns 401 JSON, not a redirect — 3142457
 
 ### Phase 3: UI
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes
 
 #### Manual
 
-- [ ] 3.2 Opponents list + create form shown for a captain with no opponents yet
-- [ ] 3.3 Creating an opponent lands on its detail page with correct roster and sized-correctly empty grid
-- [ ] 3.4 Picking a cell color saves without page reload and persists across reload
-- [ ] 3.5 Changing an already-picked cell updates in place (single row, not duplicated)
-- [ ] 3.6 Second opponent has an independent, empty grid
-- [ ] 3.7 Adding an army to an existing opponent adds a grid column
-- [ ] 3.8 Supabase Studio rows have the correct `captain_id`
-- [ ] 3.9 `dashboard.astro` links to `/dashboard/opponents`
+- [x] 3.2 Opponents list + create form shown for a captain with no opponents yet
+- [x] 3.3 Creating an opponent lands on its detail page with correct roster and sized-correctly empty grid
+- [x] 3.4 Picking a cell color saves without page reload and persists across reload
+- [x] 3.5 Changing an already-picked cell updates in place (single row, not duplicated)
+- [x] 3.6 Second opponent has an independent, empty grid
+- [x] 3.7 Adding an army to an existing opponent adds a grid column
+- [x] 3.8 Supabase Studio rows have the correct `captain_id`
+- [x] 3.9 `dashboard.astro` links to `/dashboard/opponents`
+- [x] 3.10 Picking purple on a cell saves and persists across reload, visually distinct from both a scored cell and a blank/unestimated cell
+- [x] 3.11 In Supabase Studio, a purple pick has `score = null`, `is_purple = true`; a scored pick has `is_purple = false` and a non-null score

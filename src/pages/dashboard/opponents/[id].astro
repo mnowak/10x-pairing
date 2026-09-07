@@ -1,0 +1,49 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import OpponentDetail from "@/components/opponent/OpponentDetail";
+import { createClient } from "@/lib/supabase";
+import { getOpponentWithArmies } from "@/lib/opponents";
+import { getMatrixGrid } from "@/lib/matrix";
+
+const { id } = Astro.params;
+let error = Astro.url.searchParams.get("error");
+const { user } = Astro.locals;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase || !user || !id) {
+  return Astro.redirect("/dashboard/opponents");
+}
+
+let opponent;
+try {
+  opponent = await getOpponentWithArmies(supabase, user.id, id);
+} catch {
+  return Astro.redirect(
+    `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
+  );
+}
+if (!opponent) {
+  return Astro.redirect("/dashboard/opponents");
+}
+
+const matrixGrid = await getMatrixGrid(supabase, user.id, id);
+if (!matrixGrid) {
+  return Astro.redirect(`/dashboard/team?error=${encodeURIComponent("Create your team before building a matrix")}`);
+}
+---
+
+<Layout title={opponent.name}>
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-4xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <h1
+        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
+      >
+        {opponent.name}
+      </h1>
+      <OpponentDetail opponent={opponent} matrixGrid={matrixGrid} serverError={error} client:load />
+      <p class="mt-4 text-center text-sm text-blue-100/60">
+        <a href="/dashboard/opponents" class="text-purple-300 hover:underline">← Back to opponents</a>
+      </p>
+    </div>
+  </div>
+</Layout>
