@@ -230,13 +230,13 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npx astro check` passes
+- [x] 3.1 `npm run lint` passes — 84065b2
+- [x] 3.2 `npx astro check` passes — 84065b2
 
 #### Manual
 
-- [x] 3.3 Zero-estimate army shows a 0 count in the confirm row on the team side
-- [x] 3.4 Non-zero-estimate army shows the correct count on the team side, and removal cascades in Supabase Studio
-- [x] 3.5 Cancel leaves everything untouched, no request sent
-- [x] 3.6 The same three checks (3.3-3.5) pass on an opponent's roster
-- [x] 3.7 Removing the last remaining army on either side succeeds, leaving an empty roster
+- [x] 3.3 Zero-estimate army shows a 0 count in the confirm row on the team side — 84065b2
+- [x] 3.4 Non-zero-estimate army shows the correct count on the team side, and removal cascades in Supabase Studio — 84065b2
+- [x] 3.5 Cancel leaves everything untouched, no request sent — 84065b2
+- [x] 3.6 The same three checks (3.3-3.5) pass on an opponent's roster — 84065b2
+- [x] 3.7 Removing the last remaining army on either side succeeds, leaving an empty roster — 84065b2
