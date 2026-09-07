@@ -271,17 +271,17 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with the new/changed files
+- [x] 1.1 `npm run lint` passes with the new/changed files — 2ba250c
 
 ### Phase 2: API routes
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.2 Unauthenticated POST to `/api/matrix` returns 401 JSON, not a redirect
+- [x] 2.2 Unauthenticated POST to `/api/matrix` returns 401 JSON, not a redirect
 
 ### Phase 3: UI
 
