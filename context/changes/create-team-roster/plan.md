@@ -239,24 +239,24 @@ No schema changes — this slice is pure application code on top of F-01's alrea
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes — 5c7db00
 
 #### Manual
 
-- [x] 2.2 Unauthenticated POST to `/api/teams` redirects to `/auth/signin`
+- [x] 2.2 Unauthenticated POST to `/api/teams` redirects to `/auth/signin` — 5c7db00
 
 ### Phase 3: UI
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes
 
 #### Manual
 
-- [ ] 3.2 Create form shows 5 empty army fields for a captain with no team
-- [ ] 3.3 Submitting creates a team with only the filled, non-duplicate army names
-- [ ] 3.4 Reloading shows the view, not the create form
-- [ ] 3.5 Add-army mini-form appends to the visible roster
-- [ ] 3.6 Duplicate army name shows a friendly error, not a raw DB error
-- [ ] 3.7 Supabase Studio rows have the correct `captain_id`
-- [ ] 3.8 `dashboard.astro` links to `/dashboard/team`
+- [x] 3.2 Create form shows 5 empty army fields for a captain with no team
+- [x] 3.3 Submitting creates a team with only the filled, non-duplicate army names
+- [x] 3.4 Reloading shows the view, not the create form
+- [x] 3.5 Add-army mini-form appends to the visible roster
+- [x] 3.6 Duplicate army name shows a friendly error, not a raw DB error
+- [x] 3.7 Supabase Studio rows have the correct `captain_id`
+- [x] 3.8 `dashboard.astro` links to `/dashboard/team`
