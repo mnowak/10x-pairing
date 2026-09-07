@@ -102,3 +102,51 @@ export async function addArmyToOpponent(
 
   return { army };
 }
+
+export async function removeArmyFromOpponent(
+  supabase: TypedSupabaseClient,
+  captainId: string,
+  opponentArmyId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { error } = await supabase
+    .from("opponent_armies")
+    .delete()
+    .eq("id", opponentArmyId)
+    .eq("captain_id", captainId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Batched estimate counts for a set of opponent armies, keyed by
+ * opponent_army_id. Mirrors getEstimateCountsForTeamArmies in teams.ts.
+ */
+export async function getEstimateCountsForOpponentArmies(
+  supabase: TypedSupabaseClient,
+  captainId: string,
+  opponentArmyIds: string[],
+): Promise<Record<string, number>> {
+  if (opponentArmyIds.length === 0) {
+    return {};
+  }
+
+  const { data, error } = await supabase
+    .from("pairing_matrix_estimates")
+    .select("opponent_army_id")
+    .eq("captain_id", captainId)
+    .in("opponent_army_id", opponentArmyIds);
+
+  if (error) {
+    throw error;
+  }
+
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    counts[row.opponent_army_id] = (counts[row.opponent_army_id] ?? 0) + 1;
+  }
+  return counts;
+}

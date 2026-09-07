@@ -44,7 +44,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | done |
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
-| S-04 | remove-team-army                  | remove an army from their team roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01           | FR-017                                                                 | proposed |
+| S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | in-progress |
 | S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | proposed |
 
 ## Baseline
@@ -94,7 +94,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Change ID:** prepare-opponent-matrix
 - **PRD refs:** FR-003, FR-004, FR-005, FR-006
 - **Prerequisites:** S-01, F-01
-- **Parallel with:** S-04 (both depend only on S-01, don't depend on each other)
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Numeric point input (0–20), with the color band derived for display, is the confirmed domain decision as of 2026-09-06 (PRD FR-004, `shape-notes.md`) — don't let this regress to storing a color enum directly.
@@ -115,15 +115,15 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-04: Remove an army from the roster
 
-- **Outcome:** captain can remove an army from their team roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.
+- **Outcome:** captain can remove an army from their team roster or from an opponent's roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.
 - **Change ID:** remove-team-army
-- **PRD refs:** FR-017
-- **Prerequisites:** S-01
-- **Parallel with:** S-02 (both depend only on S-01, don't depend on each other)
+- **PRD refs:** FR-017, FR-019
+- **Prerequisites:** S-01, S-02
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — the confirmation step is what keeps this from silently violating the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." The estimate-count in the confirmation is only meaningful once S-02 exists; until then it will always read zero, which is still correct, just less useful. Added 2026-09-07 — not in the original PRD; surfaced as a real gap once S-01 shipped without any removal path.
-- **Status:** proposed
+- **Risk:** F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — the confirmation step is what keeps this from silently violating the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." Added 2026-09-07 — not in the original PRD; surfaced as a real gap once S-01 shipped without any removal path. Widened 2026-09-07 (during `/10x-plan`) to also cover opponent-side removal (FR-019), which S-02's plan had explicitly deferred as a separate gap — bundled in now at the user's request rather than left dangling. Change ID kept as `remove-team-army` (already tracked as GitHub issue #5) despite the now-broader scope.
+- **Status:** in-progress
 
 ### S-05: Cap roster size at 5 armies
 
@@ -145,7 +145,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01       | create-team-roster               | Captain can create a team with a roster of armies                      | no                      | Waiting on F-01           |
 | S-02       | prepare-opponent-matrix          | Captain can prepare a pairing-matrix estimate against an opponent      | no                      | Waiting on S-01            |
 | S-03       | live-match-mode-session          | Captain can run a full live match-mode session                         | no                      | Waiting on S-02            |
-| S-04       | remove-team-army                 | Captain can remove an army from their roster                           | no                      | Waiting on S-01            |
+| S-04       | remove-team-army                 | Captain can remove an army from a team or opponent roster              | no                      | Waiting on S-01, S-02      |
 | S-05       | cap-roster-size                  | Cap team and opponent rosters at 5 armies                              | no                      | Waiting on S-01, S-02      |
 
 ## Open Roadmap Questions

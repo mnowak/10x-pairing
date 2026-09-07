@@ -95,3 +95,48 @@ export async function addArmyToTeam(
 
   return { army };
 }
+
+export async function removeArmyFromTeam(
+  supabase: TypedSupabaseClient,
+  captainId: string,
+  teamArmyId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { error } = await supabase.from("team_armies").delete().eq("id", teamArmyId).eq("captain_id", captainId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Batched estimate counts for a set of team armies, keyed by team_army_id.
+ * Grouped in application code (small roster sizes at this project's scale)
+ * rather than a DB-side aggregate — one query, not N+1.
+ */
+export async function getEstimateCountsForTeamArmies(
+  supabase: TypedSupabaseClient,
+  captainId: string,
+  teamArmyIds: string[],
+): Promise<Record<string, number>> {
+  if (teamArmyIds.length === 0) {
+    return {};
+  }
+
+  const { data, error } = await supabase
+    .from("pairing_matrix_estimates")
+    .select("team_army_id")
+    .eq("captain_id", captainId)
+    .in("team_army_id", teamArmyIds);
+
+  if (error) {
+    throw error;
+  }
+
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    counts[row.team_army_id] = (counts[row.team_army_id] ?? 0) + 1;
+  }
+  return counts;
+}
