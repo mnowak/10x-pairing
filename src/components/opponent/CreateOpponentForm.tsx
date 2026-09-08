@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/forms/SubmitButton";
 import { ServerError } from "@/components/forms/ServerError";
 import { MAX_ROSTER_SIZE } from "@/lib/rosterLimits";
 
-const DEFAULT_ARMY_FIELDS = 5;
+const DEFAULT_ARMY_FIELDS = MAX_ROSTER_SIZE;
 const MAX_NAME_LENGTH = 60;
 
 const armyInputClasses =
