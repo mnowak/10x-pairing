@@ -1,10 +1,10 @@
 ---
 change_id: remove-team-army
 title: Remove an army from a team or opponent roster
-status: impl_reviewed
+status: archived
 created: 2026-09-07
 updated: 2026-09-08
-archived_at: null
+archived_at: 2026-09-08T18:23:01Z
 ---
 
 ## Notes
