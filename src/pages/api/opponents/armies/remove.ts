@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { removeArmyFromOpponent } from "@/lib/opponents";
+import { getOpponentWithArmies, removeArmyFromOpponent } from "@/lib/opponents";
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
@@ -23,6 +23,18 @@ export const POST: APIRoute = async (context) => {
   }
   if (!opponentArmyId) {
     return context.redirect(`/dashboard/opponents/${opponentId}?error=${encodeURIComponent("Missing army to remove")}`);
+  }
+
+  let opponent;
+  try {
+    opponent = await getOpponentWithArmies(supabase, context.locals.user.id, opponentId);
+  } catch {
+    return context.redirect(
+      `/dashboard/opponents/${opponentId}?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
+    );
+  }
+  if (!opponent?.armies.some((army) => army.id === opponentArmyId)) {
+    return context.redirect(`/dashboard/opponents/${opponentId}?error=${encodeURIComponent("Army not found")}`);
   }
 
   const result = await removeArmyFromOpponent(supabase, context.locals.user.id, opponentArmyId);
