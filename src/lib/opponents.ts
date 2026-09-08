@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/db/database.types";
 import type { TeamsError } from "@/lib/teams";
+import { MAX_ROSTER_SIZE } from "@/lib/rosterLimits";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -60,6 +61,10 @@ export async function createOpponentWithArmies(
   name: string,
   armyNames: string[],
 ): Promise<{ opponent: Tables<"opponents"> } | { error: TeamsError }> {
+  if (armyNames.length > MAX_ROSTER_SIZE) {
+    return { error: { type: "unknown", message: `A roster can have at most ${MAX_ROSTER_SIZE} armies` } };
+  }
+
   const { data: opponent, error: opponentError } = await supabase.from("opponents").insert({ name }).select().single();
 
   if (opponentError) {
@@ -87,6 +92,20 @@ export async function addArmyToOpponent(
   opponentId: string,
   armyName: string,
 ): Promise<{ army: Tables<"opponent_armies"> } | { error: TeamsError }> {
+  const { count, error: countError } = await supabase
+    .from("opponent_armies")
+    .select("id", { count: "exact", head: true })
+    .eq("opponent_id", opponentId);
+
+  if (countError) {
+    return { error: { type: "unknown", message: countError.message } };
+  }
+  if (count !== null && count >= MAX_ROSTER_SIZE) {
+    return {
+      error: { type: "unknown", message: `That roster already has ${MAX_ROSTER_SIZE} armies — the maximum` },
+    };
+  }
+
   const { data: army, error } = await supabase
     .from("opponent_armies")
     .insert({ opponent_id: opponentId, name: armyName })

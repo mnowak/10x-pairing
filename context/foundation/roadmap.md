@@ -45,7 +45,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 | S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
-| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | proposed |
+| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | in-progress |
 
 ## Baseline
 
@@ -110,6 +110,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
+  - Added 2026-09-08 (during `/10x-plan` for S-05): entering live match-mode should validate that both the team and the selected opponent have exactly 5 armies before a session starts (matching S-05's cap) — not yet designed (e.g. what happens if either side has fewer than 5). Owner: user/team. Block: no.
 - **Risk:** Intentionally the largest slice — PRD's US-01 acceptance criteria treat the full two-sub-round sequence as one indivisible round-completion test (all 3 suggestion types plus the auto-paired refused attacker, in one Given/When/Then). Splitting by sub-round or by suggestion-type would produce a slice with no standalone captain-usable value and would be a horizontal, not vertical, cut. Given the 2-week after-hours budget and the 2026-09-13 deadline, this is also the slice most at risk of not landing in time — since it's the PRD's Primary Success Criterion, prefer descoping polish elsewhere before touching this.
 - **Status:** proposed
 
@@ -134,8 +135,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** S-03, S-04
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`, no schema change needed unless a DB-level `check` on roster count is also wanted (TBD at plan time). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction.
-- **Status:** proposed
+- **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`; app-layer enforcement only, no DB-level check (confirmed during `/10x-plan`, matches S-01's "one team per captain" precedent). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction. During planning (2026-09-08) the user raised captain-configurable roster size (PRD FR-016, parked) and explicitly deferred it — this slice stays a hardcoded 5.
+- **Status:** in-progress
 
 ## Backlog Handoff
 
