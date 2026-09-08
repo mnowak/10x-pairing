@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/forms/ServerError";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import type { TeamWithArmies } from "@/lib/teams";
+import { MAX_ROSTER_SIZE } from "@/lib/rosterLimits";
 
 const MAX_NAME_LENGTH = 60;
 
@@ -15,11 +16,17 @@ interface Props {
 export default function TeamView({ team, estimateCounts, serverError }: Props) {
   const [armyName, setArmyName] = useState("");
   const [confirmingArmyId, setConfirmingArmyId] = useState<string | null>(null);
+  const atCap = team.armies.length >= MAX_ROSTER_SIZE;
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-white">{team.name}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">{team.name}</h2>
+          <span className="text-xs text-blue-100/60">
+            {team.armies.length}/{MAX_ROSTER_SIZE} armies
+          </span>
+        </div>
         {team.armies.length === 0 ? (
           <p className="mt-2 text-sm text-blue-100/60">No armies yet — add your first one below.</p>
         ) : (
@@ -77,24 +84,30 @@ export default function TeamView({ team, estimateCounts, serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <form method="POST" action="/api/teams/armies" className="flex gap-2">
-        <input
-          id="army"
-          name="army"
-          value={armyName}
-          onChange={(e) => {
-            setArmyName(e.target.value);
-          }}
-          placeholder="Add an army"
-          maxLength={MAX_NAME_LENGTH}
-          className="min-w-0 flex-1 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none"
-        />
-        <div className="w-auto shrink-0">
-          <SubmitButton pendingText="Adding..." icon={<Plus className="size-4" />}>
-            Add
-          </SubmitButton>
-        </div>
-      </form>
+      {atCap ? (
+        <p className="text-sm text-blue-100/60">
+          Roster full ({MAX_ROSTER_SIZE}/{MAX_ROSTER_SIZE})
+        </p>
+      ) : (
+        <form method="POST" action="/api/teams/armies" className="flex gap-2">
+          <input
+            id="army"
+            name="army"
+            value={armyName}
+            onChange={(e) => {
+              setArmyName(e.target.value);
+            }}
+            placeholder="Add an army"
+            maxLength={MAX_NAME_LENGTH}
+            className="min-w-0 flex-1 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none"
+          />
+          <div className="w-auto shrink-0">
+            <SubmitButton pendingText="Adding..." icon={<Plus className="size-4" />}>
+              Add
+            </SubmitButton>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

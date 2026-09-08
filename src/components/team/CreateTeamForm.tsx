@@ -3,6 +3,7 @@ import { Shield, Plus, Trash2 } from "lucide-react";
 import { FormField } from "@/components/forms/FormField";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { ServerError } from "@/components/forms/ServerError";
+import { MAX_ROSTER_SIZE } from "@/lib/rosterLimits";
 
 const DEFAULT_ARMY_FIELDS = 5;
 const MAX_NAME_LENGTH = 60;
@@ -25,7 +26,7 @@ export default function CreateTeamForm({ serverError }: Props) {
   }
 
   function addArmyField() {
-    setArmies((prev) => [...prev, ""]);
+    setArmies((prev) => (prev.length < MAX_ROSTER_SIZE ? [...prev, ""] : prev));
   }
 
   function removeArmyField(index: number) {
@@ -76,7 +77,9 @@ export default function CreateTeamForm({ serverError }: Props) {
       />
 
       <div>
-        <p className="mb-1 block text-sm text-blue-100/80">Armies</p>
+        <p className="mb-1 block text-sm text-blue-100/80">
+          Armies ({armies.length}/{MAX_ROSTER_SIZE})
+        </p>
         <div className="space-y-2">
           {armies.map((army, index) => (
             <div key={index} className="flex gap-2">
@@ -106,13 +109,15 @@ export default function CreateTeamForm({ serverError }: Props) {
             </div>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={addArmyField}
-          className="mt-2 flex items-center gap-1 text-sm text-purple-300 hover:underline"
-        >
-          <Plus className="size-4" /> Add army
-        </button>
+        {armies.length < MAX_ROSTER_SIZE && (
+          <button
+            type="button"
+            onClick={addArmyField}
+            className="mt-2 flex items-center gap-1 text-sm text-purple-300 hover:underline"
+          >
+            <Plus className="size-4" /> Add army
+          </button>
+        )}
         {errors.armies && <p className="mt-1 text-xs text-red-300">{errors.armies}</p>}
       </div>
 

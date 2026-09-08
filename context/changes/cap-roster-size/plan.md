@@ -181,19 +181,19 @@ No schema changes — application-layer validation only, on top of F-01's existi
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with the new/changed files
+- [x] 1.1 `npm run lint` passes with the new/changed files — 0309c22
 
 ### Phase 2: UI
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npx astro check` passes
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npx astro check` passes
 
 #### Manual
 
-- [ ] 2.3 Create-team form hides "Add army" at 5 fields, counter reads "(5/5)"
-- [ ] 2.4 Team roster page shows "Roster full (5/5)" instead of the add-army mini-form at 5 armies
-- [ ] 2.5 A direct POST attempting a 6th army is rejected server-side with a clear message
-- [ ] 2.6 The same three checks (2.3-2.5) pass for an opponent's roster
-- [ ] 2.7 Removing an army down to 4 (via S-04) brings back the mini-form and updates the counter on both team and opponent sides
+- [x] 2.3 Create-team form hides "Add army" at 5 fields, counter reads "(5/5)"
+- [x] 2.4 Team roster page shows "Roster full (5/5)" instead of the add-army mini-form at 5 armies
+- [x] 2.5 A direct POST attempting a 6th army is rejected server-side with a clear message
+- [x] 2.6 The same three checks (2.3-2.5) pass for an opponent's roster
+- [x] 2.7 Removing an army down to 4 (via S-04) brings back the mini-form and updates the counter on both team and opponent sides
