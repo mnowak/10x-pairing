@@ -45,7 +45,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
 | S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
-| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | in-progress |
+| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | done |
 
 ## Baseline
 
@@ -136,7 +136,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`; app-layer enforcement only, no DB-level check (confirmed during `/10x-plan`, matches S-01's "one team per captain" precedent). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction. During planning (2026-09-08) the user raised captain-configurable roster size (PRD FR-016, parked) and explicitly deferred it — this slice stays a hardcoded 5.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -171,3 +171,4 @@ None — PRD had 0 Open Questions, and no cross-cutting questions surfaced durin
 - **S-01: create a team with a name and a roster of armies** — Archived 2026-09-07 → `context/archive/2026-09-06-create-team-roster/`. Lesson: —.
 - **S-02: captain can add an opponent team's roster and enter/edit a point estimate (integer, 0-20) against them — displayed as a derived color band, not stored as one — repeated for multiple different opponents ahead of a tournament.** — Archived 2026-09-07 → `context/archive/2026-09-07-prepare-opponent-matrix/`. Lesson: —.
 - **S-04: remove an army from their team roster or an opponent's roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.** — Archived 2026-09-08 → `context/archive/2026-09-07-remove-team-army/`. Lesson: —.
+- **S-05: captain is blocked (with a clear message) from adding a 6th army to our team roster or to any opponent's roster.** — Archived 2026-09-08 → `context/archive/2026-09-08-cap-roster-size/`. Lesson: —.

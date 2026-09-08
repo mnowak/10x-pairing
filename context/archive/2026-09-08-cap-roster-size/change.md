@@ -1,10 +1,10 @@
 ---
 change_id: cap-roster-size
 title: Cap team and opponent rosters at 5 armies
-status: impl_reviewed
+status: archived
 created: 2026-09-08
 updated: 2026-09-08
-archived_at: null
+archived_at: 2026-09-08T19:30:40Z
 ---
 
 ## Notes
