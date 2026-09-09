@@ -103,11 +103,12 @@ describe("removeArmyFromOpponent / getEstimateCountsForOpponentArmies — data-i
     );
     if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
     const opponentId = opponentResult.opponent.id;
-    const armyResult = await addArmyToOpponent(captainA, opponentId, "Zero Army");
-    if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
-    const opponentArmyId = armyResult.army.id;
 
     try {
+      const armyResult = await addArmyToOpponent(captainA, opponentId, "Zero Army");
+      if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
+      const opponentArmyId = armyResult.army.id;
+
       const counts = await getEstimateCountsForOpponentArmies(captainA, captainAId, [opponentArmyId]);
       expect(counts[opponentArmyId] ?? 0).toBe(0);
 
@@ -126,14 +127,19 @@ describe("removeArmyFromOpponent / getEstimateCountsForOpponentArmies — data-i
     );
     if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
     const opponentId = opponentResult.opponent.id;
-    const armyResult = await addArmyToOpponent(captainA, opponentId, "Multi Army");
-    if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
-    const opponentArmyId = armyResult.army.id;
 
-    const existingTeam = await getTeamWithArmies(captainA, captainAId);
-    if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
-
+    // Populated incrementally so a failure partway through setup only
+    // cleans up the team armies actually created — see this phase's
+    // impl-review F1.
+    const teamArmyIds: string[] = [];
     try {
+      const armyResult = await addArmyToOpponent(captainA, opponentId, "Multi Army");
+      if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
+      const opponentArmyId = armyResult.army.id;
+
+      const existingTeam = await getTeamWithArmies(captainA, captainAId);
+      if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
+
       // Two distinct team armies, since (team_army_id, opponent_army_id) is
       // unique — this is how two real estimate rows get created against the
       // one opponent army under test.
@@ -143,47 +149,41 @@ describe("removeArmyFromOpponent / getEstimateCountsForOpponentArmies — data-i
         `DataIntegrity TA1 ${crypto.randomUUID()}`,
       );
       if ("error" in teamArmyOneResult) throw new Error(describeSetupError(teamArmyOneResult.error));
+      teamArmyIds.push(teamArmyOneResult.army.id);
       const teamArmyTwoResult = await addArmyToTeam(
         captainA,
         existingTeam.id,
         `DataIntegrity TA2 ${crypto.randomUUID()}`,
       );
       if ("error" in teamArmyTwoResult) throw new Error(describeSetupError(teamArmyTwoResult.error));
+      teamArmyIds.push(teamArmyTwoResult.army.id);
 
-      try {
-        const estimateOne = await upsertEstimate(
-          captainA,
-          captainAId,
-          teamArmyOneResult.army.id,
-          opponentArmyId,
-          "green",
-        );
-        expect(estimateOne).toEqual({ ok: true });
-        const estimateTwo = await upsertEstimate(
-          captainA,
-          captainAId,
-          teamArmyTwoResult.army.id,
-          opponentArmyId,
-          "red",
-        );
-        expect(estimateTwo).toEqual({ ok: true });
+      const estimateOne = await upsertEstimate(
+        captainA,
+        captainAId,
+        teamArmyOneResult.army.id,
+        opponentArmyId,
+        "green",
+      );
+      expect(estimateOne).toEqual({ ok: true });
+      const estimateTwo = await upsertEstimate(captainA, captainAId, teamArmyTwoResult.army.id, opponentArmyId, "red");
+      expect(estimateTwo).toEqual({ ok: true });
 
-        const counts = await getEstimateCountsForOpponentArmies(captainA, captainAId, [opponentArmyId]);
-        expect(counts[opponentArmyId]).toBe(2);
+      const counts = await getEstimateCountsForOpponentArmies(captainA, captainAId, [opponentArmyId]);
+      expect(counts[opponentArmyId]).toBe(2);
 
-        const result = await removeArmyFromOpponent(captainA, captainAId, opponentArmyId);
-        expect(result).toEqual({ ok: true });
+      const result = await removeArmyFromOpponent(captainA, captainAId, opponentArmyId);
+      expect(result).toEqual({ ok: true });
 
-        const { data: remaining } = await captainA
-          .from("pairing_matrix_estimates")
-          .select("id")
-          .eq("opponent_army_id", opponentArmyId);
-        expect(remaining).toEqual([]);
-      } finally {
-        await captainA.from("team_armies").delete().eq("id", teamArmyOneResult.army.id);
-        await captainA.from("team_armies").delete().eq("id", teamArmyTwoResult.army.id);
-      }
+      const { data: remaining } = await captainA
+        .from("pairing_matrix_estimates")
+        .select("id")
+        .eq("opponent_army_id", opponentArmyId);
+      expect(remaining).toEqual([]);
     } finally {
+      for (const teamArmyId of teamArmyIds) {
+        await captainA.from("team_armies").delete().eq("id", teamArmyId);
+      }
       await cleanupOpponent(captainA, opponentId);
     }
   });
@@ -201,27 +201,34 @@ describe("removeArmyFromOpponent / getEstimateCountsForOpponentArmies — data-i
       );
       if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
       const opponentId = opponentResult.opponent.id;
-      const armyResult = await addArmyToOpponent(captainA, opponentId, "Stale Army");
-      if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
-      const opponentArmyId = armyResult.army.id;
 
-      const existingTeam = await getTeamWithArmies(captainA, captainAId);
-      if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
-
-      const teamArmyOneResult = await addArmyToTeam(
-        captainA,
-        existingTeam.id,
-        `DataIntegrity Stale TA1 ${crypto.randomUUID()}`,
-      );
-      if ("error" in teamArmyOneResult) throw new Error(describeSetupError(teamArmyOneResult.error));
-      const teamArmyTwoResult = await addArmyToTeam(
-        captainA,
-        existingTeam.id,
-        `DataIntegrity Stale TA2 ${crypto.randomUUID()}`,
-      );
-      if ("error" in teamArmyTwoResult) throw new Error(describeSetupError(teamArmyTwoResult.error));
-
+      // Populated incrementally so a failure partway through setup only
+      // cleans up the team armies actually created — see this phase's
+      // impl-review F1.
+      const teamArmyIds: string[] = [];
       try {
+        const armyResult = await addArmyToOpponent(captainA, opponentId, "Stale Army");
+        if ("error" in armyResult) throw new Error(describeSetupError(armyResult.error));
+        const opponentArmyId = armyResult.army.id;
+
+        const existingTeam = await getTeamWithArmies(captainA, captainAId);
+        if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
+
+        const teamArmyOneResult = await addArmyToTeam(
+          captainA,
+          existingTeam.id,
+          `DataIntegrity Stale TA1 ${crypto.randomUUID()}`,
+        );
+        if ("error" in teamArmyOneResult) throw new Error(describeSetupError(teamArmyOneResult.error));
+        teamArmyIds.push(teamArmyOneResult.army.id);
+        const teamArmyTwoResult = await addArmyToTeam(
+          captainA,
+          existingTeam.id,
+          `DataIntegrity Stale TA2 ${crypto.randomUUID()}`,
+        );
+        if ("error" in teamArmyTwoResult) throw new Error(describeSetupError(teamArmyTwoResult.error));
+        teamArmyIds.push(teamArmyTwoResult.army.id);
+
         const estimateOne = await upsertEstimate(
           captainA,
           captainAId,
@@ -261,8 +268,9 @@ describe("removeArmyFromOpponent / getEstimateCountsForOpponentArmies — data-i
           .eq("opponent_army_id", opponentArmyId);
         expect(remaining).toEqual([]);
       } finally {
-        await captainA.from("team_armies").delete().eq("id", teamArmyOneResult.army.id);
-        await captainA.from("team_armies").delete().eq("id", teamArmyTwoResult.army.id);
+        for (const teamArmyId of teamArmyIds) {
+          await captainA.from("team_armies").delete().eq("id", teamArmyId);
+        }
         await cleanupOpponent(captainA, opponentId);
       }
     });

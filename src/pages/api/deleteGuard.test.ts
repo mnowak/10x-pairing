@@ -15,7 +15,10 @@ import opponentsIndexSource from "./opponents/index.ts?raw";
 // removal. This guards only the two known "whole resource" route files
 // below (checked as source text, not by importing them, since importing
 // pulls in astro:env/server) — it does not scan for a hypothetical new
-// route file elsewhere.
+// route file elsewhere. It also only matches `export const/function DELETE`
+// — the convention every route file in this codebase uses — not other valid
+// ways to export a handler (e.g. `export { h as DELETE }`, a default-export
+// object). Revisit if that convention ever stops being consistent.
 const DELETE_EXPORT_PATTERN = /export\s+(const|function)\s+DELETE\b/;
 
 describe("no team-/opponent-level delete route exists", () => {

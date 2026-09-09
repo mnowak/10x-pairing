@@ -47,15 +47,16 @@ describe("removeArmyFromTeam / getEstimateCountsForTeamArmies — data-integrity
     if ("error" in addArmyResult) throw new Error(describeSetupError(addArmyResult.error));
     const teamArmyId = addArmyResult.army.id;
 
-    const opponentResult = await createOpponentWithArmies(
-      captainA,
-      `DataIntegrity Opponent ${crypto.randomUUID()}`,
-      [],
-    );
-    if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
-    const opponentId = opponentResult.opponent.id;
-
+    let opponentId: string | undefined;
     try {
+      const opponentResult = await createOpponentWithArmies(
+        captainA,
+        `DataIntegrity Opponent ${crypto.randomUUID()}`,
+        [],
+      );
+      if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
+      opponentId = opponentResult.opponent.id;
+
       // Two distinct opponent armies, since (team_army_id, opponent_army_id)
       // is unique — this is how two real estimate rows get created against
       // the one team army under test.
@@ -81,7 +82,7 @@ describe("removeArmyFromTeam / getEstimateCountsForTeamArmies — data-integrity
         .eq("team_army_id", teamArmyId);
       expect(remaining).toEqual([]);
     } finally {
-      await cleanupOpponent(captainA, opponentId);
+      if (opponentId) await cleanupOpponent(captainA, opponentId);
       await captainA.from("team_armies").delete().eq("id", teamArmyId);
     }
   });
@@ -102,15 +103,16 @@ describe("removeArmyFromTeam / getEstimateCountsForTeamArmies — data-integrity
       if ("error" in addArmyResult) throw new Error(describeSetupError(addArmyResult.error));
       const teamArmyId = addArmyResult.army.id;
 
-      const opponentResult = await createOpponentWithArmies(
-        captainA,
-        `DataIntegrity Stale Opponent ${crypto.randomUUID()}`,
-        [],
-      );
-      if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
-      const opponentId = opponentResult.opponent.id;
-
+      let opponentId: string | undefined;
       try {
+        const opponentResult = await createOpponentWithArmies(
+          captainA,
+          `DataIntegrity Stale Opponent ${crypto.randomUUID()}`,
+          [],
+        );
+        if ("error" in opponentResult) throw new Error(describeSetupError(opponentResult.error));
+        opponentId = opponentResult.opponent.id;
+
         const armyOneResult = await addArmyToOpponent(captainA, opponentId, "Tau");
         if ("error" in armyOneResult) throw new Error(describeSetupError(armyOneResult.error));
         const estimateOne = await upsertEstimate(captainA, captainAId, teamArmyId, armyOneResult.army.id, "yellow");
@@ -142,7 +144,7 @@ describe("removeArmyFromTeam / getEstimateCountsForTeamArmies — data-integrity
           .eq("team_army_id", teamArmyId);
         expect(remaining).toEqual([]);
       } finally {
-        await cleanupOpponent(captainA, opponentId);
+        if (opponentId) await cleanupOpponent(captainA, opponentId);
         await captainA.from("team_armies").delete().eq("id", teamArmyId);
       }
     });
