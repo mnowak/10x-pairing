@@ -284,20 +284,20 @@ Not applicable — this phase adds tests and test tooling only; no schema or dat
 
 #### Automated
 
-- [x] 3.1 `npx supabase start` succeeds locally
-- [x] 3.2 `npm test -- matrix` passes against the running local instance
-- [x] 3.3 `npm test -- opponents` passes against the running local instance
-- [x] 3.4 `npm run lint` passes
+- [x] 3.1 `npx supabase start` succeeds locally — 2345f8e
+- [x] 3.2 `npm test -- matrix` passes against the running local instance — 2345f8e
+- [x] 3.3 `npm test -- opponents` passes against the running local instance — 2345f8e
+- [x] 3.4 `npm run lint` passes — 2345f8e
 
 #### Manual
 
-- [ ] 3.5 Disabling each ownership check in turn makes the matching test fail, then restored
+- [x] 3.5 Disabling each ownership check in turn makes the matching test fail, then restored — 2345f8e
 
 ### Phase 4: Cookbook + Test-Plan Sync
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` passes
+- [x] 4.1 `npm run lint` passes
 
 #### Manual
 

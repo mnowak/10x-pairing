@@ -66,7 +66,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
-| 1 | Bootstrap + critical-path coverage | Stand up the test runner; prove the score↔band mapping and cross-captain write protection hold | #2, #3 | unit + integration | planned | `context/changes/testing-bootstrap-critical-path-coverage/` |
+| 1 | Bootstrap + critical-path coverage | Stand up the test runner; prove the score↔band mapping and cross-captain write protection hold | #2, #3 | unit + integration | complete | `context/changes/testing-bootstrap-critical-path-coverage/` |
 | 2 | Data-integrity coverage | Prove estimate loss can't happen silently through any current write path | #4, #5 | integration | not started | — |
 | 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | not started | — |
 | 4 | Quality-gates wiring | Lock the floor: wire the suite into CI; evaluate one AI-native layer only if it adds signal beyond Phases 1-3 | cross-cutting | gates | not started | — |
@@ -116,11 +116,29 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 1 (score↔band mapping pattern lands here).
+- Pure function, zero I/O — see `src/lib/colorBands.test.ts` for the pattern.
+  Use `it.each` to cover every boundary value (not just one representative
+  per band) plus round-trip and error-path cases. Source the expected
+  values from an independent oracle (a PRD/archived-plan doc, not the
+  implementation under test) — copying the implementation's own output as
+  "expected" produces a test that passes against a regression in that same
+  implementation.
 
 ### 6.2 Adding an integration test
 
-- TBD — see §3 Phase 1 (cross-captain ownership-check pattern lands here).
+- Real local Supabase, no mocking — see `src/lib/matrix.test.ts` /
+  `src/lib/opponents.test.ts` and the shared fixture at
+  `src/lib/testSupport/twoCaptains.ts`. Sign in as one of the two seeded
+  local captains (`supabase/seed.sql`) via `signInCaptain`, call the
+  domain-layer function under test directly (not through an Astro route),
+  and clean up only the top-level row your test created — child rows
+  cascade-delete per the schema. Pair an attack-path assertion with a
+  same-captain legitimate-write assertion so the test can't pass vacuously.
+  Note: `supabase/seed.sql`'s two captains need non-null
+  `confirmation_token`/`recovery_token`/`email_change_token_new`/
+  `email_change` — GoTrue can't scan a NULL there — already fixed (Phase 1)
+  so real password sign-in via the Auth API works; the original values were
+  fine for the file's direct-SQL RLS assertions, which never call GoTrue.
 
 ### 6.3 Adding an e2e test
 
