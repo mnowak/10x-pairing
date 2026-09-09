@@ -7,10 +7,16 @@
 -- this file to the LINKED REMOTE database too, seeding fake test users into production.
 -- Only `supabase db push` (migrations only, no seed) is safe against the linked project.
 
-insert into auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, aud, role)
+-- confirmation_token/recovery_token/email_change_token_new/email_change have
+-- no column default in this schema (unlike e.g. reauthentication_token,
+-- which defaults to '') — leaving them out of the INSERT leaves them NULL,
+-- which GoTrue's user scan cannot read ("Scan error ... converting NULL to
+-- string is unsupported"), breaking real password sign-in (though not the
+-- direct-SQL RLS assertions below, which never call GoTrue).
+insert into auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, aud, role, confirmation_token, recovery_token, email_change_token_new, email_change)
 values
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'captain-a@example.test', crypt('test-password', gen_salt('bf')), now(), now(), now(), 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'captain-b@example.test', crypt('test-password', gen_salt('bf')), now(), now(), now(), 'authenticated', 'authenticated')
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'captain-a@example.test', crypt('test-password', gen_salt('bf')), now(), now(), now(), 'authenticated', 'authenticated', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'captain-b@example.test', crypt('test-password', gen_salt('bf')), now(), now(), now(), 'authenticated', 'authenticated', '', '', '', '')
 on conflict (id) do nothing;
 
 -- Insert captain A's team while impersonating captain A.

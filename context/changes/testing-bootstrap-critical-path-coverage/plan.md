@@ -273,21 +273,21 @@ Not applicable — this phase adds tests and test tooling only; no schema or dat
 
 #### Automated
 
-- [x] 2.1 `npm test -- colorBands` passes
-- [x] 2.2 `npm run lint` passes
+- [x] 2.1 `npm test -- colorBands` passes — f6d945c
+- [x] 2.2 `npm run lint` passes — f6d945c
 
 #### Manual
 
-- [ ] 2.3 Hardcoded boundary/band pairs verified against the archived oracle, not `COLOR_BANDS`
+- [x] 2.3 Hardcoded boundary/band pairs verified against the archived oracle, not `COLOR_BANDS` — f6d945c
 
 ### Phase 3: Integration Tests — Cross-Captain Write Protection (Risk #3)
 
 #### Automated
 
-- [ ] 3.1 `npx supabase start` succeeds locally
-- [ ] 3.2 `npm test -- matrix` passes against the running local instance
-- [ ] 3.3 `npm test -- opponents` passes against the running local instance
-- [ ] 3.4 `npm run lint` passes
+- [x] 3.1 `npx supabase start` succeeds locally
+- [x] 3.2 `npm test -- matrix` passes against the running local instance
+- [x] 3.3 `npm test -- opponents` passes against the running local instance
+- [x] 3.4 `npm run lint` passes
 
 #### Manual
 
