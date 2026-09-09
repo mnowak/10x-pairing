@@ -200,21 +200,21 @@ Not applicable — this phase adds tests and documentation only; no schema or da
 
 #### Automated
 
-- [x] 1.1 `npx supabase start` succeeds locally
-- [x] 1.2 `npm test -- teams` passes against the running local instance
-- [x] 1.3 `npm test -- opponents` passes against the running local instance
-- [x] 1.4 `npm run lint` passes
+- [x] 1.1 `npx supabase start` succeeds locally — c75a670
+- [x] 1.2 `npm test -- teams` passes against the running local instance — c75a670
+- [x] 1.3 `npm test -- opponents` passes against the running local instance — c75a670
+- [x] 1.4 `npm run lint` passes — c75a670
 
 #### Manual
 
-- [ ] 1.5 Removing the concurrent-write step from each stale-count test makes it fail, then restored
+- [x] 1.5 Removing the concurrent-write step from each stale-count test makes it fail, then restored — c75a670
 
 ### Phase 2: Route-Level Regression Guard
 
 #### Automated
 
-- [ ] 2.1 `npm test -- deleteGuard` passes
-- [ ] 2.2 `npm run lint` passes
+- [x] 2.1 `npm test -- deleteGuard` passes
+- [x] 2.2 `npm run lint` passes
 
 #### Manual
 
