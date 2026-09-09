@@ -224,8 +224,8 @@ Not applicable — this phase adds tests and documentation only; no schema or da
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes — 7df021d
 
 #### Manual
 
-- [ ] 3.2 §6.4/§6.5 entries and the §7 Gap 1 bullet read as sufficient for a future contributor to follow unaided
+- [x] 3.2 §6.4/§6.5 entries and the §7 Gap 1 bullet read as sufficient for a future contributor to follow unaided — 7df021d
