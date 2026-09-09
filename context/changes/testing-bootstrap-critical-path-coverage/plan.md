@@ -297,8 +297,8 @@ Not applicable — this phase adds tests and test tooling only; no schema or dat
 
 #### Automated
 
-- [x] 4.1 `npm run lint` passes
+- [x] 4.1 `npm run lint` passes — c053a6e
 
 #### Manual
 
-- [ ] 4.2 §6.1/§6.2 entries read as sufficient for a future contributor to follow unaided
+- [x] 4.2 §6.1/§6.2 entries read as sufficient for a future contributor to follow unaided — c053a6e
