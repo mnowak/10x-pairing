@@ -261,20 +261,20 @@ Not applicable — this phase adds tests and test tooling only; no schema or dat
 
 #### Automated
 
-- [x] 1.1 `npm test` runs and the smoke test passes
-- [x] 1.2 `npm run lint` still passes
-- [x] 1.3 `npx astro sync && npm run build` still passes
+- [x] 1.1 `npm test` runs and the smoke test passes — 507d94f
+- [x] 1.2 `npm run lint` still passes — 507d94f
+- [x] 1.3 `npx astro sync && npm run build` still passes — 507d94f
 
 #### Manual
 
-- [ ] 1.4 `npm run test:watch` starts and re-runs the smoke test on save
+- [x] 1.4 `npm run test:watch` starts and re-runs the smoke test on save — 507d94f
 
 ### Phase 2: Unit Tests — Score↔Band Mapping (Risk #2)
 
 #### Automated
 
-- [ ] 2.1 `npm test -- colorBands` passes
-- [ ] 2.2 `npm run lint` passes
+- [x] 2.1 `npm test -- colorBands` passes
+- [x] 2.2 `npm run lint` passes
 
 #### Manual
 
