@@ -213,18 +213,18 @@ Not applicable — this phase adds tests and documentation only; no schema or da
 
 #### Automated
 
-- [x] 2.1 `npm test -- deleteGuard` passes
-- [x] 2.2 `npm run lint` passes
+- [x] 2.1 `npm test -- deleteGuard` passes — b6b4453
+- [x] 2.2 `npm run lint` passes — b6b4453
 
 #### Manual
 
-- [ ] 2.3 Test's scope-limitation comment confirmed accurate
+- [x] 2.3 Test's scope-limitation comment confirmed accurate — b6b4453
 
 ### Phase 3: Cookbook + Test-Plan Sync
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
+- [x] 3.1 `npm run lint` passes
 
 #### Manual
 

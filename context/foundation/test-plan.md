@@ -67,7 +67,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
 | 1 | Bootstrap + critical-path coverage | Stand up the test runner; prove the score↔band mapping and cross-captain write protection hold | #2, #3 | unit + integration | complete | `context/changes/testing-bootstrap-critical-path-coverage/` |
-| 2 | Data-integrity coverage | Prove estimate loss can't happen silently through any current write path | #4, #5 | integration | not started | — |
+| 2 | Data-integrity coverage | Prove estimate loss can't happen silently through any current write path | #4, #5 | integration | complete | `context/changes/data-integrity/` |
 | 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | not started | — |
 | 4 | Quality-gates wiring | Lock the floor: wire the suite into CI; evaluate one AI-native layer only if it adds signal beyond Phases 1-3 | cross-cutting | gates | not started | — |
 
@@ -146,11 +146,35 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.4 Adding a test for a new API endpoint
 
-- TBD — see §3 Phase 2 (write-path / cascade-delete integration pattern lands here).
+- Write-path / cascade-delete integration pattern — see `src/lib/teams.test.ts`
+  and `src/lib/opponents.test.ts`. Real local Supabase, independently-seeded
+  fixtures: to get N `pairing_matrix_estimates` rows referencing one army
+  under test, seed N *distinct* armies on the other side (the
+  `(team_army_id, opponent_army_id)` unique constraint means repeated writes
+  against the same pair just overwrite one row, not create N). Cover a
+  zero-estimate case and a multiple-estimate case for both the delete's
+  cascade correctness and the confirmation count's accuracy — assert the
+  count query and a follow-up read agree, rather than asserting the count
+  against itself.
 
 ### 6.5 Per-rollout-phase notes
 
-(Filled in as each phase lands.)
+- **Phase 2 (data-integrity):** two patterns worth reusing —
+  1. *Known-limitation labeling.* A test that pins an accepted, documented
+     gap (not a protection) lives in its own
+     `describe("known limitations (accepted, not a regression)", ...)` block
+     with a comment linking to the design decision that accepted it — see
+     the stale-count-reproduction tests in `src/lib/teams.test.ts` /
+     `src/lib/opponents.test.ts`. This keeps a passing suite from reading as
+     "fully protected" when part of it is deliberately documenting a gap.
+  2. *Testing a route file's exports without importing it.* An Astro API
+     route under `src/pages/api/` that (transitively) imports
+     `astro:env/server` cannot be imported directly in a Vitest test outside
+     Astro's own build pipeline — `Cannot find package 'astro:env/server'`.
+     When a test only needs to check a route file's shape (e.g. "does this
+     export a DELETE handler") rather than execute it, use a Vite `?raw`
+     import to get the file's source text without executing its imports —
+     see `src/pages/api/deleteGuard.test.ts`.
 
 ## 7. What We Deliberately Don't Test
 
@@ -158,6 +182,7 @@ Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
 contributors should respect these unless the underlying assumption changes.
 
 - **UI polish / styling (Tailwind classes, layout tweaks)** — visual only, not behavioral, low blast radius for a solo-captain MVP. Re-evaluate if the app grows a multi-person team or a design system that needs regression protection. (Source: Phase 2 interview Q5.)
+- **Server-side confirmation guard for army removal (Gap 1)** — `POST /api/teams/armies/remove` and `POST /api/opponents/armies/remove` have no server-side check that the captain actually saw/confirmed the estimate-loss warning; the guard exists only as client React state gating which form is rendered. A direct POST bypasses it. RLS and the explicit `captain_id` filters still prevent this from ever touching another captain's data — it's a self-skippable warning, not a security hole. Deliberately left untested and unfixed in Phase 2 (`context/changes/data-integrity/`): a meaningful test would need new Astro-route-level (cookie/session) test infrastructure this project doesn't have, and a lib-level test would be redundant with the cascade tests that already call `removeArmyFromTeam`/`removeArmyFromOpponent` directly. Re-evaluate if this ever needs closing — see `context/changes/data-integrity/research.md` for the full analysis.
 
 ## 8. Freshness Ledger
 
