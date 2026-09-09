@@ -2,15 +2,13 @@ import { beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { createOpponentWithArmies, removeArmyFromOpponent } from "@/lib/opponents";
-import { cleanupOpponent, describeSetupError, getCaptainId, signInCaptain } from "@/lib/testSupport/twoCaptains";
-
-async function getOpponentArmyId(client: SupabaseClient<Database>, opponentId: string): Promise<string> {
-  const { data, error } = await client.from("opponent_armies").select("id").eq("opponent_id", opponentId).single();
-  if (error) {
-    throw new Error(`Could not fetch the created opponent army: ${error.message}`);
-  }
-  return data.id;
-}
+import {
+  cleanupOpponent,
+  describeSetupError,
+  getCaptainId,
+  getOpponentArmyId,
+  signInCaptain,
+} from "@/lib/testSupport/twoCaptains";
 
 // Risk #3 (test-plan.md §2, row 3), defense-in-depth case: removeArmyFromOpponent's
 // `captain_id`-scoped delete must keep a captain's delete from ever touching

@@ -9,6 +9,7 @@ import {
   cleanupTeamArmy,
   describeSetupError,
   getCaptainId,
+  getOpponentArmyId,
   signInCaptain,
 } from "@/lib/testSupport/twoCaptains";
 
@@ -26,56 +27,59 @@ describe("upsertEstimate — cross-captain write protection (risk #3)", () => {
   let foreignOpponentId: string;
   let foreignOpponentArmyId: string;
 
+  // Populated incrementally during setup so a partial-failure cleanup (catch
+  // block below) and the normal afterAll cleanup only ever touch resources
+  // that actually got created — never a not-yet-assigned id.
+  const created: { teamArmyId?: string; ownOpponentId?: string; foreignOpponentId?: string } = {};
+
+  async function cleanupCreated(): Promise<void> {
+    if (created.teamArmyId) await cleanupTeamArmy(captainA, created.teamArmyId);
+    if (created.ownOpponentId) await cleanupOpponent(captainA, created.ownOpponentId);
+    if (created.foreignOpponentId) await cleanupOpponent(captainB, created.foreignOpponentId);
+  }
+
   beforeAll(async () => {
     captainA = await signInCaptain("a");
     captainB = await signInCaptain("b");
     captainAId = await getCaptainId(captainA);
 
-    // Captain A already has a seeded team (supabase/seed.sql). getTeamWithArmies
-    // always resolves to a captain's oldest team, so this test adds an army to
-    // that existing team rather than creating a second one that upsertEstimate
-    // (which calls getTeamWithArmies internally) would never actually resolve to.
-    const existingTeam = await getTeamWithArmies(captainA, captainAId);
-    if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
-    const addArmyResult = await addArmyToTeam(captainA, existingTeam.id, `Risk3 Army ${crypto.randomUUID()}`);
-    if ("error" in addArmyResult) throw new Error(describeSetupError(addArmyResult.error));
-    teamArmyId = addArmyResult.army.id;
+    try {
+      // Captain A already has a seeded team (supabase/seed.sql). getTeamWithArmies
+      // always resolves to a captain's oldest team, so this test adds an army to
+      // that existing team rather than creating a second one that upsertEstimate
+      // (which calls getTeamWithArmies internally) would never actually resolve to.
+      const existingTeam = await getTeamWithArmies(captainA, captainAId);
+      if (!existingTeam) throw new Error("Captain A has no seeded team — check supabase/seed.sql");
+      const addArmyResult = await addArmyToTeam(captainA, existingTeam.id, `Risk3 Army ${crypto.randomUUID()}`);
+      if ("error" in addArmyResult) throw new Error(describeSetupError(addArmyResult.error));
+      teamArmyId = addArmyResult.army.id;
+      created.teamArmyId = teamArmyId;
 
-    const ownOpponentResult = await createOpponentWithArmies(captainA, `Risk3 Opponent A ${crypto.randomUUID()}`, [
-      "Necrons",
-    ]);
-    if ("error" in ownOpponentResult) throw new Error(describeSetupError(ownOpponentResult.error));
-    ownOpponentId = ownOpponentResult.opponent.id;
-    const { data: ownOpponentArmy, error: ownOpponentArmyError } = await captainA
-      .from("opponent_armies")
-      .select("id")
-      .eq("opponent_id", ownOpponentId)
-      .single();
-    if (ownOpponentArmyError) {
-      throw new Error(`Could not fetch the created opponent army: ${ownOpponentArmyError.message}`);
-    }
-    ownOpponentArmyId = ownOpponentArmy.id;
+      const ownOpponentResult = await createOpponentWithArmies(captainA, `Risk3 Opponent A ${crypto.randomUUID()}`, [
+        "Necrons",
+      ]);
+      if ("error" in ownOpponentResult) throw new Error(describeSetupError(ownOpponentResult.error));
+      ownOpponentId = ownOpponentResult.opponent.id;
+      created.ownOpponentId = ownOpponentId;
+      ownOpponentArmyId = await getOpponentArmyId(captainA, ownOpponentId);
 
-    const foreignOpponentResult = await createOpponentWithArmies(captainB, `Risk3 Opponent B ${crypto.randomUUID()}`, [
-      "Orks",
-    ]);
-    if ("error" in foreignOpponentResult) throw new Error(describeSetupError(foreignOpponentResult.error));
-    foreignOpponentId = foreignOpponentResult.opponent.id;
-    const { data: foreignOpponentArmy, error: foreignOpponentArmyError } = await captainB
-      .from("opponent_armies")
-      .select("id")
-      .eq("opponent_id", foreignOpponentId)
-      .single();
-    if (foreignOpponentArmyError) {
-      throw new Error(`Could not fetch the created opponent army: ${foreignOpponentArmyError.message}`);
+      const foreignOpponentResult = await createOpponentWithArmies(
+        captainB,
+        `Risk3 Opponent B ${crypto.randomUUID()}`,
+        ["Orks"],
+      );
+      if ("error" in foreignOpponentResult) throw new Error(describeSetupError(foreignOpponentResult.error));
+      foreignOpponentId = foreignOpponentResult.opponent.id;
+      created.foreignOpponentId = foreignOpponentId;
+      foreignOpponentArmyId = await getOpponentArmyId(captainB, foreignOpponentId);
+    } catch (setupError) {
+      await cleanupCreated();
+      throw setupError;
     }
-    foreignOpponentArmyId = foreignOpponentArmy.id;
   });
 
   afterAll(async () => {
-    await cleanupTeamArmy(captainA, teamArmyId);
-    await cleanupOpponent(captainA, ownOpponentId);
-    await cleanupOpponent(captainB, foreignOpponentId);
+    await cleanupCreated();
   });
 
   it("accepts a write against the captain's own team army and opponent army", async () => {

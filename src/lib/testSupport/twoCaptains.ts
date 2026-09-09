@@ -89,3 +89,17 @@ export async function cleanupOpponent(client: SupabaseClient<Database>, opponent
 export function describeSetupError(error: TeamsError): string {
   return error.type === "duplicate_army" ? `"${error.name}" is already in the roster` : error.message;
 }
+
+/**
+ * Fetches the id of the single army under a freshly created opponent —
+ * every risk #3 integration test creates exactly one army per opponent, so
+ * this is always a single-row lookup. Shared by matrix.test.ts and
+ * opponents.test.ts rather than duplicated per file.
+ */
+export async function getOpponentArmyId(client: SupabaseClient<Database>, opponentId: string): Promise<string> {
+  const { data, error } = await client.from("opponent_armies").select("id").eq("opponent_id", opponentId).single();
+  if (error) {
+    throw new Error(`Could not fetch the created opponent army: ${error.message}`);
+  }
+  return data.id;
+}
