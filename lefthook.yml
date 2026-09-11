@@ -1,0 +1,7 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,jsx,ts,tsx,astro,mjs,cjs}"
+      run: npx eslint {staged_files}
+    typecheck:
+      run: npx astro check

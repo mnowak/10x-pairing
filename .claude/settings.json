@@ -25,5 +25,20 @@
     "deny": [
       "Bash(rm -rf *)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(cat | jq -r '.tool_input.file_path // empty'); [ -z \"$file\" ] && exit 0; case \"$file\" in *.ts|*.tsx|*.js|*.jsx|*.astro|*.mjs|*.cjs) out=$(npx --no-install eslint \"$file\" --fix 2>&1); code=$?; if [ $code -ne 0 ]; then echo \"$out\" >&2; exit 2; fi ;; esac",
+            "timeout": 30,
+            "statusMessage": "Lint-fixing edited file..."
+          }
+        ]
+      }
+    ]
   }
 }

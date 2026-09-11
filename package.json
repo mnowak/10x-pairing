@@ -3,6 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "prepare": "lefthook install",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -49,6 +50,7 @@
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "9.1.7",
+    "lefthook": "^2.1.12",
     "lint-staged": "^16.3.3",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "0.14.1",

@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error -- Vite's `?raw` suffix returns source text without
-// executing the module's imports, sidestepping `astro:env/server` (only
-// resolvable inside Astro's own build pipeline, not this test runtime).
+// Vite's `?raw` suffix returns source text without executing the module's
+// imports, sidestepping `astro:env/server` (only resolvable inside Astro's
+// own build pipeline, not this test runtime).
 import teamsIndexSource from "./teams/index.ts?raw";
-// @ts-expect-error -- see above
 import opponentsIndexSource from "./opponents/index.ts?raw";
 
 // Risk #4 (test-plan.md §2, row 4) forward-looking guard: no route deletes a

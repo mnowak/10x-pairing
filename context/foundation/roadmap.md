@@ -3,7 +3,7 @@ project: "Pairing Assistant"
 version: 1
 status: draft
 created: 2026-09-04
-updated: 2026-09-08
+updated: 2026-09-11
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -24,7 +24,7 @@ milestone_status: open
 
 - **Intent:** Ship the full must-have MVP — team/roster setup, opponent matrix preparation, and live match-mode with suggestions at all three decision points across both sub-rounds — so a captain can use Pairing Assistant end-to-end at a real tournament before the 2026-09-13 deadline.
 - **Source materials:** `context/foundation/prd.md` (v1)
-- **Done when:** F-01, S-01, S-02, S-03, S-04, and S-05 below are all `done`.
+- **Done when:** F-01, S-01, S-02, S-03, S-04, S-05, and S-06 below are all `done`.
 
 ## Vision recap
 
@@ -43,9 +43,10 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
 | S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | done |
 | S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
-| S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | proposed |
+| S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker (increment 1: random suggestions — see S-06) | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | in-progress |
 | S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
 | S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | done |
+| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | proposed |
 
 ## Baseline
 
@@ -102,17 +103,15 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-03: Run a live match-mode session
 
-- **Outcome:** captain can run a full live match-mode session against a prepared opponent matrix — pick defender, enter opponent's defender, get an attacker-pair suggestion, enter opponent's pick, repeat for sub-round 2, and get the final refused-attacker auto-paired — using only currently-available (uncommitted) armies at every step.
+- **Outcome:** captain can run a full live match-mode session against a prepared opponent matrix — pick defender, enter opponent's defender, get an attacker-pair suggestion, enter opponent's pick, repeat for sub-round 2, and get the final refused-attacker auto-paired — using only currently-available (uncommitted) armies at every step. **Increment 1 of 2** (split decided 2026-09-11 during `/10x-plan`): this slice delivers the full session mechanics with a random pick at each suggestion point, behind an interface S-06 later swaps for the real algorithm.
 - **Change ID:** live-match-mode-session
 - **PRD refs:** US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015
 - **Prerequisites:** S-02
 - **Parallel with:** —
 - **Blockers:** —
-- **Unknowns:**
-  - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
-  - Added 2026-09-08 (during `/10x-plan` for S-05): entering live match-mode should validate that both the team and the selected opponent have exactly 5 armies before a session starts (matching S-05's cap) — not yet designed (e.g. what happens if either side has fewer than 5). Owner: user/team. Block: no.
-- **Risk:** Intentionally the largest slice — PRD's US-01 acceptance criteria treat the full two-sub-round sequence as one indivisible round-completion test (all 3 suggestion types plus the auto-paired refused attacker, in one Given/When/Then). Splitting by sub-round or by suggestion-type would produce a slice with no standalone captain-usable value and would be a horizontal, not vertical, cut. Given the 2-week after-hours budget and the 2026-09-13 deadline, this is also the slice most at risk of not landing in time — since it's the PRD's Primary Success Criterion, prefer descoping polish elsewhere before touching this.
-- **Status:** proposed
+- **Unknowns:** — (both prior unknowns resolved during `/10x-plan`, 2026-09-11: the scoring-formula question moved to S-06, which now owns it; the exactly-5-roster gate is designed and delivered by this slice's own plan, `context/changes/live-match-mode-session/plan.md` Phase 3.)
+- **Risk:** PRD's US-01 acceptance criteria treat the full two-sub-round sequence as one indivisible round-completion test (all 3 suggestion types plus the auto-paired refused attacker, in one Given/When/Then) — splitting by sub-round or by suggestion-type would produce a slice with no standalone captain-usable value, a horizontal cut. Splitting off the *scoring algorithm* into S-06 is a different kind of cut — it keeps this slice's mechanics vertical and captain-usable (with a placeholder suggestion quality), while removing this slice's single largest source of risk (the previously-unpinned formula). Given the 2-week after-hours budget and the 2026-09-13 deadline, this reduces (but does not eliminate) the risk of not landing in time.
+- **Status:** in-progress
 
 ### S-04: Remove an army from the roster
 
@@ -138,6 +137,19 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`; app-layer enforcement only, no DB-level check (confirmed during `/10x-plan`, matches S-01's "one team per captain" precedent). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction. During planning (2026-09-08) the user raised captain-configurable roster size (PRD FR-016, parked) and explicitly deferred it — this slice stays a hardcoded 5.
 - **Status:** done
 
+### S-06: Real scoring for live match-mode suggestions
+
+- **Outcome:** captain's live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup estimate together with the downstream refused-attacker impact, replacing the random pick S-03 uses for increment 1.
+- **Change ID:** live-match-recommender
+- **PRD refs:** FR-008, FR-010, FR-013
+- **Prerequisites:** S-03 (specifically its `MatchSuggestionProvider` interface, `src/lib/matchSuggestions.ts`)
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
+- **Risk:** Carries the one unknown split off from S-03 during that slice's planning (2026-09-11) — the exact scoring formula still isn't pinned down anywhere, only its qualitative shape. Deliberately sequenced after S-03 so this slice swaps a suggestion-provider implementation behind an already-built, already-tested state machine, rather than building suggestion logic and session mechanics together.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                      | Suggested issue title                                              | Ready for `/10x-plan` | Notes                    |
@@ -145,13 +157,14 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01       | schema-teams-opponents-matrix    | Design team/opponent/pairing-matrix schema with RLS                    | yes                     | —                         |
 | S-01       | create-team-roster               | Captain can create a team with a roster of armies                      | no                      | Waiting on F-01           |
 | S-02       | prepare-opponent-matrix          | Captain can prepare a pairing-matrix estimate against an opponent      | no                      | Waiting on S-01            |
-| S-03       | live-match-mode-session          | Captain can run a full live match-mode session                         | no                      | Waiting on S-02            |
+| S-03       | live-match-mode-session          | Captain can run a full live match-mode session (increment 1: mechanics, random suggestions) | no | Waiting on S-02 |
 | S-04       | remove-team-army                 | Captain can remove an army from a team or opponent roster              | no                      | Waiting on S-01, S-02      |
 | S-05       | cap-roster-size                  | Cap team and opponent rosters at 5 armies                              | no                      | Waiting on S-01, S-02      |
+| S-06       | live-match-recommender           | Live match-mode suggestions use the real scoring algorithm             | no                      | Waiting on S-03            |
 
 ## Open Roadmap Questions
 
-None — PRD had 0 Open Questions, and no cross-cutting questions surfaced during roadmap framing. (S-03 carries one slice-local, non-blocking Unknown — see above.)
+None — PRD had 0 Open Questions, and no cross-cutting questions surfaced during roadmap framing. (S-06 carries one slice-local, non-blocking Unknown — see above.)
 
 ## Parked
 
