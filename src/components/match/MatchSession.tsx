@@ -11,7 +11,7 @@ import {
   enterTheirPick,
   type MatchSessionState,
 } from "@/lib/matchSessionEngine";
-import { randomSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
+import { minimaxSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
 import { loadSession, saveSession, clearSession } from "@/lib/matchSessionStorage";
 import MatchMatrix from "@/components/match/MatchMatrix";
 
@@ -187,7 +187,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
   // render — matchSessionStorage's globalThis.localStorage read is safe
   // here and never runs during SSR.
   const [state, setState] = useState<MatchSessionState>(
-    () => loadSession(opponentId) ?? createSession(ourArmyIds, theirArmyIds, randomSuggestionProvider, matrixGrid),
+    () => loadSession(opponentId) ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
   );
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
 
   function restart() {
     clearSession();
-    setState(createSession(ourArmyIds, theirArmyIds, randomSuggestionProvider, matrixGrid));
+    setState(createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid));
   }
 
   const suggestedSingle = typeof state.suggested === "string" ? state.suggested : null;
@@ -280,7 +280,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
           suggested={null}
           nameById={nameById}
           onPick={(id) => {
-            setState(enterTheirDefender(state, id, randomSuggestionProvider, matrixGrid));
+            setState(enterTheirDefender(state, id, minimaxSuggestionProvider, matrixGrid));
           }}
         />
       )}
@@ -313,7 +313,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
           suggested={null}
           nameById={nameById}
           onConfirm={(pair) => {
-            setState(enterTheirAttackerPair(state, pair, randomSuggestionProvider, matrixGrid));
+            setState(enterTheirAttackerPair(state, pair, minimaxSuggestionProvider, matrixGrid));
           }}
         />
       )}
@@ -324,7 +324,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
           suggested={suggestedSingle}
           nameById={nameById}
           onPick={(id) => {
-            setState(confirmOurAccept(state, id, randomSuggestionProvider, matrixGrid));
+            setState(confirmOurAccept(state, id, minimaxSuggestionProvider, matrixGrid));
           }}
         />
       )}

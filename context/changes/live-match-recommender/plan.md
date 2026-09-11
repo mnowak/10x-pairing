@@ -179,25 +179,25 @@ None — no database schema changes, no data migration. This change only replace
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npx vitest run src/lib/matchSuggestions.test.ts src/lib/matchSessionEngine.test.ts`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npx vitest run src/lib/matchSuggestions.test.ts src/lib/matchSessionEngine.test.ts` — 488a134
+- [x] 1.2 Type checking passes: `npx astro check` — 488a134
+- [x] 1.3 Linting passes: `npm run lint` — 488a134
 
 #### Manual
 
-- [x] 1.4 Hand-verified at least 2 unit-test scenarios against the algorithm description
+- [x] 1.4 Hand-verified at least 2 unit-test scenarios against the algorithm description — 488a134
 
 ### Phase 2: Production wiring and cleanup
 
 #### Automated
 
-- [ ] 2.1 No remaining references: `grep -r randomSuggestionProvider src/` returns nothing
-- [ ] 2.2 Full unit suite passes: `npx vitest run`
-- [ ] 2.3 Type checking passes: `npx astro check`
-- [ ] 2.4 Linting passes: `npm run lint`
-- [ ] 2.5 Build succeeds: `npm run build`
-- [ ] 2.6 Existing E2E suite passes unmodified: `npx playwright test`
+- [x] 2.1 No remaining references: `grep -r randomSuggestionProvider src/` returns nothing
+- [x] 2.2 Full unit suite passes: `npx vitest run`
+- [x] 2.3 Type checking passes: `npx astro check`
+- [x] 2.4 Linting passes: `npm run lint`
+- [x] 2.5 Build succeeds: `npm run build`
+- [x] 2.6 Existing E2E suite passes unmodified: `npx playwright test`
 
 #### Manual
 
-- [ ] 2.7 Full 5-vs-5 walkthrough — suggestions are defensible at all 3 decision points, session completes correctly
+- [x] 2.7 Full 5-vs-5 walkthrough — suggestions are defensible at all 3 decision points, session completes correctly

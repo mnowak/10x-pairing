@@ -270,31 +270,3 @@ export const minimaxSuggestionProvider: MatchSuggestionProvider = {
   suggestAcceptedAttacker: (ourDefender, theirOfferedPair, ourAvailable, theirAvailable, matrixGrid) =>
     bestOurAccept(ourDefender, theirOfferedPair, ourAvailable, theirAvailable, matrixGrid),
 };
-
-function pickRandom<T>(items: readonly T[]): T {
-  if (items.length === 0) {
-    throw new Error("Cannot pick a suggestion from an empty list of available armies");
-  }
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function pickTwoDistinct(items: readonly ArmyId[]): [ArmyId, ArmyId] {
-  if (items.length < 2) {
-    throw new Error("Need at least 2 available armies to offer an attacker pair");
-  }
-  const first = pickRandom(items);
-  const second = pickRandom(items.filter((id) => id !== first));
-  return [first, second];
-}
-
-/**
- * Increment 1's placeholder suggestion logic — kept only until Phase 2 of
- * this change swaps `MatchSession.tsx` over to `minimaxSuggestionProvider`
- * and removes this, so the project stays fully green after every phase
- * rather than breaking mid-change.
- */
-export const randomSuggestionProvider: MatchSuggestionProvider = {
-  suggestDefender: (ourAvailable) => pickRandom(ourAvailable),
-  suggestAttackerPair: (ourAvailable) => pickTwoDistinct(ourAvailable),
-  suggestAcceptedAttacker: (_ourDefender, theirOfferedPair) => pickRandom(theirOfferedPair),
-};
