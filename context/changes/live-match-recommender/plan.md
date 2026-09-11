@@ -191,13 +191,13 @@ None — no database schema changes, no data migration. This change only replace
 
 #### Automated
 
-- [x] 2.1 No remaining references: `grep -r randomSuggestionProvider src/` returns nothing
-- [x] 2.2 Full unit suite passes: `npx vitest run`
-- [x] 2.3 Type checking passes: `npx astro check`
-- [x] 2.4 Linting passes: `npm run lint`
-- [x] 2.5 Build succeeds: `npm run build`
-- [x] 2.6 Existing E2E suite passes unmodified: `npx playwright test`
+- [x] 2.1 No remaining references: `grep -r randomSuggestionProvider src/` returns nothing — 6a5a45c
+- [x] 2.2 Full unit suite passes: `npx vitest run` — 6a5a45c
+- [x] 2.3 Type checking passes: `npx astro check` — 6a5a45c
+- [x] 2.4 Linting passes: `npm run lint` — 6a5a45c
+- [x] 2.5 Build succeeds: `npm run build` — 6a5a45c
+- [x] 2.6 Existing E2E suite passes unmodified: `npx playwright test` — 6a5a45c
 
 #### Manual
 
-- [x] 2.7 Full 5-vs-5 walkthrough — suggestions are defensible at all 3 decision points, session completes correctly
+- [x] 2.7 Full 5-vs-5 walkthrough — suggestions are defensible at all 3 decision points, session completes correctly — 6a5a45c
