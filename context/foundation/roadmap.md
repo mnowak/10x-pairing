@@ -46,7 +46,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker (increment 1: random suggestions — see S-06) | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | done |
 | S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
 | S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | done |
-| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | proposed |
+| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | in-progress |
 
 ## Baseline
 
@@ -148,7 +148,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
 - **Risk:** Carries the one unknown split off from S-03 during that slice's planning (2026-09-11) — the exact scoring formula still isn't pinned down anywhere, only its qualitative shape. Deliberately sequenced after S-03 so this slice swaps a suggestion-provider implementation behind an already-built, already-tested state machine, rather than building suggestion logic and session mechanics together.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Backlog Handoff
 

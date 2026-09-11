@@ -113,11 +113,16 @@ export function enterTheirDefender(
 
   const theirAvailable = withoutArmy(state.theirAvailable, revealed);
 
+  const ourDefender = state.working.ourDefender;
+  if (!ourDefender) {
+    throw new Error("Our defender must be set before entering their defender");
+  }
+
   return {
     ...state,
     theirAvailable,
     phase: "our-attacker-pair",
-    suggested: provider.suggestAttackerPair(state.ourAvailable, revealed, matrixGrid),
+    suggested: provider.suggestAttackerPair(state.ourAvailable, revealed, theirAvailable, ourDefender, matrixGrid),
     working: { ...state.working, theirDefender: revealed },
   };
 }
@@ -173,7 +178,13 @@ export function enterTheirAttackerPair(
   return {
     ...state,
     phase: "our-accept",
-    suggested: provider.suggestAcceptedAttacker(ourDefender, offeredPair, state.ourAvailable, matrixGrid),
+    suggested: provider.suggestAcceptedAttacker(
+      ourDefender,
+      offeredPair,
+      state.ourAvailable,
+      state.theirAvailable,
+      matrixGrid,
+    ),
     working: { ...state.working, theirOfferedPair: offeredPair },
   };
 }
