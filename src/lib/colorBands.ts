@@ -39,3 +39,15 @@ export function bandToScore(band: ColorBand): number {
   }
   return match.representativeScore;
 }
+
+// Shared Tailwind swatch classes for rendering an Estimate as a color —
+// single source of truth for both the editable matrix-prep grid and any
+// read-only matrix visualization (e.g. live match-mode's decision aid).
+export const BAND_SWATCH_CLASSES: Record<Estimate, string> = {
+  red: "bg-red-500",
+  orange: "bg-orange-500",
+  yellow: "bg-yellow-400",
+  green: "bg-green-500",
+  "dark-green": "bg-emerald-800",
+  purple: "bg-purple-600",
+};

@@ -26,9 +26,17 @@ export default function OpponentDetail({ opponent, matrixGrid, estimateCounts, s
       <div>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">{opponent.name}</h2>
-          <span className="text-xs text-blue-100/60">
-            {opponent.armies.length}/{MAX_ROSTER_SIZE} armies
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-blue-100/60">
+              {opponent.armies.length}/{MAX_ROSTER_SIZE} armies
+            </span>
+            <a
+              href={`/dashboard/opponents/${opponent.id}/match`}
+              className="rounded-lg bg-purple-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-purple-500"
+            >
+              Start match mode
+            </a>
+          </div>
         </div>
         {opponent.armies.length === 0 ? (
           <p className="mt-2 text-sm text-blue-100/60">No armies yet — add the first one below.</p>

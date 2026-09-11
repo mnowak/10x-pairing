@@ -1,20 +1,11 @@
 import { useState } from "react";
-import { COLOR_BANDS, type Estimate } from "@/lib/colorBands";
+import { BAND_SWATCH_CLASSES, COLOR_BANDS, type Estimate } from "@/lib/colorBands";
 import type { MatrixGridData } from "@/lib/matrix";
 
 interface Props {
   opponentId: string;
   grid: MatrixGridData;
 }
-
-const BAND_SWATCH_CLASSES: Record<Estimate, string> = {
-  red: "bg-red-500",
-  orange: "bg-orange-500",
-  yellow: "bg-yellow-400",
-  green: "bg-green-500",
-  "dark-green": "bg-emerald-800",
-  purple: "bg-purple-600",
-};
 
 function cellKey(teamArmyId: string, opponentArmyId: string): string {
   return `${teamArmyId}:${opponentArmyId}`;
