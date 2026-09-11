@@ -45,6 +45,18 @@ function runSubRound(
   return next;
 }
 
+describe("createSession — roster validation", () => {
+  it("throws when rosters are unequal in size", () => {
+    expect(() => createSession(["o1", "o2"], ["t1"], firstAvailableProvider, emptyGrid)).toThrow(
+      /equal, non-empty rosters/,
+    );
+  });
+
+  it("throws when a roster is empty", () => {
+    expect(() => createSession([], [], firstAvailableProvider, emptyGrid)).toThrow(/equal, non-empty rosters/);
+  });
+});
+
 describe("matchSessionEngine — full 5-vs-5 walkthrough", () => {
   it("runs two sub-rounds and auto-pairs the final refused attacker", () => {
     let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);

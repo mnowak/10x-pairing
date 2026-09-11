@@ -261,6 +261,11 @@ function continueOrFinish(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matr
  * decision points, assume worst-case (minimize) at every point the opponent
  * controls. The remaining decision tree is always small enough (at most 5
  * armies per side) for this to be exact, not a heuristic approximation.
+ *
+ * Cost grows with n²·m²·C(n,2)·C(m,2) per sub-round — trivial at today's
+ * 5-per-side cap (`MAX_ROSTER_SIZE` in rosterLimits.ts), but not exact-search
+ * friendly indefinitely; revisit (memoization, pruning, or a different
+ * algorithm) if that cap is ever raised (see PRD FR-016).
  */
 export const minimaxSuggestionProvider: MatchSuggestionProvider = {
   suggestDefender: (ourAvailable, theirAvailable, matrixGrid) =>

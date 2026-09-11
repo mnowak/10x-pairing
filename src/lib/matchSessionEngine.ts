@@ -67,12 +67,26 @@ function assertDistinctAvailablePair(pair: [ArmyId, ArmyId], list: ArmyId[], lab
   assertAvailable(list, b, label);
 }
 
+// The minimax search in matchSuggestions.ts assumes equal, non-empty rosters
+// that shrink in lockstep — an invariant this engine must guarantee, since the
+// search itself has no way to detect a violation (Math.max/min over an empty
+// candidate set silently returns -Infinity/Infinity instead of throwing).
+function assertValidRosters(ourArmies: ArmyId[], theirArmies: ArmyId[]): void {
+  if (ourArmies.length === 0 || ourArmies.length !== theirArmies.length) {
+    throw new Error(
+      `Match session requires equal, non-empty rosters on both sides (got ${ourArmies.length} of ours vs ${theirArmies.length} of theirs)`,
+    );
+  }
+}
+
 export function createSession(
   ourArmies: ArmyId[],
   theirArmies: ArmyId[],
   provider: MatchSuggestionProvider,
   matrixGrid: MatrixGridData,
 ): MatchSessionState {
+  assertValidRosters(ourArmies, theirArmies);
+
   return {
     ourAvailable: [...ourArmies],
     theirAvailable: [...theirArmies],
