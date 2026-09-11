@@ -1,10 +1,10 @@
 ---
 change_id: live-match-mode-session
 title: Live match mode session
-status: impl_reviewed
+status: archived
 created: 2026-09-11
 updated: 2026-09-11
-archived_at: null
+archived_at: 2026-09-11T19:14:43Z
 ---
 
 ## Notes
