@@ -1,7 +1,7 @@
 ---
 change_id: live-match-mode-session
 title: Live match mode session
-status: implementing
+status: implemented
 created: 2026-09-11
 updated: 2026-09-11
 archived_at: null
