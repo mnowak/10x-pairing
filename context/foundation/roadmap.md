@@ -46,7 +46,7 @@ During the live pairing process at the start of each round in a Warhammer 40k te
 | S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker (increment 1: random suggestions — see S-06) | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | done |
 | S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
 | S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | done |
-| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | in-progress |
+| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | done |
 
 ## Baseline
 
@@ -148,7 +148,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
 - **Risk:** Carries the one unknown split off from S-03 during that slice's planning (2026-09-11) — the exact scoring formula still isn't pinned down anywhere, only its qualitative shape. Deliberately sequenced after S-03 so this slice swaps a suggestion-provider implementation behind an already-built, already-tested state machine, rather than building suggestion logic and session mechanics together.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -186,3 +186,4 @@ None — PRD had 0 Open Questions, and no cross-cutting questions surfaced durin
 - **S-04: remove an army from their team roster or an opponent's roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.** — Archived 2026-09-08 → `context/archive/2026-09-07-remove-team-army/`. Lesson: —.
 - **S-05: captain is blocked (with a clear message) from adding a 6th army to our team roster or to any opponent's roster.** — Archived 2026-09-08 → `context/archive/2026-09-08-cap-roster-size/`. Lesson: —.
 - **S-03: captain can run a full live match-mode session against a prepared opponent matrix — pick defender, enter opponent's defender, get an attacker-pair suggestion, enter opponent's pick, repeat for sub-round 2, and get the final refused-attacker auto-paired — using only currently-available (uncommitted) armies at every step. Increment 1 of 2: this slice delivers the full session mechanics with a random pick at each suggestion point, behind an interface S-06 later swaps for the real algorithm.** — Archived 2026-09-11 → `context/archive/2026-09-11-live-match-mode-session/`. Lesson: —.
+- **S-06: captain's live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup estimate together with the downstream refused-attacker impact, replacing the random pick S-03 uses for increment 1.** — Archived 2026-09-11 → `context/archive/2026-09-11-live-match-recommender/`. Lesson: —.
