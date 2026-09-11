@@ -252,33 +252,33 @@ None — no database schema changes in this increment.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npx vitest run src/lib/matchSessionStorage.test.ts`
-- [x] 2.2 Type checking passes: `npx astro check`
-- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.1 Unit tests pass: `npx vitest run src/lib/matchSessionStorage.test.ts` — f64041c
+- [x] 2.2 Type checking passes: `npx astro check` — f64041c
+- [x] 2.3 Linting passes: `npm run lint` — f64041c
 
 #### Manual
 
-- [x] 2.4 Refresh mid-session resumes correctly
-- [x] 2.5 Starting a session for a new opponent discards a stale one
+- [x] 2.4 Refresh mid-session resumes correctly — f64041c
+- [x] 2.5 Starting a session for a new opponent discards a stale one — f64041c
 
 ### Phase 3: UI
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx astro check`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Build succeeds: `npm run build`
+- [x] 3.1 Type checking passes: `npx astro check` — f64041c
+- [x] 3.2 Linting passes: `npm run lint` — f64041c
+- [x] 3.3 Build succeeds: `npm run build` — f64041c
 
 #### Manual
 
-- [x] 3.4 Full 5-vs-5 two-sub-round walkthrough produces a correct final summary
-- [x] 3.5 Exactly-5 gate blocks with a clear message on an incomplete roster
-- [x] 3.6 Suggestion highlighted and overridable at each of the 3 decision points
-- [x] 3.7 Abandon & restart clears the session
-- [x] 3.8 Session continues to work with network disabled after initial load
+- [x] 3.4 Full 5-vs-5 two-sub-round walkthrough produces a correct final summary — f64041c
+- [x] 3.5 Exactly-5 gate blocks with a clear message on an incomplete roster — f64041c
+- [x] 3.6 Suggestion highlighted and overridable at each of the 3 decision points — f64041c
+- [x] 3.7 Abandon & restart clears the session — f64041c
+- [x] 3.8 Session continues to work with network disabled after initial load — f64041c
 
 ### Phase 4: End-to-end verification
 
 #### Automated
 
-- [ ] 4.1 E2E test passes (via `/10x-e2e`)
+- [x] 4.1 E2E test passes (via `/10x-e2e`)

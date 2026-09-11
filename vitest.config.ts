@@ -1,5 +1,5 @@
 import path from "node:path";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import { cloudflareTest } from "@cloudflare/vitest-pool-workers";
 
 export default defineConfig({
@@ -16,6 +16,10 @@ export default defineConfig({
     // roster cap. Serialize file execution to remove that race entirely —
     // see context/changes/data-integrity/reviews/impl-review.md F2.
     fileParallelism: false,
+    // tests/e2e/**/*.spec.ts are Playwright specs, run by `npm run
+    // test:e2e` in a real browser — not vitest, whose Workers pool can't
+    // resolve Playwright's own Node.js dependencies (e.g. node:process).
+    exclude: [...configDefaults.exclude, "tests/e2e/**"],
   },
   resolve: {
     alias: {
