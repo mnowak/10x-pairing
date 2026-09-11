@@ -100,7 +100,7 @@ A thin `localStorage` wrapper and the session lifecycle rules: resume when re-en
 
 **Intent**: Serialize/deserialize `MatchSessionState` to a single `localStorage` key, scoped by nothing but its own presence (one active session at a time, app-wide). Reads via `globalThis.localStorage` (see Critical Implementation Details).
 
-**Contract**: `saveSession(state): void`, `loadSession(): MatchSessionState | null`, `clearSession(): void`. `loadSession` returns `null` (not a throw) on missing/corrupt data.
+**Contract**: `saveSession(opponentId, state): void`, `loadSession(opponentId): MatchSessionState | null`, `clearSession(): void`. `opponentId` scopes the stored session to the opponent currently being viewed — `loadSession` returns `null` (not a throw) both on missing/corrupt data and when the stored session belongs to a different opponent, which is what makes "discard silently when starting a session for a different opponent" (this phase's Overview) actually work.
 
 ### Success Criteria:
 
@@ -129,9 +129,9 @@ Wire the engine, suggestion provider, and storage into a React island and a new 
 
 **File**: `src/pages/dashboard/opponents/[id]/match.astro`
 
-**Intent**: SSR-load the team, opponent, and matrix (reusing `getTeamWithArmies`/`getOpponentWithArmies`/`getMatrixGrid`). If either roster doesn't have exactly `MAX_ROSTER_SIZE` (5) armies, render a blocking message naming which side is short and by how many — no session island is mounted. Otherwise render `<MatchSession ... client:load />`.
+**Intent**: SSR-load the team, opponent, and matrix (reusing `getTeamWithArmies`/`getOpponentWithArmies`/`getMatrixGrid`). If either roster doesn't have exactly `MAX_ROSTER_SIZE` (5) armies, render a blocking message naming which side is short and by how many — no session island is mounted. Otherwise render `<MatchSession ... client:only="react" />`.
 
-**Contract**: Route `/dashboard/opponents/:id/match`; already covered by `PROTECTED_ROUTES` (`/dashboard` prefix). No new query-param/redirect wiring — the gate message renders inline on this page.
+**Contract**: Route `/dashboard/opponents/:id/match`; already covered by `PROTECTED_ROUTES` (`/dashboard` prefix). No new query-param/redirect wiring — the gate message renders inline on this page. `client:only="react"`, not `client:load`: `MatchSession`'s lazy `useState` initializer reads `localStorage`, which doesn't exist during SSR — the island's first render must be the client render.
 
 #### 2. Match-mode island
 
@@ -148,6 +148,14 @@ Wire the engine, suggestion provider, and storage into a React island and a new 
 **Intent**: Add a "Start match mode" link to the new route, alongside the existing roster-management UI.
 
 **Contract**: Plain link (`<a href="/dashboard/opponents/{id}/match">`) — no form submission, since starting a session creates no server-side record.
+
+#### 4. Pairing-matrix visual aid (added during manual verification, not originally planned)
+
+**Files**: `src/components/match/MatchMatrix.tsx` (new), `src/lib/colorBands.ts`, `src/components/matrix/MatrixGrid.tsx`
+
+**Intent**: A read-only pairing-matrix rendered inside `MatchSession.tsx` above the picker, giving the captain visual context for each decision. Requested mid-implementation, across two rounds of feedback: (1) an available army's row/column stays fully visible across its estimates; a committed army shows only its actual pairing, ring-highlighted; (2) `focus` narrows emphasis to the current decision's real comparison — `our-attacker-pair` phase focuses `[ourAvailable] × [theirDefender]`, `our-accept` phase focuses `[ourDefender] × [theirOfferedPair]`; (3) any cell in an already-committed army's row/column that isn't its actual pairing is fully hidden (`opacity-0`), not just dimmed. `BAND_SWATCH_CLASSES` was factored out of `MatrixGrid.tsx` into `colorBands.ts` as a shared constant so both consumers stay in sync — no behavior change to the existing matrix-prep grid.
+
+**Contract**: `MatchMatrix` props `{ ourArmies, theirArmies, matrixGrid, ourAvailable, theirAvailable, ourPairedWith, theirPairedWith, focus }`. `ourPairedWith`/`theirPairedWith` (committed army → its actual pairing) and `focus` are derived in `MatchSession.tsx` from `state.history`/`state.refusedAttacker`/`state.phase`/`state.working`, via `useMemo`.
 
 ### Success Criteria:
 

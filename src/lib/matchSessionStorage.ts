@@ -18,7 +18,13 @@ interface StoredSession {
 
 export function saveSession(opponentId: string, state: MatchSessionState): void {
   const payload: StoredSession = { opponentId, state };
-  globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  try {
+    globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // Storage unavailable (quota exceeded, disabled site data, a
+    // restrictive private-browsing context) — degrade to "not persisted
+    // this step" rather than crashing the session mid-match.
+  }
 }
 
 /** Returns the stored session only if it belongs to `opponentId`; otherwise null. */
@@ -41,5 +47,9 @@ export function loadSession(opponentId: string): MatchSessionState | null {
 }
 
 export function clearSession(): void {
-  globalThis.localStorage.removeItem(STORAGE_KEY);
+  try {
+    globalThis.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // See saveSession — storage may be unavailable; nothing to clear then.
+  }
 }
