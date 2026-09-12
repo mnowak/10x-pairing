@@ -1,9 +1,10 @@
 ---
 change_id: testing-bootstrap-critical-path-coverage
 title: Bootstrap test runner + critical-path coverage (risks #2, #3)
-status: impl_reviewed
+status: archived
 created: 2026-09-09
-updated: 2026-09-09
+updated: 2026-09-12
+archived_at: 2026-09-12T09:41:13Z
 ---
 
 ## Notes
