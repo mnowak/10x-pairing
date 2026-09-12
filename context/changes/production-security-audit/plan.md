@@ -340,20 +340,20 @@ by re-running the inverse `grant`/`create policy` statements if ever needed.
 
 #### Automated
 
-- [x] 2.1 `npx supabase db advisors --linked` no longer lists `auth_leaked_password_protection`, OR the finding is explicitly logged as an accepted risk with the reason (plan-gated) in `security-audit.md`
+- [x] 2.1 `npx supabase db advisors --linked` no longer lists `auth_leaked_password_protection`, OR the finding is explicitly logged as an accepted risk with the reason (plan-gated) in `security-audit.md` — 2a46a17
 
 #### Manual
 
-- [x] 2.2 Supabase dashboard's Auth → Policies (or Advisors) page confirms the toggle's actual state matches what the API call reported
+- [x] 2.2 Supabase dashboard's Auth → Policies (or Advisors) page confirms the toggle's actual state matches what the API call reported — 2a46a17
 
 ### Phase 3: Verify and record the audit
 
 #### Automated
 
-- [x] 3.1 `npx supabase db advisors --linked` shows 0 SECURITY-category findings, or only the Phase-2 accepted-risk entry
-- [x] 3.2 Manual grant query shows 0 `anon` privileges across the 5 `public` tables
-- [x] 3.3 `context/foundation/security-audit.md` exists and is git-tracked
+- [x] 3.1 `npx supabase db advisors --linked` shows 0 SECURITY-category findings, or only the Phase-2 accepted-risk entry — 2a46a17
+- [x] 3.2 Manual grant query shows 0 `anon` privileges across the 5 `public` tables — 2a46a17
+- [x] 3.3 `context/foundation/security-audit.md` exists and is git-tracked — 2a46a17
 
 #### Manual
 
-- [x] 3.4 A human reviews `security-audit.md` for accuracy against the actual production state
+- [x] 3.4 A human reviews `security-audit.md` for accuracy against the actual production state — 2a46a17
