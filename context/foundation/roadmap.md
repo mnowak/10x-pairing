@@ -48,7 +48,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 | ---- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------- | -------- |
 | S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | done |
 | S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | done |
-| S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | ready    |
+| S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | in-progress |
 | S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | ready    |
 | S-13 | mvp-smoke-test-pass             | captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work                     | S-09, S-10, S-11, S-12     | MS-01    | proposed |
 | S-14 | similar-mode-copy-update        | captain sees an accurate one-line description of Similar mode when picking a practice opponent                                               | —                          | MS-03    | ready    |
@@ -106,7 +106,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Several `.astro` pages catch a real error and discard it in favor of a generic "Something went wrong" message with no logging — this is precisely why today's incident needed live database queries to diagnose instead of a log line. Low risk to fix (add logging at the catch site); the open design question is how much observability infrastructure is worth adding beyond that for a solo-captain-scale MVP.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-12: Live match-mode test coverage (test-plan Phase 3)
 

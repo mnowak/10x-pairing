@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { addArmyToTeam, getTeamWithArmies } from "@/lib/teams";
+import { logError } from "@/lib/logError";
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
@@ -23,7 +24,8 @@ export const POST: APIRoute = async (context) => {
   let team;
   try {
     team = await getTeamWithArmies(supabase, context.locals.user.id);
-  } catch {
+  } catch (error) {
+    logError("api/teams/armies.ts: getTeamWithArmies", error);
     return context.redirect(`/dashboard/team?error=${encodeURIComponent("Something went wrong loading your team")}`);
   }
   if (!team) {

@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { upsertEstimate } from "@/lib/matrix";
 import { COLOR_BANDS, type Estimate } from "@/lib/colorBands";
+import { logError } from "@/lib/logError";
 
 const VALID_ESTIMATES = new Set<string>([...COLOR_BANDS.map((range) => range.band), "purple"]);
 
@@ -22,7 +23,8 @@ export const POST: APIRoute = async (context) => {
   let body: unknown;
   try {
     body = await context.request.json();
-  } catch {
+  } catch (error) {
+    logError("api/matrix.ts: request.json()", error);
     return Response.json({ ok: false, error: "Invalid JSON body" }, { status: 400 });
   }
 

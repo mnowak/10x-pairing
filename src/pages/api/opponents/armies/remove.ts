@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { getOpponentWithArmies, removeArmyFromOpponent } from "@/lib/opponents";
+import { logError } from "@/lib/logError";
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
@@ -28,7 +29,8 @@ export const POST: APIRoute = async (context) => {
   let opponent;
   try {
     opponent = await getOpponentWithArmies(supabase, context.locals.user.id, opponentId);
-  } catch {
+  } catch (error) {
+    logError("api/opponents/armies/remove.ts: getOpponentWithArmies", error);
     return context.redirect(
       `/dashboard/opponents/${opponentId}?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
     );

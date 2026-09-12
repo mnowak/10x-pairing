@@ -3,6 +3,7 @@ import type { Database, Tables } from "@/db/database.types";
 import { getTeamWithArmies } from "@/lib/teams";
 import type { OpponentWithArmies } from "@/lib/opponents";
 import { scoreToBand, bandToScore, type Estimate } from "@/lib/colorBands";
+import { logError } from "@/lib/logError";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -75,7 +76,8 @@ export async function upsertEstimate(
   let team;
   try {
     team = await getTeamWithArmies(supabase, captainId);
-  } catch {
+  } catch (error) {
+    logError("matrix.ts: upsertEstimate -> getTeamWithArmies", error);
     return { ok: false, error: "Something went wrong loading your team" };
   }
   if (!team?.armies.some((army) => army.id === teamArmyId)) {

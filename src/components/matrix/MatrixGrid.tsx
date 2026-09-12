@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BAND_SWATCH_CLASSES, COLOR_BANDS, type Estimate } from "@/lib/colorBands";
 import type { MatrixGridData } from "@/lib/matrix";
+import { logError } from "@/lib/logError";
 
 interface Props {
   opponentId: string;
@@ -40,7 +41,8 @@ export default function MatrixGrid({ grid }: Props) {
         return rest;
       });
       setOpenCell(null);
-    } catch {
+    } catch (error) {
+      logError("MatrixGrid.tsx: pickEstimate fetch", error);
       setCellErrors((prev) => ({ ...prev, [key]: "Network error — try again" }));
     } finally {
       setSavingCell(null);

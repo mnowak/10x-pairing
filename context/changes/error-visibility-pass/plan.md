@@ -267,27 +267,27 @@ Not applicable — no data model or schema changes.
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx astro check`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Build succeeds: `npm run build`
-- [x] 2.4 Existing test suite still passes: `npm test`
+- [x] 2.1 Type checking passes: `npx astro check` — 98c492a
+- [x] 2.2 Linting passes: `npm run lint` — 98c492a
+- [x] 2.3 Build succeeds: `npm run build` — 98c492a
+- [x] 2.4 Existing test suite still passes: `npm test` — 98c492a
 
 #### Manual
 
-- [x] 2.5 Forced failure on `team.astro` shows a `logError` line and unchanged page behavior
-- [x] 2.6 Spot-check opponents list, opponent detail, match, and simulate pages for no behavior regression
+- [x] 2.5 Forced failure on `team.astro` shows a `logError` line and unchanged page behavior — 98c492a
+- [x] 2.6 Spot-check opponents list, opponent detail, match, and simulate pages for no behavior regression — 98c492a
 
 ### Phase 3: Wire into API routes, the lib function, and the client-side site
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx astro check`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Build succeeds: `npm run build`
-- [ ] 3.4 Full test suite passes: `npm test`
+- [x] 3.1 Type checking passes: `npx astro check`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Build succeeds: `npm run build`
+- [x] 3.4 Full test suite passes: `npm test`
 
 #### Manual
 
-- [ ] 3.5 Forced API-route failure shows a server-side `logError` line and unchanged redirect/message
-- [ ] 3.6 Forced client-side network failure shows a browser-console `logError` line and unchanged cell message
-- [ ] 3.7 Smoke-test pass across team/opponents/match/simulate pages confirms no regression
+- [x] 3.5 Forced API-route failure shows a server-side `logError` line and unchanged redirect/message
+- [x] 3.6 Forced client-side network failure shows a browser-console `logError` line and unchanged cell message
+- [x] 3.7 Smoke-test pass across team/opponents/match/simulate pages confirms no regression
