@@ -327,33 +327,33 @@ by re-running the inverse `grant`/`create policy` statements if ever needed.
 
 #### Automated
 
-- [x] 1.1 New migration applies cleanly on a local reset: `npx supabase db reset`
-- [x] 1.2 Full test suite passes locally against the migrated schema: `npm test`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Typecheck passes: `npx astro check`
+- [x] 1.1 New migration applies cleanly on a local reset: `npx supabase db reset` — 19f5a0c
+- [x] 1.2 Full test suite passes locally against the migrated schema: `npm test` — 19f5a0c
+- [x] 1.3 Lint passes: `npm run lint` — 19f5a0c
+- [x] 1.4 Typecheck passes: `npx astro check` — 19f5a0c
 
 #### Manual
 
-- [x] 1.5 Migration file reviewed for exact policy-semantics equivalence (no accidental access-control change) before pushing to production
+- [x] 1.5 Migration file reviewed for exact policy-semantics equivalence (no accidental access-control change) before pushing to production — 19f5a0c
 
 ### Phase 2: Enable leaked-password protection
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db advisors --linked` no longer lists `auth_leaked_password_protection`, OR the finding is explicitly logged as an accepted risk with the reason (plan-gated) in `security-audit.md`
+- [x] 2.1 `npx supabase db advisors --linked` no longer lists `auth_leaked_password_protection`, OR the finding is explicitly logged as an accepted risk with the reason (plan-gated) in `security-audit.md`
 
 #### Manual
 
-- [ ] 2.2 Supabase dashboard's Auth → Policies (or Advisors) page confirms the toggle's actual state matches what the API call reported
+- [x] 2.2 Supabase dashboard's Auth → Policies (or Advisors) page confirms the toggle's actual state matches what the API call reported
 
 ### Phase 3: Verify and record the audit
 
 #### Automated
 
-- [ ] 3.1 `npx supabase db advisors --linked` shows 0 SECURITY-category findings, or only the Phase-2 accepted-risk entry
-- [ ] 3.2 Manual grant query shows 0 `anon` privileges across the 5 `public` tables
-- [ ] 3.3 `context/foundation/security-audit.md` exists and is git-tracked
+- [x] 3.1 `npx supabase db advisors --linked` shows 0 SECURITY-category findings, or only the Phase-2 accepted-risk entry
+- [x] 3.2 Manual grant query shows 0 `anon` privileges across the 5 `public` tables
+- [x] 3.3 `context/foundation/security-audit.md` exists and is git-tracked
 
 #### Manual
 
-- [ ] 3.4 A human reviews `security-audit.md` for accuracy against the actual production state
+- [x] 3.4 A human reviews `security-audit.md` for accuracy against the actual production state
