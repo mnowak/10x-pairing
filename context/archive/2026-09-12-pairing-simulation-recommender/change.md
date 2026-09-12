@@ -1,10 +1,10 @@
 ---
 change_id: pairing-simulation-recommender
 title: Selectable opponent-behavior modes for pairing simulation
-status: impl_reviewed
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
-archived_at: null
+archived_at: 2026-09-12T17:10:59Z
 ---
 
 ## Notes

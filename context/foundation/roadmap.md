@@ -47,7 +47,7 @@ M-1 shipped the live, two-human pairing flow: a captain negotiating defender/att
 | ID   | Change ID                    | Outcome (user can …)                                                                                                                                              | Prerequisites  | PRD refs           | Status   |
 | ---- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------- | -------- |
 | S-07 | pairing-simulation-session    | run a solo pairing-simulation session against a prepared opponent matrix, making their own choices manually while the app auto-picks the opponent's moves at random and shows what was picked | S-02, S-03, F-01 | MS-01, MS-02, MS-03 | done |
-| S-08 | pairing-simulation-recommender | pick one of three opponent-behavior modes (Random / Mirrored / Similar) for a solo pairing-simulation session via a pre-session picker                    | S-07           | MS-04, MS-05               | in-progress |
+| S-08 | pairing-simulation-recommender | pick one of three opponent-behavior modes (Random / Mirrored / Similar) for a solo pairing-simulation session via a pre-session picker                    | S-07           | MS-04, MS-05               | done |
 
 ## Baseline
 
@@ -94,7 +94,7 @@ None for this milestone. The two absent capabilities identified in Baseline (ses
 - **Blockers:** —
 - **Unknowns:** — (resolved during `/10x-plan`, 2026-09-12: the flagged "mirrored estimates vs. separate opponent model" question turned out to already be answered by the existing minimax model's adversarial-minimization — no new mirroring mechanism was needed for that; the genuinely new design work is the Mirrored/Similar value functions and the generalized two-perspective search engine, both now designed and captured in `context/changes/pairing-simulation-recommender/plan.md`.)
 - **Risk:** Now the largest slice in this milestone — a generalized (not duplicated) minimax engine reused from the opponent's perspective, three distinct value functions, new persisted session state (chosen mode + a fixed-per-session generated matrix for Similar), and a new pre-session picker screen. This is deliberately still one slice (not split) since it's one coherent captain-visible capability: pick a training opponent style.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -129,3 +129,4 @@ None new — the opponent random-sampling rule (non-blocking per-slice Unknown; 
 - **S-03: captain can run a full live match-mode session against a prepared opponent matrix — pick defender, enter opponent's defender, get an attacker-pair suggestion, enter opponent's pick, repeat for sub-round 2, and get the final refused-attacker auto-paired — using only currently-available (uncommitted) armies at every step. Increment 1 of 2: this slice delivers the full session mechanics with a random pick at each suggestion point, behind an interface S-06 later swaps for the real algorithm.** — Archived 2026-09-11 → `context/archive/2026-09-11-live-match-mode-session/`. Lesson: —.
 - **S-06: captain's live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup estimate together with the downstream refused-attacker impact, replacing the random pick S-03 uses for increment 1.** — Archived 2026-09-11 → `context/archive/2026-09-11-live-match-recommender/`. Lesson: —.
 - **S-07: captain can start and complete a solo pairing-simulation session against a prepared opponent matrix without a second human present — making their own defender / attacker-pair / accept choices manually, with the same suggestion-engine recommendations as live match-mode — while the app automatically picks the opponent's move at each of the opponent's three decision points (uniformly at random among the opponent's still-available armies) and shows the captain what was picked, ending in the same auto-paired refused-attacker outcome as a live session.** — Archived 2026-09-12 → `context/archive/2026-09-12-pairing-simulation-session/`. Lesson: —.
+- **S-08: pick one of three opponent-behavior modes (Random / Mirrored / Similar) for a solo pairing-simulation session via a pre-session picker** — Archived 2026-09-12 → `context/archive/2026-09-12-pairing-simulation-recommender/`. Lesson: —.
