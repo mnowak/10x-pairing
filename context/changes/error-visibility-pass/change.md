@@ -1,7 +1,7 @@
 ---
 change_id: error-visibility-pass
 title: Error-handling/observability pass
-status: implemented
+status: impl_reviewed
 created: 2026-09-12
 updated: 2026-09-12
 ---
