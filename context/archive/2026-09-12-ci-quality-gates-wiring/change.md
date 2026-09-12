@@ -1,10 +1,10 @@
 ---
 change_id: ci-quality-gates-wiring
 title: CI pipeline correctly gates every merge
-status: implemented
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
-archived_at: null
+archived_at: 2026-09-12T19:41:35Z
 ---
 
 ## Notes

@@ -46,7 +46,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 
 | ID   | Change ID                     | Outcome (user can …)                                                                                                                      | Prerequisites            | PRD refs | Status   |
 | ---- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------- | -------- |
-| S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | in-progress |
+| S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | done |
 | S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | ready    |
 | S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | ready    |
 | S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | ready    |
@@ -82,7 +82,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is the north star — the single fix that would have caught today's two incidents earlier, and the one every other hardening slice in this milestone benefits from landing under. Low risk: the fix is a config change (branch trigger + add a test step to the existing workflow), not new infrastructure.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-10: Security/RLS + GRANT audit across all tables
 
@@ -211,3 +211,4 @@ None cross-cutting. This milestone's two per-slice Unknowns (S-15's README depth
 - **S-06: captain's live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup estimate together with the downstream refused-attacker impact, replacing the random pick S-03 uses for increment 1.** — Archived 2026-09-11 → `context/archive/2026-09-11-live-match-recommender/`. Lesson: —.
 - **S-07: captain can start and complete a solo pairing-simulation session against a prepared opponent matrix without a second human present — making their own defender / attacker-pair / accept choices manually, with the same suggestion-engine recommendations as live match-mode — while the app automatically picks the opponent's move at each of the opponent's three decision points (uniformly at random among the opponent's still-available armies) and shows the captain what was picked, ending in the same auto-paired refused-attacker outcome as a live session.** — Archived 2026-09-12 → `context/archive/2026-09-12-pairing-simulation-session/`. Lesson: —.
 - **S-08: pick one of three opponent-behavior modes (Random / Mirrored / Similar) for a solo pairing-simulation session via a pre-session picker** — Archived 2026-09-12 → `context/archive/2026-09-12-pairing-simulation-recommender/`. Lesson: —.
+- **S-09: (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build** — Archived 2026-09-12 → `context/archive/2026-09-12-ci-quality-gates-wiring/`. Lesson: —.
