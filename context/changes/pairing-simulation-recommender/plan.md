@@ -350,25 +350,25 @@ None — no schema changes. `matchSessionStorage.ts`'s existing `"live"`-mode ke
 
 #### Automated
 
-- [x] 4.1 Unit tests pass: `npm test`
-- [x] 4.2 Type checking passes as part of build: `npm run build`
-- [x] 4.3 Linting passes: `npm run lint`
+- [x] 4.1 Unit tests pass: `npm test` — 6315939
+- [x] 4.2 Type checking passes as part of build: `npm run build` — 6315939
+- [x] 4.3 Linting passes: `npm run lint` — 6315939
 
 ### Phase 5: Mode-picker UI + routing
 
 #### Automated
 
-- [ ] 5.1 Full build passes: `npm run build`
-- [ ] 5.2 Linting passes: `npm run lint`
-- [ ] 5.3 Unit tests pass: `npm test`
+- [x] 5.1 Full build passes: `npm run build`
+- [x] 5.2 Linting passes: `npm run lint`
+- [x] 5.3 Unit tests pass: `npm test`
 
 #### Manual
 
-- [ ] 5.4 Picker shows with Mirrored pre-selected
-- [ ] 5.5 Random-mode session behaves identically to S-07's shipped behavior
-- [ ] 5.6 Mirrored-mode session's opponent picks match a hand-verifiable scenario
-- [ ] 5.7 Similar-mode session stays internally consistent, including across a mid-session refresh
-- [ ] 5.8 "Practice" badge names the active mode throughout
-- [ ] 5.9 "Abandon & restart" returns to the picker
-- [ ] 5.10 Live match-mode is completely unaffected
-- [ ] 5.11 Incomplete roster shows not-ready messaging before any picker
+- [x] 5.4 Picker shows with Mirrored pre-selected
+- [x] 5.5 Random-mode session behaves identically to S-07's shipped behavior
+- [x] 5.6 Mirrored-mode session's opponent picks match a hand-verifiable scenario
+- [x] 5.7 Similar-mode session stays internally consistent, including across a mid-session refresh
+- [x] 5.8 "Practice" badge names the active mode throughout
+- [x] 5.9 "Abandon & restart" returns to the picker
+- [x] 5.10 Live match-mode is completely unaffected
+- [x] 5.11 Incomplete roster shows not-ready messaging before any picker

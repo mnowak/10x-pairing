@@ -35,7 +35,7 @@ interface CommonProps {
 // at all, not just an unused/defaulted one.
 type Props =
   | (CommonProps & { mode: "live" })
-  | (CommonProps & { mode: "simulation"; opponentBehavior: OpponentBehavior });
+  | (CommonProps & { mode: "simulation"; opponentBehavior: OpponentBehavior; onAbandon?: () => void });
 
 const OPPONENT_BEHAVIOR_LABELS: Record<OpponentBehavior, string> = {
   random: "Random",
@@ -238,6 +238,7 @@ function AutoReveal<T>({
 export default function MatchSession(props: Props) {
   const { opponentId, ourArmies, theirArmies, matrixGrid, mode } = props;
   const opponentBehavior = props.mode === "simulation" ? props.opponentBehavior : undefined;
+  const onAbandon = props.mode === "simulation" ? props.onAbandon : undefined;
 
   const ourArmyIds = useMemo(() => ourArmies.map((army) => army.id), [ourArmies]);
   const theirArmyIds = useMemo(() => theirArmies.map((army) => army.id), [theirArmies]);
@@ -304,6 +305,10 @@ export default function MatchSession(props: Props) {
   }, [opponentId, state, mode, opponentBehavior, activeOpponent]);
 
   function restart() {
+    if (onAbandon) {
+      onAbandon();
+      return;
+    }
     clearSession(mode);
     setState(createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid));
   }

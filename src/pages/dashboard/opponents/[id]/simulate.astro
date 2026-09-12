@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import MatchSession from "@/components/match/MatchSession";
+import PracticeSetup from "@/components/match/PracticeSetup";
 import { createClient } from "@/lib/supabase";
 import { getTeamWithArmies } from "@/lib/teams";
 import { getOpponentWithArmies } from "@/lib/opponents";
@@ -68,13 +68,11 @@ const rosterReady = ourCount === MAX_ROSTER_SIZE && theirCount === MAX_ROSTER_SI
       </h1>
       {
         rosterReady ? (
-          <MatchSession
+          <PracticeSetup
             opponentId={opponent.id}
             ourArmies={team.armies}
             theirArmies={opponent.armies}
             matrixGrid={matrixGrid}
-            mode="simulation"
-            opponentBehavior="mirrored"
             client:only="react"
           />
         ) : (
