@@ -236,14 +236,14 @@ None — no schema or persisted-data changes; `matchSessionStorage.ts`'s existin
 
 #### Automated
 
-- [x] 3.1 Full build passes: `npm run build`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Unit tests pass: `npm test`
+- [x] 3.1 Full build passes: `npm run build` — 5812438
+- [x] 3.2 Linting passes: `npm run lint` — 5812438
+- [x] 3.3 Unit tests pass: `npm test` — 5812438
 
 #### Manual
 
-- [x] 3.4 "Practice solo" navigates to the new route and starts a solo simulation session (rosters at exactly 5)
-- [x] 3.5 A full solo session completes end-to-end with correct suggestions, reveals, and refused-attacker outcome
-- [x] 3.6 Refreshing mid-session resumes the simulation session correctly
-- [x] 3.7 Live and simulation sessions for the same opponent don't interfere with each other
-- [x] 3.8 Incomplete roster (< 5) shows not-ready messaging instead of starting a session
+- [x] 3.4 "Practice solo" navigates to the new route and starts a solo simulation session (rosters at exactly 5) — 5812438
+- [x] 3.5 A full solo session completes end-to-end with correct suggestions, reveals, and refused-attacker outcome — 5812438
+- [x] 3.6 Refreshing mid-session resumes the simulation session correctly — 5812438
+- [x] 3.7 Live and simulation sessions for the same opponent don't interfere with each other — 5812438
+- [x] 3.8 Incomplete roster (< 5) shows not-ready messaging instead of starting a session — 5812438
