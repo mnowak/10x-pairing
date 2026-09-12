@@ -395,6 +395,28 @@ describe("minimaxSuggestionProvider — hand-verified scenarios", () => {
     const result = minimaxSuggestionProvider.suggestAcceptedAttacker("d", ["x", "y"], ["e", "f"], ["z"], grid);
     expect(result).toBe("x");
   });
+
+  it("suggestAcceptedAttacker sacrifices the better immediate matchup to protect the forced refusal (FR-013 downstream weighing)", () => {
+    // D (our defender) vs X is green (14), vs Y is yellow (10) — naively X
+    // looks like the better accept. But R (our only remaining reserve army,
+    // forced into the final refused-attacker pairing) scores dark-green (18)
+    // vs X and red (2) vs Y. Only one of theirOfferedPair {X, Y} is
+    // accepted; the other is forced onto R:
+    //   accept X: cellValue(D,X) + cellValue(R,Y) = 14 + 2  = 16
+    //   accept Y: cellValue(D,Y) + cellValue(R,X) = 10 + 18 = 28
+    // 28 > 16, so the correct accept is the immediately WORSE option, Y —
+    // proving the search weighs the downstream forced pairing, not just the
+    // immediate matchup (this is exactly what FR-013 requires and what none
+    // of the dominance/tie-break scenarios above exercise).
+    const grid = gridOf({
+      "D:X": "green",
+      "D:Y": "yellow",
+      "R:X": "dark-green",
+      "R:Y": "red",
+    });
+    const result = minimaxSuggestionProvider.suggestAcceptedAttacker("D", ["X", "Y"], ["R"], ["X", "Y"], grid);
+    expect(result).toBe("Y");
+  });
 });
 
 describe("minimaxSuggestionProvider — full 5-vs-5 walkthrough via the real engine", () => {

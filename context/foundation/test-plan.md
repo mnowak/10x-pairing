@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-09-09
+> Last updated: 2026-09-12
 
 ## 1. Strategy
 
@@ -68,7 +68,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|---|---|---|---|---|---|
 | 1 | Bootstrap + critical-path coverage | Stand up the test runner; prove the score↔band mapping and cross-captain write protection hold | #2, #3 | unit + integration | complete | `context/changes/testing-bootstrap-critical-path-coverage/` |
 | 2 | Data-integrity coverage | Prove estimate loss can't happen silently through any current write path | #4, #5 | integration | complete | `context/changes/data-integrity/` |
-| 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | not started | — |
+| 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | planned | `context/changes/live-match-mode-test-coverage/` |
 | 4 | Quality-gates wiring | Lock the floor: wire the suite into CI; evaluate one AI-native layer only if it adds signal beyond Phases 1-3 | cross-cutting | gates | not started | — |
 
 **Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
