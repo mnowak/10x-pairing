@@ -114,10 +114,10 @@ None — no data or schema involved.
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Build succeeds: `npm run build`
+- [x] 1.1 Linting passes: `npm run lint` — 6130598
+- [x] 1.2 Type checking passes: `npx astro check` — 6130598
+- [x] 1.3 Build succeeds: `npm run build` — 6130598
 
 #### Manual
 
-- [x] 1.4 Practice-mode picker shows the updated Similar-mode description text, with Random and Mirrored unchanged.
+- [x] 1.4 Practice-mode picker shows the updated Similar-mode description text, with Random and Mirrored unchanged. — 6130598
