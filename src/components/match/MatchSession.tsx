@@ -14,6 +14,7 @@ import {
 import { minimaxSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
 import { randomOpponentProvider } from "@/lib/opponentMoves";
 import { loadSession, saveSession, clearSession, type SessionMode } from "@/lib/matchSessionStorage";
+import { estimatedTeamScore } from "@/lib/teamScore";
 import MatchMatrix from "@/components/match/MatchMatrix";
 
 interface Props {
@@ -249,6 +250,11 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
   const suggestedSingle = typeof state.suggested === "string" ? state.suggested : null;
   const suggestedPair = Array.isArray(state.suggested) ? state.suggested : null;
 
+  const totalScore = useMemo(
+    () => estimatedTeamScore(matrixGrid, state.history, state.refusedAttacker),
+    [matrixGrid, state.history, state.refusedAttacker],
+  );
+
   // Derived from completed sub-rounds (+ the auto-paired refused attacker):
   // which specific opposing army each committed army actually ended up
   // matched against — MatchMatrix uses this to highlight the one relevant
@@ -424,6 +430,9 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         <div className="space-y-3">
           <p className="text-sm font-semibold text-white">
             {mode === "simulation" ? "Practice session complete!" : "Session complete!"}
+          </p>
+          <p className="text-sm text-blue-100/80">
+            Estimated team score: <span className="font-semibold text-white">{totalScore}</span>
           </p>
           <ul className="space-y-2">
             {state.history.map((round) => (
