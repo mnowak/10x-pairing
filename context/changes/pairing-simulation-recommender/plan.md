@@ -342,17 +342,17 @@ None — no schema changes. `matchSessionStorage.ts`'s existing `"live"`-mode ke
 
 #### Automated
 
-- [x] 3.1 Unit tests pass: `npm test`
-- [x] 3.2 Type checking passes as part of build: `npm run build`
-- [x] 3.3 Linting passes: `npm run lint`
+- [x] 3.1 Unit tests pass: `npm test` — cfe7713
+- [x] 3.2 Type checking passes as part of build: `npm run build` — cfe7713
+- [x] 3.3 Linting passes: `npm run lint` — cfe7713
 
 ### Phase 4: Session persistence + wiring
 
 #### Automated
 
-- [ ] 4.1 Unit tests pass: `npm test`
-- [ ] 4.2 Type checking passes as part of build: `npm run build`
-- [ ] 4.3 Linting passes: `npm run lint`
+- [x] 4.1 Unit tests pass: `npm test`
+- [x] 4.2 Type checking passes as part of build: `npm run build`
+- [x] 4.3 Linting passes: `npm run lint`
 
 ### Phase 5: Mode-picker UI + routing
 

@@ -74,6 +74,7 @@ const rosterReady = ourCount === MAX_ROSTER_SIZE && theirCount === MAX_ROSTER_SI
             theirArmies={opponent.armies}
             matrixGrid={matrixGrid}
             mode="simulation"
+            opponentBehavior="mirrored"
             client:only="react"
           />
         ) : (

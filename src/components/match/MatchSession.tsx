@@ -12,18 +12,36 @@ import {
   type MatchSessionState,
 } from "@/lib/matchSessionEngine";
 import { minimaxSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
-import { randomOpponentProvider } from "@/lib/opponentMoves";
-import { loadSession, saveSession, clearSession, type SessionMode } from "@/lib/matchSessionStorage";
+import {
+  createSimilarOpponentProvider,
+  mirroredOpponentProvider,
+  randomOpponentProvider,
+  type OpponentMoveProvider,
+} from "@/lib/opponentMoves";
+import { loadSession, saveSession, clearSession, type OpponentBehavior } from "@/lib/matchSessionStorage";
 import { estimatedTeamScore } from "@/lib/teamScore";
 import MatchMatrix from "@/components/match/MatchMatrix";
 
-interface Props {
+interface CommonProps {
   opponentId: string;
   ourArmies: Tables<"team_armies">[];
   theirArmies: Tables<"opponent_armies">[];
   matrixGrid: MatrixGridData;
-  mode: SessionMode;
 }
+
+// Discriminated on `mode` so `opponentBehavior` (the algorithm playing the
+// opponent's side) is required for practice sessions and simply doesn't
+// exist for live ones — a live session has no opponent-behavior concept
+// at all, not just an unused/defaulted one.
+type Props =
+  | (CommonProps & { mode: "live" })
+  | (CommonProps & { mode: "simulation"; opponentBehavior: OpponentBehavior });
+
+const OPPONENT_BEHAVIOR_LABELS: Record<OpponentBehavior, string> = {
+  random: "Random",
+  mirrored: "Mirrored",
+  similar: "Similar",
+};
 
 function phaseLabel(state: MatchSessionState, nameById: Map<ArmyId, string>): string {
   const name = (id: ArmyId | undefined) => (id ? (nameById.get(id) ?? id) : "?");
@@ -217,7 +235,10 @@ function AutoReveal<T>({
   );
 }
 
-export default function MatchSession({ opponentId, ourArmies, theirArmies, matrixGrid, mode }: Props) {
+export default function MatchSession(props: Props) {
+  const { opponentId, ourArmies, theirArmies, matrixGrid, mode } = props;
+  const opponentBehavior = props.mode === "simulation" ? props.opponentBehavior : undefined;
+
   const ourArmyIds = useMemo(() => ourArmies.map((army) => army.id), [ourArmies]);
   const theirArmyIds = useMemo(() => theirArmies.map((army) => army.id), [theirArmies]);
 
@@ -232,15 +253,55 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
   // Lazy initializer (not an effect): this island is mounted client:only
   // (see match.astro), so this component's first render IS the client
   // render — matchSessionStorage's globalThis.localStorage read is safe
-  // here and never runs during SSR.
+  // here and never runs during SSR. Captured once (not re-read on every
+  // render) so a Similar-mode session's restored table (below) stays
+  // stable for the component's lifetime.
+  const [initialLoaded] = useState(() => loadSession(opponentId, mode));
+
   const [state, setState] = useState<MatchSessionState>(
-    () =>
-      loadSession(opponentId, mode) ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
+    () => initialLoaded?.state ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
   );
 
+  // Constructed once per session and reused for its whole lifetime — deps
+  // are stable while mounted (mode/opponentBehavior/matrixGrid never
+  // change without a full remount via Phase 5's abandon-returns-to-picker
+  // flow). Critical for "similar": the noisy table must stay fixed for the
+  // whole session (see generateSimilarScoreTable's own doc comment) —
+  // restoring from initialLoaded.similarScoreTable when resuming, or
+  // generating fresh (and persisting the result below) for a new session.
+  const activeOpponent = useMemo<{
+    provider: OpponentMoveProvider;
+    similarScoreTable?: Record<string, number>;
+  } | null>(() => {
+    if (mode !== "simulation" || !opponentBehavior) {
+      return null;
+    }
+    switch (opponentBehavior) {
+      case "random":
+        return { provider: randomOpponentProvider };
+      case "mirrored":
+        return { provider: mirroredOpponentProvider };
+      case "similar": {
+        const { provider, table } = createSimilarOpponentProvider(matrixGrid, ourArmyIds, theirArmyIds, {
+          existingTable: initialLoaded?.similarScoreTable,
+        });
+        return { provider, similarScoreTable: table };
+      }
+    }
+  }, [mode, opponentBehavior, matrixGrid, ourArmyIds, theirArmyIds, initialLoaded]);
+
+  const opponentProvider = activeOpponent?.provider ?? randomOpponentProvider;
+
   useEffect(() => {
-    saveSession(opponentId, state, mode);
-  }, [opponentId, state, mode]);
+    saveSession(
+      opponentId,
+      state,
+      mode,
+      mode === "simulation" && opponentBehavior
+        ? { behavior: opponentBehavior, similarScoreTable: activeOpponent?.similarScoreTable }
+        : undefined,
+    );
+  }, [opponentId, state, mode, opponentBehavior, activeOpponent]);
 
   function restart() {
     clearSession(mode);
@@ -294,9 +355,9 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-xs text-blue-100/60">
-          {mode === "simulation" && (
+          {mode === "simulation" && opponentBehavior && (
             <span className="mr-2 rounded-full bg-purple-500/30 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-purple-100 uppercase">
-              Practice
+              Practice · {OPPONENT_BEHAVIOR_LABELS[opponentBehavior]}
             </span>
           )}
           Sub-round {state.subRound} · {phaseLabel(state, nameById)}
@@ -336,7 +397,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         (mode === "simulation" ? (
           <AutoReveal
             pick={() =>
-              randomOpponentProvider.pickDefender(
+              opponentProvider.pickDefender(
                 state.theirAvailable,
                 state.ourAvailable,
                 requireWorking(state.working.ourDefender, "Our defender"),
@@ -374,7 +435,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         (mode === "simulation" ? (
           <AutoReveal
             pick={() =>
-              randomOpponentProvider.pickAttackerChoice(
+              opponentProvider.pickAttackerChoice(
                 requireWorking(state.working.ourOfferedPair, "Our offered pair"),
                 requireWorking(state.working.theirDefender, "Their defender"),
                 state.ourAvailable,
@@ -403,7 +464,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         (mode === "simulation" ? (
           <AutoReveal
             pick={() =>
-              randomOpponentProvider.pickAttackerPair(
+              opponentProvider.pickAttackerPair(
                 state.theirAvailable,
                 state.ourAvailable,
                 requireWorking(state.working.ourDefender, "Our defender"),

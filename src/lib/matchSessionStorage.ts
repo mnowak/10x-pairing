@@ -2,6 +2,12 @@ import type { MatchSessionState } from "@/lib/matchSessionEngine";
 
 export type SessionMode = "live" | "simulation";
 
+// Only meaningful for mode: "simulation" — "live" sessions never carry
+// either field. Distinct from SessionMode above to avoid confusing the
+// two: SessionMode is live-vs-practice; OpponentBehavior is which
+// algorithm plays the opponent's side within a practice session.
+export type OpponentBehavior = "random" | "mirrored" | "similar";
+
 // One app-wide slot per mode — only one match-mode session and one
 // simulation session are ever active at a time (starting a session for a
 // different opponent in the same mode silently replaces whatever was here
@@ -24,10 +30,29 @@ const STORAGE_KEYS: Record<SessionMode, string> = {
 interface StoredSession {
   opponentId: string;
   state: MatchSessionState;
+  opponentBehavior?: OpponentBehavior;
+  similarScoreTable?: Record<string, number>;
 }
 
-export function saveSession(opponentId: string, state: MatchSessionState, mode: SessionMode): void {
-  const payload: StoredSession = { opponentId, state };
+/** What `loadSession` returns on a hit — the engine state plus whichever opponent-behavior context was saved alongside it (both fields `undefined` for `mode: "live"`). */
+export interface LoadedSession {
+  state: MatchSessionState;
+  opponentBehavior?: OpponentBehavior;
+  similarScoreTable?: Record<string, number>;
+}
+
+export function saveSession(
+  opponentId: string,
+  state: MatchSessionState,
+  mode: SessionMode,
+  opponentContext?: { behavior: OpponentBehavior; similarScoreTable?: Record<string, number> },
+): void {
+  const payload: StoredSession = {
+    opponentId,
+    state,
+    opponentBehavior: opponentContext?.behavior,
+    similarScoreTable: opponentContext?.similarScoreTable,
+  };
   try {
     globalThis.localStorage.setItem(STORAGE_KEYS[mode], JSON.stringify(payload));
   } catch {
@@ -38,7 +63,7 @@ export function saveSession(opponentId: string, state: MatchSessionState, mode: 
 }
 
 /** Returns the stored session for `mode` only if it belongs to `opponentId`; otherwise null. */
-export function loadSession(opponentId: string, mode: SessionMode): MatchSessionState | null {
+export function loadSession(opponentId: string, mode: SessionMode): LoadedSession | null {
   let raw: string | null;
   try {
     raw = globalThis.localStorage.getItem(STORAGE_KEYS[mode]);
@@ -50,7 +75,14 @@ export function loadSession(opponentId: string, mode: SessionMode): MatchSession
   }
   try {
     const stored = JSON.parse(raw) as StoredSession;
-    return stored.opponentId === opponentId ? stored.state : null;
+    if (stored.opponentId !== opponentId) {
+      return null;
+    }
+    return {
+      state: stored.state,
+      opponentBehavior: stored.opponentBehavior,
+      similarScoreTable: stored.similarScoreTable,
+    };
   } catch {
     return null;
   }
