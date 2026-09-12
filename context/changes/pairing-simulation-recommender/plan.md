@@ -358,17 +358,17 @@ None — no schema changes. `matchSessionStorage.ts`'s existing `"live"`-mode ke
 
 #### Automated
 
-- [x] 5.1 Full build passes: `npm run build`
-- [x] 5.2 Linting passes: `npm run lint`
-- [x] 5.3 Unit tests pass: `npm test`
+- [x] 5.1 Full build passes: `npm run build` — 60afb4e
+- [x] 5.2 Linting passes: `npm run lint` — 60afb4e
+- [x] 5.3 Unit tests pass: `npm test` — 60afb4e
 
 #### Manual
 
-- [x] 5.4 Picker shows with Mirrored pre-selected
-- [x] 5.5 Random-mode session behaves identically to S-07's shipped behavior
-- [x] 5.6 Mirrored-mode session's opponent picks match a hand-verifiable scenario
-- [x] 5.7 Similar-mode session stays internally consistent, including across a mid-session refresh
-- [x] 5.8 "Practice" badge names the active mode throughout
-- [x] 5.9 "Abandon & restart" returns to the picker
-- [x] 5.10 Live match-mode is completely unaffected
-- [x] 5.11 Incomplete roster shows not-ready messaging before any picker
+- [x] 5.4 Picker shows with Mirrored pre-selected — 60afb4e
+- [x] 5.5 Random-mode session behaves identically to S-07's shipped behavior — 60afb4e
+- [x] 5.6 Mirrored-mode session's opponent picks match a hand-verifiable scenario — 60afb4e
+- [x] 5.7 Similar-mode session stays internally consistent, including across a mid-session refresh — 60afb4e
+- [x] 5.8 "Practice" badge names the active mode throughout — 60afb4e
+- [x] 5.9 "Abandon & restart" returns to the picker — 60afb4e
+- [x] 5.10 Live match-mode is completely unaffected — 60afb4e
+- [x] 5.11 Incomplete roster shows not-ready messaging before any picker — 60afb4e
