@@ -1,9 +1,10 @@
 ---
 change_id: production-security-audit
 title: Production security/RLS + GRANT audit
-status: implemented
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
+archived_at: 2026-09-12T20:17:12Z
 ---
 
 ## Notes
