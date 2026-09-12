@@ -156,28 +156,28 @@ Not applicable — no schema or data migration involved.
 
 #### Automated
 
-- [x] 1.1 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-checklist.md`
-- [x] 1.2 Every page route and all 3 practice modes are named in the checklist
+- [x] 1.1 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-checklist.md` — 858e40a
+- [x] 1.2 Every page route and all 3 practice modes are named in the checklist — 858e40a
 
 #### Manual
 
-- [x] 1.3 Every checklist item is concrete and independently actionable
-- [x] 1.4 UI-layer coverage gaps are visibly prioritized/flagged
+- [x] 1.3 Every checklist item is concrete and independently actionable — 858e40a
+- [x] 1.4 UI-layer coverage gaps are visibly prioritized/flagged — 858e40a
 
 ### Phase 2: Execute the Pass and Record Results
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npx astro check` (typecheck) passes
-- [ ] 2.3 `npm test` passes
-- [ ] 2.4 `npm run build` succeeds
-- [ ] 2.5 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-results.md`
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npx astro check` (typecheck) passes
+- [x] 2.3 `npm test` passes
+- [x] 2.4 `npm run build` succeeds
+- [x] 2.5 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-results.md`
 
 #### Manual
 
-- [ ] 2.6 Every checklist item has a recorded result — no silent skips
-- [ ] 2.7 Every ⚠️ finding is inline-fixed (with file:line) or has a filed follow-up change-id
-- [ ] 2.8 3 hardening spot-checks recorded (CI green, advisors clean, logged-error confirmed)
-- [ ] 2.9 4 NFR spot-checks recorded (phone-width, offline/slow-network, cross-captain isolation, latency)
-- [ ] 2.10 `## Done Bar` shows the pass fully triaged
+- [x] 2.6 Every checklist item has a recorded result — no silent skips
+- [x] 2.7 Every ⚠️ finding is inline-fixed (with file:line) or has a filed follow-up change-id
+- [x] 2.8 3 hardening spot-checks recorded (CI green, advisors clean, logged-error confirmed)
+- [x] 2.9 4 NFR spot-checks recorded (phone-width, offline/slow-network, cross-captain isolation, latency)
+- [x] 2.10 `## Done Bar` shows the pass fully triaged
