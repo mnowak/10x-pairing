@@ -18,36 +18,36 @@ describe("createRandomOpponentProvider", () => {
   describe("pickDefender", () => {
     it("returns the first candidate for a boundary-low random value", () => {
       const provider = createRandomOpponentProvider(sequence(0));
-      expect(provider.pickDefender(["a", "b", "c"], [], emptyGrid)).toBe("a");
+      expect(provider.pickDefender(["a", "b", "c"], [], "our-defender", emptyGrid)).toBe("a");
     });
 
     it("returns the last candidate for a boundary-high random value", () => {
       const provider = createRandomOpponentProvider(sequence(0.999999));
-      expect(provider.pickDefender(["a", "b", "c"], [], emptyGrid)).toBe("c");
+      expect(provider.pickDefender(["a", "b", "c"], [], "our-defender", emptyGrid)).toBe("c");
     });
   });
 
   describe("pickAttackerChoice", () => {
     it("returns the first offered army for a boundary-low random value", () => {
       const provider = createRandomOpponentProvider(sequence(0));
-      expect(provider.pickAttackerChoice(["a", "b"], "d", emptyGrid)).toBe("a");
+      expect(provider.pickAttackerChoice(["a", "b"], "d", [], [], "our-defender", emptyGrid)).toBe("a");
     });
 
     it("returns the second offered army for a boundary-high random value", () => {
       const provider = createRandomOpponentProvider(sequence(0.999999));
-      expect(provider.pickAttackerChoice(["a", "b"], "d", emptyGrid)).toBe("b");
+      expect(provider.pickAttackerChoice(["a", "b"], "d", [], [], "our-defender", emptyGrid)).toBe("b");
     });
   });
 
   describe("pickAttackerPair", () => {
     it("returns 2 distinct armies from exactly 2 available", () => {
       const provider = createRandomOpponentProvider(sequence(0, 0));
-      expect(provider.pickAttackerPair(["x", "y"], "d", emptyGrid)).toEqual(["x", "y"]);
+      expect(provider.pickAttackerPair(["x", "y"], [], "d", emptyGrid)).toEqual(["x", "y"]);
     });
 
     it("returns 2 distinct armies from more than 2 available (not hardcoded to 'the only 2 left')", () => {
       const provider = createRandomOpponentProvider(sequence(0, 0));
-      const [a, b] = provider.pickAttackerPair(["a", "b", "c", "d", "e"], "d", emptyGrid);
+      const [a, b] = provider.pickAttackerPair(["a", "b", "c", "d", "e"], [], "d", emptyGrid);
       expect(a).toBe("a");
       expect(b).toBe("b");
       expect(a).not.toBe(b);
@@ -55,7 +55,7 @@ describe("createRandomOpponentProvider", () => {
 
     it("stays distinct at the boundary-high end of a 5-element list", () => {
       const provider = createRandomOpponentProvider(sequence(0.999999, 0.999999));
-      const [a, b] = provider.pickAttackerPair(["a", "b", "c", "d", "e"], "d", emptyGrid);
+      const [a, b] = provider.pickAttackerPair(["a", "b", "c", "d", "e"], [], "d", emptyGrid);
       expect(a).toBe("e");
       expect(b).toBe("d");
       expect(a).not.toBe(b);

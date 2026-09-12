@@ -1,15 +1,40 @@
-import type { ArmyId } from "@/lib/matchSuggestions";
+import {
+  bestTheirAttackerPair,
+  bestTheirDefender,
+  bestTheirPick,
+  mirroredValue,
+  type ArmyId,
+} from "@/lib/matchSuggestions";
 import type { MatrixGridData } from "@/lib/matrix";
 
-// Mirrors MatchSuggestionProvider's shape so the two providers read as
+// Mirrors MatchSuggestionProvider's shape so the providers read as
 // siblings. `matrixGrid` and the "our-side" parameters are accepted but
 // unused by the random implementation below — they're part of the
-// interface now so a future minimax-based implementation (S-08) is a
-// drop-in swap, not a signature change.
+// interface so a minimax-based implementation is a drop-in swap, not a
+// signature change. Widened from S-07's original shape (which lacked
+// ourDefender/ourAvailable/theirAvailable in places) once the Mirrored/
+// Similar modes' lookahead search revealed it didn't carry enough context.
 export interface OpponentMoveProvider {
-  pickDefender(theirAvailable: ArmyId[], ourAvailable: ArmyId[], matrixGrid: MatrixGridData): ArmyId;
-  pickAttackerChoice(offeredPair: [ArmyId, ArmyId], theirDefender: ArmyId, matrixGrid: MatrixGridData): ArmyId;
-  pickAttackerPair(theirAvailable: ArmyId[], ourDefender: ArmyId, matrixGrid: MatrixGridData): [ArmyId, ArmyId];
+  pickDefender(
+    theirAvailable: ArmyId[],
+    ourAvailable: ArmyId[],
+    ourDefender: ArmyId,
+    matrixGrid: MatrixGridData,
+  ): ArmyId;
+  pickAttackerChoice(
+    offeredPair: [ArmyId, ArmyId],
+    theirDefender: ArmyId,
+    ourAvailable: ArmyId[],
+    theirAvailable: ArmyId[],
+    ourDefender: ArmyId,
+    matrixGrid: MatrixGridData,
+  ): ArmyId;
+  pickAttackerPair(
+    theirAvailable: ArmyId[],
+    ourAvailable: ArmyId[],
+    ourDefender: ArmyId,
+    matrixGrid: MatrixGridData,
+  ): [ArmyId, ArmyId];
 }
 
 function randomIndex(length: number, random: () => number): number {
@@ -37,3 +62,20 @@ export function createRandomOpponentProvider(random: () => number = Math.random)
 }
 
 export const randomOpponentProvider: OpponentMoveProvider = createRandomOpponentProvider();
+
+/**
+ * A real minimax lookahead over an inverted view of the captain's own
+ * matrix (`mirroredValue`) — the opponent's own decision points maximize
+ * that value, the captain's (as modeled by the opponent) minimize it. A
+ * plain object, not a factory: fully deterministic given a `matrixGrid`,
+ * matching `minimaxSuggestionProvider`'s own plain-object pattern rather
+ * than `createRandomOpponentProvider`'s injectable-randomness factory.
+ */
+export const mirroredOpponentProvider: OpponentMoveProvider = {
+  pickDefender: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
+    bestTheirDefender(ourAvailable, theirAvailable, ourDefender, matrixGrid, mirroredValue),
+  pickAttackerChoice: (offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid) =>
+    bestTheirPick(offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid, mirroredValue),
+  pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
+    bestTheirAttackerPair(theirAvailable, ourAvailable, ourDefender, matrixGrid, mirroredValue),
+};

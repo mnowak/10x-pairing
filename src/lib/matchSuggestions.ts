@@ -55,6 +55,18 @@ export function cellValue(matrixGrid: MatrixGridData, ourArmyId: ArmyId, theirAr
   return bandToScore(estimate);
 }
 
+/**
+ * Scores a matchup from the opponent's inverted point of view, for the
+ * Mirrored practice-mode opponent: `20 - cellValue(...)`, except a
+ * no-signal cell (purple or blank) stays at `NO_SIGNAL_VALUE` unchanged
+ * rather than inverting to 13 — the opponent has exactly as little
+ * information about an unestimated matchup as the captain does.
+ */
+export function mirroredValue(matrixGrid: MatrixGridData, ourArmyId: ArmyId, theirArmyId: ArmyId): number {
+  const raw = cellValue(matrixGrid, ourArmyId, theirArmyId);
+  return raw === NO_SIGNAL_VALUE ? NO_SIGNAL_VALUE : 20 - raw;
+}
+
 function withoutArmy(list: ArmyId[], id: ArmyId): ArmyId[] {
   return list.filter((armyId) => armyId !== id);
 }
@@ -182,6 +194,31 @@ function bestOurDefender(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matri
   );
 }
 
+/**
+ * The opponent's actual best defender choice, via the same search run from
+ * their point of view (`oursMaximize: false` — their nodes maximize
+ * `score`, ours minimize it). Commits one of the opponent's own armies, so
+ * — mirroring `bestOurDefender`'s own tie-break — ties are broken by
+ * `theirReserveStrength`.
+ */
+export function bestTheirDefender(
+  ourAvailable: ArmyId[],
+  theirAvailable: ArmyId[],
+  ourDefender: ArmyId,
+  matrixGrid: MatrixGridData,
+  score: CellScore,
+): ArmyId {
+  const config: SearchConfig = { score, oursMaximize: false };
+  return pickBest(
+    theirAvailable,
+    (candidate) => {
+      const remainingTheirs = withoutArmy(theirAvailable, candidate);
+      return searchOurAttackerPair(ourAvailable, candidate, remainingTheirs, ourDefender, matrixGrid, config);
+    },
+    (candidate) => theirReserveStrength(matrixGrid, candidate, ourAvailable, score),
+  );
+}
+
 function searchTheirDefender(
   ourAvailable: ArmyId[],
   theirAvailable: ArmyId[],
@@ -245,6 +282,30 @@ function bestOurAttackerPair(
   );
 }
 
+/**
+ * The opponent's actual best attacker pair to offer, via the same search
+ * run from their point of view. Commits two of the opponent's own armies,
+ * so — mirroring `bestOurAttackerPair`'s own tie-break — ties are broken
+ * by summed `theirReserveStrength`.
+ */
+export function bestTheirAttackerPair(
+  theirAvailable: ArmyId[],
+  ourAvailable: ArmyId[],
+  ourDefender: ArmyId,
+  matrixGrid: MatrixGridData,
+  score: CellScore,
+): [ArmyId, ArmyId] {
+  const config: SearchConfig = { score, oursMaximize: false };
+  const pairs = twoCombinations(theirAvailable);
+  return pickBest(
+    pairs,
+    (pair) => searchOurAccept(ourAvailable, pair, theirAvailable, ourDefender, matrixGrid, config),
+    (pair) =>
+      theirReserveStrength(matrixGrid, pair[0], ourAvailable, score) +
+      theirReserveStrength(matrixGrid, pair[1], ourAvailable, score),
+  );
+}
+
 function searchTheirPick(
   ourAvailable: ArmyId[],
   offeredPair: [ArmyId, ArmyId],
@@ -261,6 +322,35 @@ function searchTheirPick(
       const remainingOurs = withoutArmy(ourAvailable, picked);
       return immediate + searchTheirAttackerPair(remainingOurs, theirAvailable, ourDefender, matrixGrid, config);
     }),
+  );
+}
+
+/**
+ * The opponent's actual best pick from our offered attacker pair, via the
+ * same search run from their point of view. Chooses among an *offered*
+ * pair rather than committing one of the opponent's own armies, so —
+ * mirroring `bestOurAccept`'s own tie-break exactly, for the same
+ * structural reason — no reserve-strength consideration applies; first
+ * candidate wins ties.
+ */
+export function bestTheirPick(
+  offeredPair: [ArmyId, ArmyId],
+  theirDefender: ArmyId,
+  ourAvailable: ArmyId[],
+  theirAvailable: ArmyId[],
+  ourDefender: ArmyId,
+  matrixGrid: MatrixGridData,
+  score: CellScore,
+): ArmyId {
+  const config: SearchConfig = { score, oursMaximize: false };
+  return pickBest(
+    offeredPair,
+    (picked) => {
+      const immediate = score(matrixGrid, picked, theirDefender);
+      const remainingOurs = withoutArmy(ourAvailable, picked);
+      return immediate + searchTheirAttackerPair(remainingOurs, theirAvailable, ourDefender, matrixGrid, config);
+    },
+    () => 0,
   );
 }
 

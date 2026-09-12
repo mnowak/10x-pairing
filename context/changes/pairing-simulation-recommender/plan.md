@@ -326,17 +326,17 @@ None — no schema changes. `matchSessionStorage.ts`'s existing `"live"`-mode ke
 
 #### Automated
 
-- [x] 1.1 Full existing test suite passes unchanged: `npm test`
-- [x] 1.2 Type checking passes as part of build: `npm run build`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Full existing test suite passes unchanged: `npm test` — 8915564
+- [x] 1.2 Type checking passes as part of build: `npm run build` — 8915564
+- [x] 1.3 Linting passes: `npm run lint` — 8915564
 
 ### Phase 2: Mirrored opponent
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npm test`
-- [ ] 2.2 Type checking passes as part of build: `npm run build`
-- [ ] 2.3 Linting passes: `npm run lint`
+- [x] 2.1 Unit tests pass: `npm test`
+- [x] 2.2 Type checking passes as part of build: `npm run build`
+- [x] 2.3 Linting passes: `npm run lint`
 
 ### Phase 3: Similar opponent
 

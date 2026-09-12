@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { cellValue, minimaxSuggestionProvider, pickBest, reserveStrength, type ArmyId } from "@/lib/matchSuggestions";
+import {
+  bestTheirAttackerPair,
+  bestTheirDefender,
+  bestTheirPick,
+  cellValue,
+  minimaxSuggestionProvider,
+  mirroredValue,
+  pickBest,
+  reserveStrength,
+  theirReserveStrength,
+  type ArmyId,
+} from "@/lib/matchSuggestions";
+import { mirroredOpponentProvider } from "@/lib/opponentMoves";
 import {
   confirmOurAccept,
   confirmOurAttackerPair,
@@ -57,6 +69,35 @@ describe("reserveStrength", () => {
   });
 });
 
+describe("mirroredValue", () => {
+  const grid = gridOf({ "a:x": "red", "a:y": "dark-green", "a:z": "yellow", "b:x": "purple" });
+
+  it("inverts a real color-band score as 20 - cellValue", () => {
+    expect(mirroredValue(grid, "a", "x")).toBe(18); // 20 - 2 (red)
+    expect(mirroredValue(grid, "a", "y")).toBe(2); // 20 - 18 (dark-green)
+    expect(mirroredValue(grid, "a", "z")).toBe(10); // 20 - 10 (yellow) — self-inverse at the midpoint
+  });
+
+  it("leaves purple unchanged at NO_SIGNAL_VALUE (7), not inverted to 13", () => {
+    expect(mirroredValue(grid, "b", "x")).toBe(7);
+  });
+
+  it("leaves an unestimated (absent) cell unchanged at 7, same as purple", () => {
+    expect(mirroredValue(grid, "c", "q")).toBe(7);
+  });
+});
+
+describe("theirReserveStrength", () => {
+  it("sums score(ourArmy, theirArmy) over ourAvailable, for the fixed theirArmy", () => {
+    const grid = gridOf({ "x:a": "red", "y:a": "yellow", "z:a": "dark-green" });
+    expect(theirReserveStrength(grid, "a", ["x", "y", "z"], cellValue)).toBe(2 + 10 + 18);
+  });
+
+  it("is 0 when ourAvailable is empty", () => {
+    expect(theirReserveStrength(gridOf({}), "a", [], cellValue)).toBe(0);
+  });
+});
+
 describe("pickBest", () => {
   it("picks the candidate with the highest primary value", () => {
     const result = pickBest(
@@ -89,6 +130,127 @@ describe("pickBest", () => {
       () => 0,
     );
     expect(result).toBe("first");
+  });
+});
+
+describe("bestTheirDefender / bestTheirPick / bestTheirAttackerPair — bounds", () => {
+  const grid = gridOf({});
+
+  it("bestTheirDefender always returns an army from theirAvailable", () => {
+    const theirAvailable = ["x", "y", "z"];
+    const result = bestTheirDefender(["a", "b", "c"], theirAvailable, "d", grid, cellValue);
+    expect(theirAvailable).toContain(result);
+  });
+
+  it("bestTheirPick always returns one of offeredPair", () => {
+    const offeredPair: [ArmyId, ArmyId] = ["o1", "o2"];
+    const result = bestTheirPick(offeredPair, "t1", offeredPair, ["t2", "t3"], "d", grid, cellValue);
+    expect(offeredPair).toContain(result);
+  });
+
+  it("bestTheirAttackerPair always returns 2 distinct armies from theirAvailable", () => {
+    const theirAvailable = ["a", "b", "c"];
+    const [first, second] = bestTheirAttackerPair(theirAvailable, ["o1", "o2"], "d", grid, cellValue);
+    expect(theirAvailable).toContain(first);
+    expect(theirAvailable).toContain(second);
+    expect(first).not.toBe(second);
+  });
+});
+
+describe("bestTheirDefender — hand-verified scenario (mirror of bestOurDefender's own tie-break test)", () => {
+  it("a tied primary value correctly falls through to the theirReserveStrength tie-break", () => {
+    // Exact mirror of the "suggestDefender: a tied primary value..." scenario
+    // below, with roles swapped (their candidates a/b/c, our armies x/y/z)
+    // and an external, neutral ourDefender "d" whose matchup value is the
+    // SAME constant against every candidate — it shifts every path's total
+    // by the same amount without disturbing the comparison, so the exact
+    // same tie-and-tie-break reasoning transfers: committing "a" and "c" as
+    // defender both yield the same primary value, and the tie-break must
+    // prefer the LOWER-theirReserveStrength candidate — "c".
+    const grid = gridOf({
+      "x:a": "yellow",
+      "y:a": "yellow",
+      "z:a": "yellow",
+      "x:b": "dark-green",
+      "y:b": "red",
+      "z:b": "red",
+      "x:c": "red",
+      "y:c": "red",
+      "z:c": "red",
+      "x:d": "yellow",
+      "y:d": "yellow",
+      "z:d": "yellow",
+    });
+    const result = bestTheirDefender(["x", "y", "z"], ["a", "b", "c"], "d", grid, cellValue);
+    expect(result).toBe("c");
+  });
+});
+
+describe("bestTheirAttackerPair — hand-verified dominance scenario", () => {
+  it("offers the pair that maximizes the minimum immediate value against the fixed ourDefender", () => {
+    // ourDefender "OD" scores dark-green (18) against a/b, red (2) against
+    // c/d. Every other matchup (o1/o2/o3 vs a/b/c/d) is uniformly yellow
+    // (10), so the nested-subround continuation after accepting is
+    // identical regardless of which 3-of-4 opponents remain — it
+    // contributes the same constant to every candidate pair, leaving only
+    // the immediate min(score(OD, p0), score(OD, p1)) to decide. {a,b}
+    // (min 18) strictly dominates every pair containing c or d (min 2).
+    const grid = gridOf({
+      "OD:a": "dark-green",
+      "OD:b": "dark-green",
+      "OD:c": "red",
+      "OD:d": "red",
+      "o1:a": "yellow",
+      "o1:b": "yellow",
+      "o1:c": "yellow",
+      "o1:d": "yellow",
+      "o2:a": "yellow",
+      "o2:b": "yellow",
+      "o2:c": "yellow",
+      "o2:d": "yellow",
+      "o3:a": "yellow",
+      "o3:b": "yellow",
+      "o3:c": "yellow",
+      "o3:d": "yellow",
+    });
+    const [first, second] = bestTheirAttackerPair(["a", "b", "c", "d"], ["o1", "o2", "o3"], "OD", grid, cellValue);
+    expect(new Set([first, second])).toEqual(new Set(["a", "b"]));
+  });
+});
+
+describe("bestTheirPick — hand-verified scenarios", () => {
+  // ourAvailable = the full offered pair (a minimal 3v3 subround: exactly 2
+  // armies remain after our-defender is committed). o1/o2 share an
+  // identical row against t2/t3 (the only downstream matchup), so the
+  // nested continuation is the same regardless of which is picked — only
+  // the immediate score against the fixed theirDefender "t1" decides.
+  const neutralDownstream = {
+    "o1:t2": "yellow",
+    "o2:t2": "yellow",
+    "o1:t3": "yellow",
+    "o2:t3": "yellow",
+    "OD:t2": "yellow",
+    "OD:t3": "yellow",
+  } as const;
+
+  it("picks the offered army with the better immediate matchup against theirDefender", () => {
+    const grid = gridOf({ "o1:t1": "dark-green", "o2:t1": "red", ...neutralDownstream });
+    const result = bestTheirPick(["o1", "o2"], "t1", ["o1", "o2"], ["t2", "t3"], "OD", grid, cellValue);
+    expect(result).toBe("o1");
+  });
+
+  it("on a genuine tie, the first candidate in offeredPair wins (no reserve-strength tie-break, mirroring bestOurAccept)", () => {
+    const grid = gridOf({ "o1:t1": "yellow", "o2:t1": "yellow", ...neutralDownstream });
+    const result = bestTheirPick(["o1", "o2"], "t1", ["o1", "o2"], ["t2", "t3"], "OD", grid, cellValue);
+    expect(result).toBe("o1");
+  });
+});
+
+describe("mirroredOpponentProvider — wiring", () => {
+  it("pickDefender delegates to bestTheirDefender with mirroredValue as the score function", () => {
+    const grid = gridOf({ "x:a": "red", "x:b": "dark-green", "y:a": "red", "y:b": "dark-green" });
+    const expected = bestTheirDefender(["x", "y"], ["a", "b"], "d", grid, mirroredValue);
+    expect(mirroredOpponentProvider.pickDefender(["a", "b"], ["x", "y"], "d", grid)).toBe(expected);
   });
 });
 
@@ -233,6 +395,106 @@ describe("minimaxSuggestionProvider — full 5-vs-5 walkthrough via the real eng
             grid,
           );
           break;
+        case "our-accept":
+          state = confirmOurAccept(state, ourSuggested(), minimaxSuggestionProvider, grid);
+          break;
+        case "complete":
+          break;
+      }
+    }
+
+    expect(state.history).toHaveLength(2);
+    expect(state.refusedAttacker).not.toBeNull();
+
+    const committedOurs = new Set([
+      ...state.history.map((r) => r.ourDefender),
+      ...state.history.map((r) => r.theirPick),
+      state.refusedAttacker?.ours,
+    ]);
+    const committedTheirs = new Set([
+      ...state.history.map((r) => r.theirDefender),
+      ...state.history.map((r) => r.ourAccepted),
+      state.refusedAttacker?.theirs,
+    ]);
+    expect(committedOurs).toEqual(new Set(ourArmies));
+    expect(committedTheirs).toEqual(new Set(theirArmies));
+  });
+});
+
+describe("mirroredOpponentProvider — full 5-vs-5 walkthrough via the real engine", () => {
+  it("drives the opponent's 3 decision points end-to-end with no thrown errors, every army committed exactly once", () => {
+    const ourArmies = ["o1", "o2", "o3", "o4", "o5"];
+    const theirArmies = ["t1", "t2", "t3", "t4", "t5"];
+    const estimates: Record<string, Estimate> = {};
+    const bands: Estimate[] = ["red", "orange", "yellow", "green", "dark-green", "purple"];
+    let i = 0;
+    for (const our of ourArmies) {
+      for (const their of theirArmies) {
+        estimates[`${our}:${their}`] = bands[i % bands.length];
+        i++;
+      }
+    }
+    const grid = gridOf(estimates);
+
+    let state = createSession(ourArmies, theirArmies, minimaxSuggestionProvider, grid);
+
+    function ourSuggested(): ArmyId {
+      if (typeof state.suggested !== "string") {
+        throw new Error(`Expected a single suggested army, got: ${JSON.stringify(state.suggested)}`);
+      }
+      return state.suggested;
+    }
+
+    while (!isSessionComplete(state)) {
+      switch (state.phase) {
+        case "our-defender":
+          state = confirmOurDefender(state, ourSuggested());
+          break;
+        case "their-defender": {
+          const ourDefender = state.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
+          const picked = mirroredOpponentProvider.pickDefender(
+            state.theirAvailable,
+            state.ourAvailable,
+            ourDefender,
+            grid,
+          );
+          state = enterTheirDefender(state, picked, minimaxSuggestionProvider, grid);
+          break;
+        }
+        case "our-attacker-pair":
+          state = confirmOurAttackerPair(state, [state.ourAvailable[0], state.ourAvailable[1]]);
+          break;
+        case "their-pick": {
+          const offered = state.working.ourOfferedPair;
+          const theirDefender = state.working.theirDefender;
+          const ourDefender = state.working.ourDefender;
+          if (!offered || !theirDefender || !ourDefender) {
+            throw new Error("Expected ourOfferedPair/theirDefender/ourDefender to be set in their-pick phase");
+          }
+          const picked = mirroredOpponentProvider.pickAttackerChoice(
+            offered,
+            theirDefender,
+            state.ourAvailable,
+            state.theirAvailable,
+            ourDefender,
+            grid,
+          );
+          state = enterTheirPick(state, picked);
+          break;
+        }
+        case "their-attacker-pair": {
+          const ourDefender = state.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-attacker-pair phase");
+          const pair = mirroredOpponentProvider.pickAttackerPair(
+            state.theirAvailable,
+            state.ourAvailable,
+            ourDefender,
+            grid,
+          );
+          state = enterTheirAttackerPair(state, pair, minimaxSuggestionProvider, grid);
+          break;
+        }
         case "our-accept":
           state = confirmOurAccept(state, ourSuggested(), minimaxSuggestionProvider, grid);
           break;

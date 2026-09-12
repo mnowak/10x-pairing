@@ -335,7 +335,14 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
       {state.phase === "their-defender" &&
         (mode === "simulation" ? (
           <AutoReveal
-            pick={() => randomOpponentProvider.pickDefender(state.theirAvailable, state.ourAvailable, matrixGrid)}
+            pick={() =>
+              randomOpponentProvider.pickDefender(
+                state.theirAvailable,
+                state.ourAvailable,
+                requireWorking(state.working.ourDefender, "Our defender"),
+                matrixGrid,
+              )
+            }
             renderLabel={(id) => `They reveal: ${nameById.get(id) ?? id}`}
             onContinue={(id) => {
               setState(enterTheirDefender(state, id, minimaxSuggestionProvider, matrixGrid));
@@ -370,6 +377,9 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
               randomOpponentProvider.pickAttackerChoice(
                 requireWorking(state.working.ourOfferedPair, "Our offered pair"),
                 requireWorking(state.working.theirDefender, "Their defender"),
+                state.ourAvailable,
+                state.theirAvailable,
+                requireWorking(state.working.ourDefender, "Our defender"),
                 matrixGrid,
               )
             }
@@ -395,6 +405,7 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
             pick={() =>
               randomOpponentProvider.pickAttackerPair(
                 state.theirAvailable,
+                state.ourAvailable,
                 requireWorking(state.working.ourDefender, "Our defender"),
                 matrixGrid,
               )
