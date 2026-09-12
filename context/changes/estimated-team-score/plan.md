@@ -120,12 +120,12 @@ None — no schema or persisted-data changes.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes as part of build: `npm run build`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npm test` — f36c3d5
+- [x] 1.2 Type checking passes as part of build: `npm run build` — f36c3d5
+- [x] 1.3 Linting passes: `npm run lint` — f36c3d5
 
 #### Manual
 
-- [x] 1.4 Live match-mode completion screen shows "Estimated team score: N"
-- [x] 1.5 Practice-mode completion screen shows the identical line, in the same place
-- [x] 1.6 The displayed total matches an independent manual sum of the 5 final pairings' color-band scores
+- [x] 1.4 Live match-mode completion screen shows "Estimated team score: N" — f36c3d5
+- [x] 1.5 Practice-mode completion screen shows the identical line, in the same place — f36c3d5
+- [x] 1.6 The displayed total matches an independent manual sum of the 5 final pairings' color-band scores — f36c3d5
