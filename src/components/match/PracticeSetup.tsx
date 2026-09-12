@@ -41,7 +41,19 @@ const DEFAULT_BEHAVIOR: OpponentBehavior = "mirrored";
  * new same-mode session on its own.
  */
 export default function PracticeSetup({ opponentId, ourArmies, theirArmies, matrixGrid }: Props) {
-  const [initialLoaded] = useState(() => loadSession(opponentId, "simulation"));
+  const [initialLoaded] = useState(() => {
+    const loaded = loadSession(opponentId, "simulation");
+    // A pre-feature simulation session has no opponentBehavior — unusable
+    // by the picker-vs-resume decision below. Clear it so starting fresh
+    // from the picker doesn't leave MatchSession to silently resume its
+    // stale mid-round state under a freshly picked, unrelated behavior
+    // label.
+    if (loaded && !loaded.opponentBehavior) {
+      clearSession("simulation");
+      return null;
+    }
+    return loaded;
+  });
   const [activeBehavior, setActiveBehavior] = useState<OpponentBehavior | null>(
     () => initialLoaded?.opponentBehavior ?? null,
   );

@@ -34,6 +34,19 @@ interface StoredSession {
   similarScoreTable?: Record<string, number>;
 }
 
+// Guards against a value that's valid JSON but not shaped like a
+// StoredSession (e.g. hand-edited or partially-written localStorage) —
+// JSON.parse's own try/catch only catches syntax errors, not shape
+// mismatches. Deliberately shallow: only checks the fields loadSession
+// itself reads before handing the rest through as MatchSessionState.
+function isStoredSession(value: unknown): value is StoredSession {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.opponentId === "string" && typeof candidate.state === "object" && candidate.state !== null;
+}
+
 /** What `loadSession` returns on a hit — the engine state plus whichever opponent-behavior context was saved alongside it (both fields `undefined` for `mode: "live"`). */
 export interface LoadedSession {
   state: MatchSessionState;
@@ -74,7 +87,11 @@ export function loadSession(opponentId: string, mode: SessionMode): LoadedSessio
     return null;
   }
   try {
-    const stored = JSON.parse(raw) as StoredSession;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isStoredSession(parsed)) {
+      return null;
+    }
+    const stored = parsed;
     if (stored.opponentId !== opponentId) {
       return null;
     }
