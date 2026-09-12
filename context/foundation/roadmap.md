@@ -22,7 +22,7 @@ milestone_status: open
 
 **M-2: pairing-simulation** — Status: open
 
-- **Intent:** Let a captain run a solo pairing-simulation session — training without a second human present — where they still make their own choices manually (using the existing suggestion-engine recommendations) while the app automatically plays the opponent's side and shows what it picked at each step. Ships in two increments: opponent plays randomly first, then opponent plays using the existing minimax-derived optimal-for-them logic.
+- **Intent:** Let a captain run a solo pairing-simulation session — training without a second human present — where they still make their own choices manually (using the existing suggestion-engine recommendations) while the app automatically plays the opponent's side and shows what it picked at each step. Ships in two increments: opponent plays randomly first (S-07), then the captain can pick from three selectable opponent-behavior modes — Random, Mirrored (minimax-derived, default), or Similar (Mirrored plus session-fixed noise) — via a pre-session picker (S-08, scope expanded during `/10x-plan` to pull MS-05 forward).
 - **Source materials:** user description (anchors below)
 - **Done when:** S-07 and S-08 below are both `done`.
 - **Scope anchors:**
@@ -30,7 +30,7 @@ milestone_status: open
   - MS-02: In simulation, the captain still makes their own choices manually at each of their three decision points, receiving the same suggestion-engine recommendations as live match-mode today.
   - MS-03: The app automatically picks the opponent's move at each of the opponent's three decision points (uniformly at random, increment 1), instead of requiring a human to enter it.
   - MS-04: The app's automated opponent picks are upgraded (increment 2) to use the existing minimax engine's opponent-optimal-for-them search instead of random, reusing the captain's own pairing-matrix estimates mirrored as the opponent's assumed perspective.
-  - MS-05 (parked — user explicitly deferred to a later increment beyond this milestone): captain can choose among multiple opponent-behavior modes for simulation — random, opponent uses the same matrix as the captain's own, or a "similar" (independently varied) matrix.
+  - MS-05 (folded into S-08, 2026-09-12 — no longer parked; user asked to pull it forward): captain can choose among three opponent-behavior modes for simulation via a pre-session picker — Random, Mirrored (matrix inverted per-cell, purple pinned flat), or Similar (Mirrored plus a fixed-per-session random perturbation).
 
 ## Vision recap
 
@@ -47,7 +47,7 @@ M-1 shipped the live, two-human pairing flow: a captain negotiating defender/att
 | ID   | Change ID                    | Outcome (user can …)                                                                                                                                              | Prerequisites  | PRD refs           | Status   |
 | ---- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------- | -------- |
 | S-07 | pairing-simulation-session    | run a solo pairing-simulation session against a prepared opponent matrix, making their own choices manually while the app auto-picks the opponent's moves at random and shows what was picked | S-02, S-03, F-01 | MS-01, MS-02, MS-03 | done |
-| S-08 | pairing-simulation-recommender | have their solo pairing-simulation opponent play using the existing minimax engine's opponent-optimal-for-them logic instead of a random pick                    | S-07           | MS-04               | proposed |
+| S-08 | pairing-simulation-recommender | pick one of three opponent-behavior modes (Random / Mirrored / Similar) for a solo pairing-simulation session via a pre-session picker                    | S-07           | MS-04, MS-05               | in-progress |
 
 ## Baseline
 
@@ -84,33 +84,31 @@ None for this milestone. The two absent capabilities identified in Baseline (ses
 - **Risk:** This is the north star for M-2 — the smallest end-to-end slice that proves solo training works as a mode. Mirrors the M-1 `S-03` precedent (ship full session mechanics behind a swappable opponent-decision interface) rather than building the harder algorithmic-opponent logic first.
 - **Status:** done
 
-### S-08: Opponent plays algorithmically in solo pairing simulation
+### S-08: Selectable opponent-behavior modes for pairing simulation
 
-- **Outcome:** captain's solo pairing-simulation opponent moves are no longer random — the app picks the opponent's move at each decision point using the existing minimax engine's opponent-optimal-for-them search (already computed internally by `minimaxSuggestionProvider` but not yet exposed), replacing S-07's random pick with a more realistic training opponent.
+- **Outcome:** captain can pick one of three opponent-behavior modes for a solo pairing-simulation session via a pre-session picker: **Random** (S-07's existing uniform pick), **Mirrored** (default — a real minimax lookahead over an inverted view of the captain's own matrix: `20 - estimate` per non-purple cell, purple pinned flat at 7), or **Similar** (Mirrored's matrix plus a fixed-per-session random perturbation — non-purple cells `mirroredValue ± 4` clamped to [0,20], purple cells a fully random integer in [0,20]). Scope expanded during `/10x-plan` (2026-09-12) from the original single hardcoded swap to the full selector, pulling MS-05 forward at the user's explicit request.
 - **Change ID:** pairing-simulation-recommender
-- **PRD refs:** MS-04
+- **PRD refs:** MS-04, MS-05
 - **Prerequisites:** S-07 (specifically its swappable opponent-decision interface)
 - **Parallel with:** —
 - **Blockers:** —
-- **Unknowns:**
-  - Should the algorithmic opponent's search reuse the captain's own pairing-matrix estimates, mirrored as the opponent's assumed perspective (since no independent opponent-side estimate data exists in the schema), or does this need a genuinely separate opponent estimate model? Owner: user/team. Block: no — `/10x-plan` can proceed with the mirrored-estimates default, flagged for revisit if simulation feels unrealistic once built.
-- **Risk:** Carries the domain decision flagged during roadmap framing (top blocker: decisions) — the mirrored-estimate assumption is the only plausible default given the current schema, but is named explicitly here so a future reader doesn't mistake it for an independently modeled opponent.
-- **Status:** proposed
+- **Unknowns:** — (resolved during `/10x-plan`, 2026-09-12: the flagged "mirrored estimates vs. separate opponent model" question turned out to already be answered by the existing minimax model's adversarial-minimization — no new mirroring mechanism was needed for that; the genuinely new design work is the Mirrored/Similar value functions and the generalized two-perspective search engine, both now designed and captured in `context/changes/pairing-simulation-recommender/plan.md`.)
+- **Risk:** Now the largest slice in this milestone — a generalized (not duplicated) minimax engine reused from the opponent's perspective, three distinct value functions, new persisted session state (chosen mode + a fixed-per-session generated matrix for Similar), and a new pre-session picker screen. This is deliberately still one slice (not split) since it's one coherent captain-visible capability: pick a training opponent style.
+- **Status:** in-progress
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                      | Suggested issue title                                                  | Ready for `/10x-plan` | Notes                |
 | ---------- | -------------------------------- | ------------------------------------------------------------------------ | ---------------------- | -------------------- |
 | S-07       | pairing-simulation-session        | Captain can run a solo pairing-simulation session (random opponent)      | yes                     | —                     |
-| S-08       | pairing-simulation-recommender    | Solo pairing-simulation opponent plays algorithmically, not randomly     | no                      | Waiting on S-07       |
+| S-08       | pairing-simulation-recommender    | Selectable opponent-behavior modes (Random/Mirrored/Similar) for pairing simulation | no          | Waiting on S-07       |
 
 ## Open Roadmap Questions
 
-None new — the two open domain decisions (opponent random-sampling rule; mirrored-matrix assumption for the algorithmic opponent) are non-blocking per-slice Unknowns; see S-07 and S-08 above.
+None new — the opponent random-sampling rule (non-blocking per-slice Unknown; see S-07 above) is the only one remaining; S-08's Unknown was resolved during `/10x-plan` (2026-09-12), see S-08 above.
 
 ## Parked
 
-- **Multiple opponent-behavior modes for simulation (MS-05)** — Why parked: user explicitly deferred to a later increment beyond this milestone ("in some next increment") — random / same-matrix-as-captain's / "similar" (varied) matrix modes, selectable per session.
 - **Managing multiple of our own teams (FR-002)** — Why parked: PRD Non-Goals — demoted to nice-to-have to protect the original 2-week MVP budget; still not in scope.
 - **Team-vs-team round pairing (Swiss system between teams)** — Why parked: PRD Non-Goals — the organizer's job, determined externally.
 - **Post-match score tracking / historical stats** — Why parked: PRD Non-Goals — out of scope for live pairing decisions.

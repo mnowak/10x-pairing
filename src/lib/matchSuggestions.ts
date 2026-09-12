@@ -21,14 +21,25 @@ export interface MatchSuggestionProvider {
   ): ArmyId;
 }
 
+/** A per-matchup scorer, always called with the captain's army first and the opponent's army second — matches cellValue's own argument order regardless of which side's search is using it. */
+export type CellScore = (matrixGrid: MatrixGridData, ourArmyId: ArmyId, theirArmyId: ArmyId) => number;
+
 // Purple and an unestimated (blank) cell both score as one point above
 // orange's representative score — an explicitly arbitrary choice, not
 // derived from data: purple is judged worse than yellow, better than
 // orange; a blank cell gets the same treatment since the algorithm has
 // equally little signal in both cases.
-const NO_SIGNAL_VALUE = 7;
+//
+// Exported: 7 never occurs as a real color-band representative score
+// (COLOR_BANDS' scores are {2,6,10,14,18}), so `=== NO_SIGNAL_VALUE` is a
+// safe, unambiguous way for other modules to detect "no real estimate"
+// without inspecting the raw Estimate value.
+export const NO_SIGNAL_VALUE = 7;
 
-function cellKey(ourArmyId: ArmyId, theirArmyId: ArmyId): string {
+// Exported so other modules building their own per-cell score tables (e.g.
+// opponentMoves.ts's Similar-mode noise table) key their data identically
+// to how cellValue looks estimates up here.
+export function cellKey(ourArmyId: ArmyId, theirArmyId: ArmyId): string {
   return `${ourArmyId}:${theirArmyId}`;
 }
 
@@ -60,9 +71,30 @@ function twoCombinations(items: readonly ArmyId[]): [ArmyId, ArmyId][] {
 
 // Both exported for direct unit testing of the tie-break rule in isolation.
 
-/** Sum of `army`'s estimated value against every army in `theirAvailable` — a proxy for how broadly useful it is to keep in reserve. */
-export function reserveStrength(matrixGrid: MatrixGridData, army: ArmyId, theirAvailable: ArmyId[]): number {
-  return theirAvailable.reduce((sum, theirArmy) => sum + cellValue(matrixGrid, army, theirArmy), 0);
+/** Sum of `army`'s value (via `score`, default `cellValue`) against every army in `theirAvailable` — a proxy for how broadly useful it is to keep in reserve. */
+export function reserveStrength(
+  matrixGrid: MatrixGridData,
+  army: ArmyId,
+  theirAvailable: ArmyId[],
+  score: CellScore = cellValue,
+): number {
+  return theirAvailable.reduce((sum, theirArmy) => sum + score(matrixGrid, army, theirArmy), 0);
+}
+
+/**
+ * Mirror of `reserveStrength` for a candidate on the *other* side: sums
+ * `score(matrixGrid, ourArmy, theirArmy)` over `ourAvailable` for the fixed
+ * `theirArmy` — varying the first argument instead of the second, since
+ * cellValue's key order always expects "our army" first regardless of
+ * whose decision is being scored.
+ */
+export function theirReserveStrength(
+  matrixGrid: MatrixGridData,
+  theirArmy: ArmyId,
+  ourAvailable: ArmyId[],
+  score: CellScore,
+): number {
+  return ourAvailable.reduce((sum, ourArmy) => sum + score(matrixGrid, ourArmy, theirArmy), 0);
 }
 
 /** Picks the candidate with the highest primaryValue; ties broken by the lowest tieBreakValue (a constant tieBreakValue means the first candidate wins every tie). */
@@ -94,35 +126,58 @@ export function pickBest<T>(
 // --- Minimax search ---------------------------------------------------
 //
 // Mirrors matchSessionEngine.ts's sub-round mechanics exactly: our-defender
-// (max) -> their-defender (min) -> our-attacker-pair-offer (max) ->
-// their-pick (min) -> their-attacker-pair-offer (min) -> our-accept (max)
-// -> next sub-round or terminal auto-pair. Every "our" node tries each
-// candidate and keeps the best achievable total; every "their" node tries
-// each candidate the opponent could pick and keeps the worst-for-us
-// achievable total (minimax: assume the opponent always plays against us).
+// -> their-defender -> our-attacker-pair-offer -> their-pick ->
+// their-attacker-pair-offer -> our-accept -> next sub-round or terminal
+// auto-pair. Generalized over a SearchConfig so the exact same tree shape
+// can run from either perspective:
+//
+//   { score: cellValue, oursMaximize: true }  — the real engine used by
+//     minimaxSuggestionProvider below: our nodes maximize, their nodes
+//     minimize, assuming the opponent always plays against us. This is the
+//     only config used in this file today — the opposite config (their
+//     nodes maximize their own value, our nodes minimize it, from the
+//     opponent's point of view) is introduced by a later change alongside
+//     the functions that actually expose the opponent's picks.
+//
 // "value" always means "sum of final-pairing scores from this point to the
-// end of the game" — never anything already committed before this level.
+// end of the game" (per whichever score function config carries) — never
+// anything already committed before this level.
+
+export interface SearchConfig {
+  score: CellScore;
+  oursMaximize: boolean;
+}
 
 function scoreOurDefenderCandidate(
   ourAvailable: ArmyId[],
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
   const remainingOurs = withoutArmy(ourAvailable, ourDefender);
-  return searchTheirDefender(remainingOurs, theirAvailable, ourDefender, matrixGrid);
+  return searchTheirDefender(remainingOurs, theirAvailable, ourDefender, matrixGrid, config);
 }
 
-function searchOurDefender(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matrixGrid: MatrixGridData): number {
-  return Math.max(
-    ...ourAvailable.map((candidate) => scoreOurDefenderCandidate(ourAvailable, theirAvailable, candidate, matrixGrid)),
+function searchOurDefender(
+  ourAvailable: ArmyId[],
+  theirAvailable: ArmyId[],
+  matrixGrid: MatrixGridData,
+  config: SearchConfig,
+): number {
+  const agg = config.oursMaximize ? Math.max : Math.min;
+  return agg(
+    ...ourAvailable.map((candidate) =>
+      scoreOurDefenderCandidate(ourAvailable, theirAvailable, candidate, matrixGrid, config),
+    ),
   );
 }
 
 function bestOurDefender(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matrixGrid: MatrixGridData): ArmyId {
+  const config: SearchConfig = { score: cellValue, oursMaximize: true };
   return pickBest(
     ourAvailable,
-    (candidate) => scoreOurDefenderCandidate(ourAvailable, theirAvailable, candidate, matrixGrid),
+    (candidate) => scoreOurDefenderCandidate(ourAvailable, theirAvailable, candidate, matrixGrid, config),
     (candidate) => reserveStrength(matrixGrid, candidate, theirAvailable),
   );
 }
@@ -132,11 +187,13 @@ function searchTheirDefender(
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
-  return Math.min(
+  const agg = config.oursMaximize ? Math.min : Math.max;
+  return agg(
     ...theirAvailable.map((theirDefender) => {
       const remainingTheirs = withoutArmy(theirAvailable, theirDefender);
-      return searchOurAttackerPair(ourAvailable, theirDefender, remainingTheirs, ourDefender, matrixGrid);
+      return searchOurAttackerPair(ourAvailable, theirDefender, remainingTheirs, ourDefender, matrixGrid, config);
     }),
   );
 }
@@ -148,8 +205,9 @@ function scoreOurAttackerPairCandidate(
   ourDefender: ArmyId,
   pair: [ArmyId, ArmyId],
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
-  return searchTheirPick(ourAvailable, pair, theirDefender, theirAvailable, ourDefender, matrixGrid);
+  return searchTheirPick(ourAvailable, pair, theirDefender, theirAvailable, ourDefender, matrixGrid, config);
 }
 
 function searchOurAttackerPair(
@@ -158,11 +216,13 @@ function searchOurAttackerPair(
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
   const pairs = twoCombinations(ourAvailable);
-  return Math.max(
+  const agg = config.oursMaximize ? Math.max : Math.min;
+  return agg(
     ...pairs.map((pair) =>
-      scoreOurAttackerPairCandidate(ourAvailable, theirDefender, theirAvailable, ourDefender, pair, matrixGrid),
+      scoreOurAttackerPairCandidate(ourAvailable, theirDefender, theirAvailable, ourDefender, pair, matrixGrid, config),
     ),
   );
 }
@@ -174,10 +234,12 @@ function bestOurAttackerPair(
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
 ): [ArmyId, ArmyId] {
+  const config: SearchConfig = { score: cellValue, oursMaximize: true };
   const pairs = twoCombinations(ourAvailable);
   return pickBest(
     pairs,
-    (pair) => scoreOurAttackerPairCandidate(ourAvailable, theirDefender, theirAvailable, ourDefender, pair, matrixGrid),
+    (pair) =>
+      scoreOurAttackerPairCandidate(ourAvailable, theirDefender, theirAvailable, ourDefender, pair, matrixGrid, config),
     (pair) =>
       reserveStrength(matrixGrid, pair[0], theirAvailable) + reserveStrength(matrixGrid, pair[1], theirAvailable),
   );
@@ -190,12 +252,14 @@ function searchTheirPick(
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
-  return Math.min(
+  const agg = config.oursMaximize ? Math.min : Math.max;
+  return agg(
     ...offeredPair.map((picked) => {
-      const immediate = cellValue(matrixGrid, picked, theirDefender);
+      const immediate = config.score(matrixGrid, picked, theirDefender);
       const remainingOurs = withoutArmy(ourAvailable, picked);
-      return immediate + searchTheirAttackerPair(remainingOurs, theirAvailable, ourDefender, matrixGrid);
+      return immediate + searchTheirAttackerPair(remainingOurs, theirAvailable, ourDefender, matrixGrid, config);
     }),
   );
 }
@@ -205,9 +269,13 @@ function searchTheirAttackerPair(
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
   const pairs = twoCombinations(theirAvailable);
-  return Math.min(...pairs.map((pair) => searchOurAccept(ourAvailable, pair, theirAvailable, ourDefender, matrixGrid)));
+  const agg = config.oursMaximize ? Math.min : Math.max;
+  return agg(
+    ...pairs.map((pair) => searchOurAccept(ourAvailable, pair, theirAvailable, ourDefender, matrixGrid, config)),
+  );
 }
 
 function searchOurAccept(
@@ -216,12 +284,14 @@ function searchOurAccept(
   theirAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
+  config: SearchConfig,
 ): number {
-  return Math.max(
+  const agg = config.oursMaximize ? Math.max : Math.min;
+  return agg(
     ...theirOfferedPair.map((accepted) => {
-      const immediate = cellValue(matrixGrid, ourDefender, accepted);
+      const immediate = config.score(matrixGrid, ourDefender, accepted);
       const remainingTheirs = withoutArmy(theirAvailable, accepted);
-      return immediate + continueOrFinish(ourAvailable, remainingTheirs, matrixGrid);
+      return immediate + continueOrFinish(ourAvailable, remainingTheirs, matrixGrid, config);
     }),
   );
 }
@@ -233,12 +303,13 @@ function bestOurAccept(
   theirAvailable: ArmyId[],
   matrixGrid: MatrixGridData,
 ): ArmyId {
+  const config: SearchConfig = { score: cellValue, oursMaximize: true };
   return pickBest(
     theirOfferedPair,
     (accepted) => {
       const immediate = cellValue(matrixGrid, ourDefender, accepted);
       const remainingTheirs = withoutArmy(theirAvailable, accepted);
-      return immediate + continueOrFinish(ourAvailable, remainingTheirs, matrixGrid);
+      return immediate + continueOrFinish(ourAvailable, remainingTheirs, matrixGrid, config);
     },
     // No richer tie-break applies to this decision type (nothing of ours
     // stays "in reserve" from an accept choice) — first candidate wins ties.
@@ -246,12 +317,17 @@ function bestOurAccept(
   );
 }
 
-function continueOrFinish(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matrixGrid: MatrixGridData): number {
+function continueOrFinish(
+  ourAvailable: ArmyId[],
+  theirAvailable: ArmyId[],
+  matrixGrid: MatrixGridData,
+  config: SearchConfig,
+): number {
   if (ourAvailable.length > 1 && theirAvailable.length > 1) {
-    return searchOurDefender(ourAvailable, theirAvailable, matrixGrid);
+    return searchOurDefender(ourAvailable, theirAvailable, matrixGrid, config);
   }
   // Forced refused-attacker pairing: exactly one army left on each side.
-  return cellValue(matrixGrid, ourAvailable[0], theirAvailable[0]);
+  return config.score(matrixGrid, ourAvailable[0], theirAvailable[0]);
 }
 
 /**
