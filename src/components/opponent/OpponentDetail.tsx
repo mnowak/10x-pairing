@@ -31,6 +31,12 @@ export default function OpponentDetail({ opponent, matrixGrid, estimateCounts, s
               {opponent.armies.length}/{MAX_ROSTER_SIZE} armies
             </span>
             <a
+              href={`/dashboard/opponents/${opponent.id}/simulate`}
+              className="rounded-lg border border-white/20 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Practice solo
+            </a>
+            <a
               href={`/dashboard/opponents/${opponent.id}/match`}
               className="rounded-lg bg-purple-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-purple-500"
             >

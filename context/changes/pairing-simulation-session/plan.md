@@ -223,27 +223,27 @@ None — no schema or persisted-data changes; `matchSessionStorage.ts`'s existin
 
 #### Automated
 
-- [x] 2.1 Type checking passes as part of build: `npm run build`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes as part of build: `npm run build` — cb0dbae
+- [x] 2.2 Linting passes: `npm run lint` — cb0dbae
 
 #### Manual
 
-- [x] 2.3 Opponent phases show reveal-and-continue UI in simulation mode, and Continue advances the session correctly
-- [x] 2.4 Captain's own three decision points still show suggestions exactly as in live mode
-- [x] 2.5 "Practice" badge visible throughout; completion screen reads "Practice session complete!"
+- [x] 2.3 Opponent phases show reveal-and-continue UI in simulation mode, and Continue advances the session correctly — cb0dbae
+- [x] 2.4 Captain's own three decision points still show suggestions exactly as in live mode — cb0dbae
+- [x] 2.5 "Practice" badge visible throughout; completion screen reads "Practice session complete!" — cb0dbae
 
 ### Phase 3: Route + entry point
 
 #### Automated
 
-- [ ] 3.1 Full build passes: `npm run build`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Unit tests pass: `npm test`
+- [x] 3.1 Full build passes: `npm run build`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Unit tests pass: `npm test`
 
 #### Manual
 
-- [ ] 3.4 "Practice solo" navigates to the new route and starts a solo simulation session (rosters at exactly 5)
-- [ ] 3.5 A full solo session completes end-to-end with correct suggestions, reveals, and refused-attacker outcome
-- [ ] 3.6 Refreshing mid-session resumes the simulation session correctly
-- [ ] 3.7 Live and simulation sessions for the same opponent don't interfere with each other
-- [ ] 3.8 Incomplete roster (< 5) shows not-ready messaging instead of starting a session
+- [x] 3.4 "Practice solo" navigates to the new route and starts a solo simulation session (rosters at exactly 5)
+- [x] 3.5 A full solo session completes end-to-end with correct suggestions, reveals, and refused-attacker outcome
+- [x] 3.6 Refreshing mid-session resumes the simulation session correctly
+- [x] 3.7 Live and simulation sessions for the same opponent don't interfere with each other
+- [x] 3.8 Incomplete roster (< 5) shows not-ready messaging instead of starting a session
