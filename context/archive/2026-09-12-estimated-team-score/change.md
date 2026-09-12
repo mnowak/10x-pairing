@@ -1,10 +1,10 @@
 ---
 change_id: estimated-team-score
 title: Show estimated team score after pairing completes
-status: implemented
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
-archived_at: null
+archived_at: 2026-09-12T11:25:48Z
 ---
 
 ## Notes
