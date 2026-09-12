@@ -202,8 +202,8 @@ function bestOurDefender(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matri
  * `theirReserveStrength`.
  */
 export function bestTheirDefender(
-  ourAvailable: ArmyId[],
   theirAvailable: ArmyId[],
+  ourAvailable: ArmyId[],
   ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
   score: CellScore,

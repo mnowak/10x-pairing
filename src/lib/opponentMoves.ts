@@ -73,7 +73,7 @@ export const randomOpponentProvider: OpponentMoveProvider = createRandomOpponent
  */
 export const mirroredOpponentProvider: OpponentMoveProvider = {
   pickDefender: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
-    bestTheirDefender(ourAvailable, theirAvailable, ourDefender, matrixGrid, mirroredValue),
+    bestTheirDefender(theirAvailable, ourAvailable, ourDefender, matrixGrid, mirroredValue),
   pickAttackerChoice: (offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid) =>
     bestTheirPick(offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid, mirroredValue),
   pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>

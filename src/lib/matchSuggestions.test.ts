@@ -138,7 +138,7 @@ describe("bestTheirDefender / bestTheirPick / bestTheirAttackerPair — bounds",
 
   it("bestTheirDefender always returns an army from theirAvailable", () => {
     const theirAvailable = ["x", "y", "z"];
-    const result = bestTheirDefender(["a", "b", "c"], theirAvailable, "d", grid, cellValue);
+    const result = bestTheirDefender(theirAvailable, ["a", "b", "c"], "d", grid, cellValue);
     expect(theirAvailable).toContain(result);
   });
 
@@ -167,6 +167,18 @@ describe("bestTheirDefender — hand-verified scenario (mirror of bestOurDefende
     // same tie-and-tie-break reasoning transfers: committing "a" and "c" as
     // defender both yield the same primary value, and the tie-break must
     // prefer the LOWER-theirReserveStrength candidate — "c".
+    //
+    // The recursion shape isn't byte-identical to bestOurDefender's own:
+    // bestOurDefender's candidate is threaded through as the fixed
+    // ourDefender across its ENTIRE downstream (it recurses through
+    // searchTheirDefender first), whereas bestTheirDefender's ourDefender
+    // ("d") is a SEPARATE, externally-fixed value — its search skips
+    // straight to searchOurAttackerPair since there's no analogous "their
+    // defender already committed" step to recurse through first. The mirror
+    // still holds because "d" contributes the SAME constant to every leaf
+    // regardless of which candidate (a/b/c) is being evaluated, so it only
+    // shifts every path's total uniformly — it can't change which candidate
+    // wins the comparison.
     const grid = gridOf({
       "x:a": "yellow",
       "y:a": "yellow",
@@ -181,7 +193,7 @@ describe("bestTheirDefender — hand-verified scenario (mirror of bestOurDefende
       "y:d": "yellow",
       "z:d": "yellow",
     });
-    const result = bestTheirDefender(["x", "y", "z"], ["a", "b", "c"], "d", grid, cellValue);
+    const result = bestTheirDefender(["a", "b", "c"], ["x", "y", "z"], "d", grid, cellValue);
     expect(result).toBe("c");
   });
 });
@@ -249,7 +261,7 @@ describe("bestTheirPick — hand-verified scenarios", () => {
 describe("mirroredOpponentProvider — wiring", () => {
   it("pickDefender delegates to bestTheirDefender with mirroredValue as the score function", () => {
     const grid = gridOf({ "x:a": "red", "x:b": "dark-green", "y:a": "red", "y:b": "dark-green" });
-    const expected = bestTheirDefender(["x", "y"], ["a", "b"], "d", grid, mirroredValue);
+    const expected = bestTheirDefender(["a", "b"], ["x", "y"], "d", grid, mirroredValue);
     expect(mirroredOpponentProvider.pickDefender(["a", "b"], ["x", "y"], "d", grid)).toBe(expected);
   });
 });
@@ -422,6 +434,112 @@ describe("minimaxSuggestionProvider — full 5-vs-5 walkthrough via the real eng
 });
 
 describe("mirroredOpponentProvider — full 5-vs-5 walkthrough via the real engine", () => {
+  it("a uniform grid produces the exact, hand-provable outcome via the real engine", () => {
+    // Every cell is the same band (yellow=10), so every decision at every
+    // phase is a full tie: primary value AND reserve/theirReserveStrength
+    // are identical for every candidate. pickBest/bestTheir*'s tie-break
+    // loop only replaces `best` on a STRICT improvement, so with
+    // everything tied the FIRST candidate in each phase's current
+    // available-list order always wins — for both minimaxSuggestionProvider
+    // (ours) and mirroredOpponentProvider (theirs), independently of which
+    // provider is asking. This makes the entire 3v3 session's outcome
+    // exactly predictable by hand:
+    //   our-defender "o1" (first of [o1,o2,o3])
+    //   their-defender "t1" (first of [t1,t2,t3])
+    //   our-attacker-pair forced to [o2,o3] (only pair left)
+    //   their-pick "o2" (first of the offered [o2,o3])
+    //   their-attacker-pair forced to [t2,t3] (only pair left)
+    //   our-accept "t2" (first of the offered [t2,t3])
+    //   forced refusal: the one army left on each side, o3 vs t3.
+    const ourArmies3 = ["o1", "o2", "o3"];
+    const theirArmies3 = ["t1", "t2", "t3"];
+    const estimates3: Record<string, Estimate> = {};
+    for (const our of ourArmies3) {
+      for (const their of theirArmies3) {
+        estimates3[`${our}:${their}`] = "yellow";
+      }
+    }
+    const grid3 = gridOf(estimates3);
+
+    let state3 = createSession(ourArmies3, theirArmies3, minimaxSuggestionProvider, grid3);
+
+    while (!isSessionComplete(state3)) {
+      switch (state3.phase) {
+        case "our-defender":
+          state3 = confirmOurDefender(state3, "o1");
+          break;
+        case "their-defender": {
+          const ourDefender = state3.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
+          const picked = mirroredOpponentProvider.pickDefender(
+            state3.theirAvailable,
+            state3.ourAvailable,
+            ourDefender,
+            grid3,
+          );
+          state3 = enterTheirDefender(state3, picked, minimaxSuggestionProvider, grid3);
+          break;
+        }
+        case "our-attacker-pair":
+          state3 = confirmOurAttackerPair(state3, [state3.ourAvailable[0], state3.ourAvailable[1]]);
+          break;
+        case "their-pick": {
+          const offered = state3.working.ourOfferedPair;
+          const theirDefender = state3.working.theirDefender;
+          const ourDefender = state3.working.ourDefender;
+          if (!offered || !theirDefender || !ourDefender) {
+            throw new Error("Expected ourOfferedPair/theirDefender/ourDefender to be set in their-pick phase");
+          }
+          const picked = mirroredOpponentProvider.pickAttackerChoice(
+            offered,
+            theirDefender,
+            state3.ourAvailable,
+            state3.theirAvailable,
+            ourDefender,
+            grid3,
+          );
+          state3 = enterTheirPick(state3, picked);
+          break;
+        }
+        case "their-attacker-pair": {
+          const ourDefender = state3.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-attacker-pair phase");
+          const pair = mirroredOpponentProvider.pickAttackerPair(
+            state3.theirAvailable,
+            state3.ourAvailable,
+            ourDefender,
+            grid3,
+          );
+          state3 = enterTheirAttackerPair(state3, pair, minimaxSuggestionProvider, grid3);
+          break;
+        }
+        case "our-accept":
+          state3 = confirmOurAccept(
+            state3,
+            state3.working.theirOfferedPair?.[0] ?? "",
+            minimaxSuggestionProvider,
+            grid3,
+          );
+          break;
+        case "complete":
+          break;
+      }
+    }
+
+    expect(state3.history).toEqual([
+      {
+        subRound: 1,
+        ourDefender: "o1",
+        theirDefender: "t1",
+        ourOfferedPair: ["o2", "o3"],
+        theirPick: "o2",
+        theirOfferedPair: ["t2", "t3"],
+        ourAccepted: "t2",
+      },
+    ]);
+    expect(state3.refusedAttacker).toEqual({ ours: "o3", theirs: "t3" });
+  });
+
   it("drives the opponent's 3 decision points end-to-end with no thrown errors, every army committed exactly once", () => {
     const ourArmies = ["o1", "o2", "o3", "o4", "o5"];
     const theirArmies = ["t1", "t2", "t3", "t4", "t5"];
