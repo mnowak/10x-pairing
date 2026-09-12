@@ -168,16 +168,16 @@ Not applicable — no schema or data migration involved.
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npx astro check` (typecheck) passes
-- [x] 2.3 `npm test` passes
-- [x] 2.4 `npm run build` succeeds
-- [x] 2.5 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-results.md`
+- [x] 2.1 `npm run lint` passes — 27d8e99
+- [x] 2.2 `npx astro check` (typecheck) passes — 27d8e99
+- [x] 2.3 `npm test` passes — 27d8e99
+- [x] 2.4 `npm run build` succeeds — 27d8e99
+- [x] 2.5 File exists: `test -f context/changes/mvp-smoke-test-pass/smoke-test-results.md` — 27d8e99
 
 #### Manual
 
-- [x] 2.6 Every checklist item has a recorded result — no silent skips
-- [x] 2.7 Every ⚠️ finding is inline-fixed (with file:line) or has a filed follow-up change-id
-- [x] 2.8 3 hardening spot-checks recorded (CI green, advisors clean, logged-error confirmed)
-- [x] 2.9 4 NFR spot-checks recorded (phone-width, offline/slow-network, cross-captain isolation, latency)
-- [x] 2.10 `## Done Bar` shows the pass fully triaged
+- [x] 2.6 Every checklist item has a recorded result — no silent skips — 27d8e99
+- [x] 2.7 Every ⚠️ finding is inline-fixed (with file:line) or has a filed follow-up change-id — 27d8e99
+- [x] 2.8 3 hardening spot-checks recorded (CI green, advisors clean, logged-error confirmed) — 27d8e99
+- [x] 2.9 4 NFR spot-checks recorded (phone-width, offline/slow-network, cross-captain isolation, latency) — 27d8e99
+- [x] 2.10 `## Done Bar` shows the pass fully triaged — 27d8e99
