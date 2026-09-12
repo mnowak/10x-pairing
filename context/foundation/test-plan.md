@@ -68,7 +68,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|---|---|---|---|---|---|
 | 1 | Bootstrap + critical-path coverage | Stand up the test runner; prove the score↔band mapping and cross-captain write protection hold | #2, #3 | unit + integration | complete | `context/changes/testing-bootstrap-critical-path-coverage/` |
 | 2 | Data-integrity coverage | Prove estimate loss can't happen silently through any current write path | #4, #5 | integration | complete | `context/changes/data-integrity/` |
-| 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | planned | `context/changes/live-match-mode-test-coverage/` |
+| 3 | Live match-mode coverage | Prove the suggestion engine never reuses a committed army, weighs the downstream refused-attacker impact, and gates session start on exactly-5 rosters | #1, #6 | unit + integration/e2e | complete | `context/changes/live-match-mode-test-coverage/` |
 | 4 | Quality-gates wiring | Lock the floor: wire the suite into CI; evaluate one AI-native layer only if it adds signal beyond Phases 1-3 | cross-cutting | gates | not started | — |
 
 **Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -142,7 +142,20 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.3 Adding an e2e test
 
-- TBD — see §3 Phase 3 (live match-mode two-sub-round sequence pattern lands here).
+- Playwright against `astro dev` at `http://localhost:4321` (`playwright.config.ts`),
+  `workers: 1` always (shared single-captain fixture, same hazard as
+  `fileParallelism: false` in `vitest.config.ts`) — see
+  `tests/e2e/live-match-mode-session.spec.ts` for the pattern. Role-based
+  locators via small helper functions (`armyOptionButtons`,
+  `pickFirstOption`, `pickPairOfOptions`) rather than raw `page.getByRole`
+  calls scattered through the test body; `Date.now()`-stamped names for
+  per-run uniqueness; an `assertOptionNamesExclude` helper to prove
+  exclusion/guardrail invariants (an army must not reappear as an option);
+  and setup/teardown as part of the test itself (`clearTeamRoster` at both
+  start and end) rather than a separate fixture file, since the shared
+  `captain-a` fixture's roster is mutated by the test. See
+  `tests/e2e/README.md` for the project's full e2e rules (role locators
+  first, never `waitForTimeout`, test independence).
 
 ### 6.4 Adding a test for a new API endpoint
 

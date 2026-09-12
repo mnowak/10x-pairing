@@ -170,23 +170,23 @@ Not applicable — test-only change, no data model or schema changes.
 
 #### Automated
 
-- [x] 1.1 New test passes: `npx vitest run src/lib/matchSuggestions.test.ts`
-- [x] 1.2 Full test suite passes: `npm test`
-- [x] 1.3 Type checking passes: `npx astro check`
-- [x] 1.4 Linting passes: `npm run lint`
+- [x] 1.1 New test passes: `npx vitest run src/lib/matchSuggestions.test.ts` — 23b7b16
+- [x] 1.2 Full test suite passes: `npm test` — 23b7b16
+- [x] 1.3 Type checking passes: `npx astro check` — 23b7b16
+- [x] 1.4 Linting passes: `npm run lint` — 23b7b16
 
 #### Manual
 
-- [x] 1.5 Fresh-read confirmation pass completed, no drift found
-- [x] 1.6 Deliberate-break check confirms the new test has real signal
+- [x] 1.5 Fresh-read confirmation pass completed, no drift found — 23b7b16
+- [x] 1.6 Deliberate-break check confirms the new test has real signal — 23b7b16
 
 ### Phase 2: Update test-plan.md to reflect Phase 3 complete
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
+- [x] 2.1 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.2 test-plan.md §3 Phase 3 row reads complete with correct change-folder path
-- [ ] 2.3 §6.3 accurately describes the existing e2e pattern, no longer TBD
+- [x] 2.2 test-plan.md §3 Phase 3 row reads complete with correct change-folder path
+- [x] 2.3 §6.3 accurately describes the existing e2e pattern, no longer TBD
