@@ -223,14 +223,14 @@ None — no schema or persisted-data changes; `matchSessionStorage.ts`'s existin
 
 #### Automated
 
-- [ ] 2.1 Type checking passes as part of build: `npm run build`
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes as part of build: `npm run build`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 Opponent phases show reveal-and-continue UI in simulation mode, and Continue advances the session correctly
-- [ ] 2.4 Captain's own three decision points still show suggestions exactly as in live mode
-- [ ] 2.5 "Practice" badge visible throughout; completion screen reads "Practice session complete!"
+- [x] 2.3 Opponent phases show reveal-and-continue UI in simulation mode, and Continue advances the session correctly
+- [x] 2.4 Captain's own three decision points still show suggestions exactly as in live mode
+- [x] 2.5 "Practice" badge visible throughout; completion screen reads "Practice session complete!"
 
 ### Phase 3: Route + entry point
 

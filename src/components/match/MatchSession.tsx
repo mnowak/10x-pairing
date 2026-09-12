@@ -12,7 +12,8 @@ import {
   type MatchSessionState,
 } from "@/lib/matchSessionEngine";
 import { minimaxSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
-import { loadSession, saveSession, clearSession } from "@/lib/matchSessionStorage";
+import { randomOpponentProvider } from "@/lib/opponentMoves";
+import { loadSession, saveSession, clearSession, type SessionMode } from "@/lib/matchSessionStorage";
 import MatchMatrix from "@/components/match/MatchMatrix";
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
   ourArmies: Tables<"team_armies">[];
   theirArmies: Tables<"opponent_armies">[];
   matrixGrid: MatrixGridData;
+  mode: SessionMode;
 }
 
 function phaseLabel(state: MatchSessionState, nameById: Map<ArmyId, string>): string {
@@ -170,7 +172,40 @@ function PairPicker({
   );
 }
 
-export default function MatchSession({ opponentId, ourArmies, theirArmies, matrixGrid }: Props) {
+function AutoReveal<T>({
+  pick,
+  renderLabel,
+  onContinue,
+}: {
+  pick: () => T;
+  renderLabel: (value: T) => string;
+  onContinue: (value: T) => void;
+}) {
+  // Computed once per mount via a lazy initializer — relies on the same
+  // conditional-render-per-phase remount behavior PairPicker's local
+  // `selected` state depends on (see the comment above PairPicker): this
+  // component is only ever rendered inside `{state.phase === "..." && ...}`,
+  // so advancing to the next phase unmounts it and a later return to the
+  // same phase (next sub-round) is a fresh mount with a freshly-computed pick.
+  const [value] = useState(pick);
+
+  return (
+    <div className="space-y-3 rounded-lg border border-white/10 bg-white/5 p-3">
+      <p className="text-sm text-white">{renderLabel(value)}</p>
+      <button
+        type="button"
+        onClick={() => {
+          onContinue(value);
+        }}
+        className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-500"
+      >
+        Continue
+      </button>
+    </div>
+  );
+}
+
+export default function MatchSession({ opponentId, ourArmies, theirArmies, matrixGrid, mode }: Props) {
   const ourArmyIds = useMemo(() => ourArmies.map((army) => army.id), [ourArmies]);
   const theirArmyIds = useMemo(() => theirArmies.map((army) => army.id), [theirArmies]);
 
@@ -188,15 +223,15 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
   // here and never runs during SSR.
   const [state, setState] = useState<MatchSessionState>(
     () =>
-      loadSession(opponentId, "live") ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
+      loadSession(opponentId, mode) ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
   );
 
   useEffect(() => {
-    saveSession(opponentId, state, "live");
-  }, [opponentId, state]);
+    saveSession(opponentId, state, mode);
+  }, [opponentId, state, mode]);
 
   function restart() {
-    clearSession("live");
+    clearSession(mode);
     setState(createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid));
   }
 
@@ -242,6 +277,11 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-xs text-blue-100/60">
+          {mode === "simulation" && (
+            <span className="mr-2 rounded-full bg-purple-500/30 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-purple-100 uppercase">
+              Practice
+            </span>
+          )}
           Sub-round {state.subRound} · {phaseLabel(state, nameById)}
         </span>
         <button
@@ -275,16 +315,25 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         />
       )}
 
-      {state.phase === "their-defender" && (
-        <SinglePicker
-          ids={state.theirAvailable}
-          suggested={null}
-          nameById={nameById}
-          onPick={(id) => {
-            setState(enterTheirDefender(state, id, minimaxSuggestionProvider, matrixGrid));
-          }}
-        />
-      )}
+      {state.phase === "their-defender" &&
+        (mode === "simulation" ? (
+          <AutoReveal
+            pick={() => randomOpponentProvider.pickDefender(state.theirAvailable, state.ourAvailable, matrixGrid)}
+            renderLabel={(id) => `They reveal: ${nameById.get(id) ?? id}`}
+            onContinue={(id) => {
+              setState(enterTheirDefender(state, id, minimaxSuggestionProvider, matrixGrid));
+            }}
+          />
+        ) : (
+          <SinglePicker
+            ids={state.theirAvailable}
+            suggested={null}
+            nameById={nameById}
+            onPick={(id) => {
+              setState(enterTheirDefender(state, id, minimaxSuggestionProvider, matrixGrid));
+            }}
+          />
+        ))}
 
       {state.phase === "our-attacker-pair" && (
         <PairPicker
@@ -297,27 +346,53 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         />
       )}
 
-      {state.phase === "their-pick" && (
-        <SinglePicker
-          ids={state.working.ourOfferedPair ?? []}
-          suggested={null}
-          nameById={nameById}
-          onPick={(id) => {
-            setState(enterTheirPick(state, id));
-          }}
-        />
-      )}
+      {state.phase === "their-pick" &&
+        (mode === "simulation" ? (
+          <AutoReveal
+            pick={() =>
+              randomOpponentProvider.pickAttackerChoice(
+                state.working.ourOfferedPair ?? ["", ""],
+                state.working.theirDefender ?? "",
+                matrixGrid,
+              )
+            }
+            renderLabel={(id) => `They picked: ${nameById.get(id) ?? id}`}
+            onContinue={(id) => {
+              setState(enterTheirPick(state, id));
+            }}
+          />
+        ) : (
+          <SinglePicker
+            ids={state.working.ourOfferedPair ?? []}
+            suggested={null}
+            nameById={nameById}
+            onPick={(id) => {
+              setState(enterTheirPick(state, id));
+            }}
+          />
+        ))}
 
-      {state.phase === "their-attacker-pair" && (
-        <PairPicker
-          ids={state.theirAvailable}
-          suggested={null}
-          nameById={nameById}
-          onConfirm={(pair) => {
-            setState(enterTheirAttackerPair(state, pair, minimaxSuggestionProvider, matrixGrid));
-          }}
-        />
-      )}
+      {state.phase === "their-attacker-pair" &&
+        (mode === "simulation" ? (
+          <AutoReveal
+            pick={() =>
+              randomOpponentProvider.pickAttackerPair(state.theirAvailable, state.working.ourDefender ?? "", matrixGrid)
+            }
+            renderLabel={([a, b]) => `They offer: ${nameById.get(a) ?? a} and ${nameById.get(b) ?? b}`}
+            onContinue={(pair) => {
+              setState(enterTheirAttackerPair(state, pair, minimaxSuggestionProvider, matrixGrid));
+            }}
+          />
+        ) : (
+          <PairPicker
+            ids={state.theirAvailable}
+            suggested={null}
+            nameById={nameById}
+            onConfirm={(pair) => {
+              setState(enterTheirAttackerPair(state, pair, minimaxSuggestionProvider, matrixGrid));
+            }}
+          />
+        ))}
 
       {state.phase === "our-accept" && (
         <SinglePicker
@@ -332,7 +407,9 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
 
       {state.phase === "complete" && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-white">Session complete!</p>
+          <p className="text-sm font-semibold text-white">
+            {mode === "simulation" ? "Practice session complete!" : "Session complete!"}
+          </p>
           <ul className="space-y-2">
             {state.history.map((round) => (
               <li key={round.subRound} className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white">
