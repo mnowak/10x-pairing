@@ -1,10 +1,10 @@
 ---
 change_id: mvp-smoke-test-pass
 title: Final smoke-test pass across all shipped MVP features
-status: implemented
+status: archived
 created: 2026-09-12
-updated: 2026-09-13
-archived_at: null
+updated: 2026-09-12
+archived_at: 2026-09-12T23:29:44Z
 ---
 
 ## Notes
