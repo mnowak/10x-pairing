@@ -255,27 +255,27 @@ Not applicable — no data model or schema changes.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npm test` — df24c79
+- [x] 1.2 Type checking passes: `npx astro check` — df24c79
+- [x] 1.3 Linting passes: `npm run lint` — df24c79
 
 #### Manual
 
-- [x] 1.4 `npm test -- logError` confirms both Error and non-Error cases pass
+- [x] 1.4 `npm test -- logError` confirms both Error and non-Error cases pass — df24c79
 
 ### Phase 2: Wire into SSR page catch sites
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx astro check`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Build succeeds: `npm run build`
-- [ ] 2.4 Existing test suite still passes: `npm test`
+- [x] 2.1 Type checking passes: `npx astro check`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Build succeeds: `npm run build`
+- [x] 2.4 Existing test suite still passes: `npm test`
 
 #### Manual
 
-- [ ] 2.5 Forced failure on `team.astro` shows a `logError` line and unchanged page behavior
-- [ ] 2.6 Spot-check opponents list, opponent detail, match, and simulate pages for no behavior regression
+- [x] 2.5 Forced failure on `team.astro` shows a `logError` line and unchanged page behavior
+- [x] 2.6 Spot-check opponents list, opponent detail, match, and simulate pages for no behavior regression
 
 ### Phase 3: Wire into API routes, the lib function, and the client-side site
 

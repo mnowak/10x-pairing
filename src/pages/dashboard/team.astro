@@ -4,6 +4,7 @@ import CreateTeamForm from "@/components/team/CreateTeamForm";
 import TeamView from "@/components/team/TeamView";
 import { createClient } from "@/lib/supabase";
 import { getTeamWithArmies, getEstimateCountsForTeamArmies } from "@/lib/teams";
+import { logError } from "@/lib/logError";
 
 let error = Astro.url.searchParams.get("error");
 const { user } = Astro.locals;
@@ -21,7 +22,8 @@ if (supabase && user) {
         team.armies.map((army) => army.id),
       );
     }
-  } catch {
+  } catch (err) {
+    logError("team.astro: getTeamWithArmies/getEstimateCountsForTeamArmies", err);
     error ??= "Something went wrong loading your team";
   }
 }

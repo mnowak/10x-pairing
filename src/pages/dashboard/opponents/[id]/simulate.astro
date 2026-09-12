@@ -6,6 +6,7 @@ import { getTeamWithArmies } from "@/lib/teams";
 import { getOpponentWithArmies } from "@/lib/opponents";
 import { getMatrixGrid } from "@/lib/matrix";
 import { MAX_ROSTER_SIZE } from "@/lib/rosterLimits";
+import { logError } from "@/lib/logError";
 
 const { id } = Astro.params;
 const { user } = Astro.locals;
@@ -18,7 +19,8 @@ if (!supabase || !user || !id) {
 let opponent;
 try {
   opponent = await getOpponentWithArmies(supabase, user.id, id);
-} catch {
+} catch (err) {
+  logError("simulate.astro: getOpponentWithArmies", err);
   return Astro.redirect(
     `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
   );
@@ -30,7 +32,8 @@ if (!opponent) {
 let team;
 try {
   team = await getTeamWithArmies(supabase, user.id);
-} catch {
+} catch (err) {
+  logError("simulate.astro: getTeamWithArmies", err);
   return Astro.redirect(
     `/dashboard/opponents/${id}?error=${encodeURIComponent("Something went wrong loading your team")}`,
   );
@@ -44,7 +47,8 @@ if (!team) {
 let matrixGrid;
 try {
   matrixGrid = await getMatrixGrid(supabase, user.id, opponent);
-} catch {
+} catch (err) {
+  logError("simulate.astro: getMatrixGrid", err);
   return Astro.redirect(
     `/dashboard/opponents/${id}?error=${encodeURIComponent("Something went wrong loading the matrix")}`,
   );

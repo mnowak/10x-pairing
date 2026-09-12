@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import OpponentsList from "@/components/opponent/OpponentsList";
 import { createClient } from "@/lib/supabase";
 import { getOpponentsWithArmies } from "@/lib/opponents";
+import { logError } from "@/lib/logError";
 
 let error = Astro.url.searchParams.get("error");
 const { user } = Astro.locals;
@@ -12,7 +13,8 @@ let opponents: Awaited<ReturnType<typeof getOpponentsWithArmies>> = [];
 if (supabase && user) {
   try {
     opponents = await getOpponentsWithArmies(supabase, user.id);
-  } catch {
+  } catch (err) {
+    logError("opponents/index.astro: getOpponentsWithArmies", err);
     error ??= "Something went wrong loading your opponents";
   }
 }

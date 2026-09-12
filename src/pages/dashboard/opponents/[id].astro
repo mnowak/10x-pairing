@@ -4,6 +4,7 @@ import OpponentDetail from "@/components/opponent/OpponentDetail";
 import { createClient } from "@/lib/supabase";
 import { getOpponentWithArmies, getEstimateCountsForOpponentArmies } from "@/lib/opponents";
 import { getMatrixGrid } from "@/lib/matrix";
+import { logError } from "@/lib/logError";
 
 const { id } = Astro.params;
 let error = Astro.url.searchParams.get("error");
@@ -17,7 +18,8 @@ if (!supabase || !user || !id) {
 let opponent;
 try {
   opponent = await getOpponentWithArmies(supabase, user.id, id);
-} catch {
+} catch (err) {
+  logError("opponents/[id].astro: getOpponentWithArmies", err);
   return Astro.redirect(
     `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
   );
@@ -29,7 +31,8 @@ if (!opponent) {
 let matrixGrid;
 try {
   matrixGrid = await getMatrixGrid(supabase, user.id, opponent);
-} catch {
+} catch (err) {
+  logError("opponents/[id].astro: getMatrixGrid", err);
   return Astro.redirect(`/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading the matrix")}`);
 }
 if (!matrixGrid) {
@@ -43,7 +46,8 @@ try {
     user.id,
     opponent.armies.map((army) => army.id),
   );
-} catch {
+} catch (err) {
+  logError("opponents/[id].astro: getEstimateCountsForOpponentArmies", err);
   return Astro.redirect(
     `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading estimate counts")}`,
   );
