@@ -85,7 +85,7 @@ against upstream documentation (see grounding note below).
 |---|---|---|---|
 | unit + integration | Vitest | none yet — see Phase 1 | Vite-native (project already runs Vite 7.3.2 under Astro), zero extra config layer, first-class TS support |
 | API mocking | none planned | n/a | The only external dependency with meaningful failure modes is Supabase; integration tests hit a local Supabase instance directly (matches the existing `seed.sql` RLS-isolation-test convention), not a mocked HTTP edge |
-| e2e | Playwright | none yet — see Phase 3 | Needed for the live match-mode two-sub-round sequence, which the PRD's acceptance criteria treat as one indivisible flow |
+| e2e | Playwright | ^1.63.0 — in place since Phase 3 | Covers the live match-mode two-sub-round sequence end-to-end; see `tests/e2e/live-match-mode-session.spec.ts` and the pattern in §6.3 |
 | accessibility | none yet | n/a | No dedicated PRD/NFR requirement beyond general one-handed-phone usability; not scheduled by any phase — revisit if that changes |
 | (optional) AI-native | none yet — see Phase 4 | n/a | Only added if Phase 4's signal check justifies it (e.g. a post-edit hook re-running matrix/estimate-mapping tests, given that area's documented instability) |
 
