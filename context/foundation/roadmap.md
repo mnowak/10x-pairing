@@ -1,182 +1,125 @@
 ---
 project: "Pairing Assistant"
-version: 1
+version: 2
 status: draft
 created: 2026-09-04
-updated: 2026-09-11
-prd_version: 1
-main_goal: speed
-top_blocker: time
-milestone_id: live-pairing-mvp
-milestone_seq: 1
+updated: 2026-09-12
+prd_version: "—"
+main_goal: low-complexity
+top_blocker: decisions
+milestone_id: pairing-simulation
+milestone_seq: 2
 milestone_status: open
 ---
 
 # Roadmap: Pairing Assistant
 
-> Derived from `context/foundation/prd.md` (v1) + auto-researched codebase baseline.
+> Derived from a user-described milestone charter (MS-01…MS-05) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
 ## Milestone
 
-**M-1: live-pairing-mvp** — Status: open
+**M-2: pairing-simulation** — Status: open
 
-- **Intent:** Ship the full must-have MVP — team/roster setup, opponent matrix preparation, and live match-mode with suggestions at all three decision points across both sub-rounds — so a captain can use Pairing Assistant end-to-end at a real tournament before the 2026-09-13 deadline.
-- **Source materials:** `context/foundation/prd.md` (v1)
-- **Done when:** F-01, S-01, S-02, S-03, S-04, S-05, and S-06 below are all `done`.
+- **Intent:** Let a captain run a solo pairing-simulation session — training without a second human present — where they still make their own choices manually (using the existing suggestion-engine recommendations) while the app automatically plays the opponent's side and shows what it picked at each step. Ships in two increments: opponent plays randomly first, then opponent plays using the existing minimax-derived optimal-for-them logic.
+- **Source materials:** user description (anchors below)
+- **Done when:** S-07 and S-08 below are both `done`.
+- **Scope anchors:**
+  - MS-01: Captain can start a solo pairing-simulation session against a prepared opponent matrix, without needing a second human present.
+  - MS-02: In simulation, the captain still makes their own choices manually at each of their three decision points, receiving the same suggestion-engine recommendations as live match-mode today.
+  - MS-03: The app automatically picks the opponent's move at each of the opponent's three decision points (uniformly at random, increment 1), instead of requiring a human to enter it.
+  - MS-04: The app's automated opponent picks are upgraded (increment 2) to use the existing minimax engine's opponent-optimal-for-them search instead of random, reusing the captain's own pairing-matrix estimates mirrored as the opponent's assumed perspective.
+  - MS-05 (parked — user explicitly deferred to a later increment beyond this milestone): captain can choose among multiple opponent-behavior modes for simulation — random, opponent uses the same matrix as the captain's own, or a "similar" (independently varied) matrix.
 
 ## Vision recap
 
-During the live pairing process at the start of each round in a Warhammer 40k team tournament, a captain must decide — under a secret-reveal, time-boxed negotiation — which armies to commit as defender and attacker, aiming to maximize the team's summed score. The best pick at each step depends on which armies remain available on both sides, not just the immediate matchup — a multi-step optimization a captain can't reliably eyeball live, and something no existing spreadsheet-based tool walks through in real time.
+M-1 shipped the live, two-human pairing flow: a captain negotiating defender/attacker reveals against a real opponent under time pressure. M-2 lets a captain rehearse that same decision-making alone — the app plays the opponent's side so the captain can practice reading a prepared matrix and reacting to reveals without needing a second person in the room.
 
 ## North star
 
-**S-02: Captain can prepare a pairing-matrix estimate against an opponent team** — the smallest end-to-end flow that proves captains will actually use the tool ahead of a tournament, independent of whether live match-mode ships on time.
+**S-07: Captain can run a full solo pairing-simulation session (opponent plays randomly)** — the smallest end-to-end slice that proves solo training works as a mode, independent of whether the opponent's automated play is realistic yet.
 
 > "North star" here means the smallest end-to-end slice whose successful delivery would prove the core product hypothesis — placed as early as its Prerequisites allow, because everything else only matters if this works. This gloss applies for the rest of the document; it isn't repeated below.
 
 ## At a glance
 
-| ID   | Change ID                        | Outcome (user can …)                                                                | Prerequisites | PRD refs                                                              | Status   |
-| ---- | --------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- | -------- |
-| F-01 | schema-teams-opponents-matrix     | (foundation) Team/opponent/pairing-matrix schema with RLS landed                      | —              | FR-001, FR-003, FR-004, FR-006, Access Control, NFR (privacy)          | done |
-| S-01 | create-team-roster                | create a team with a name and a roster of armies                                      | F-01           | FR-001                                                                 | done |
-| S-02 | prepare-opponent-matrix           | add an opponent team and enter/edit a point estimate (0-20) against them, displayed as a derived color band, repeated for multiple opponents | S-01, F-01     | FR-003, FR-004, FR-005, FR-006                                          | done |
-| S-03 | live-match-mode-session           | run a full live match-mode session against a prepared matrix, both sub-rounds, ending in an auto-paired refused attacker (increment 1: random suggestions — see S-06) | S-02           | US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015 | done |
-| S-04 | remove-team-army                  | remove an army from their team roster or an opponent's roster, with a confirmation naming how many saved pairing-matrix estimates would be lost | S-01, S-02     | FR-017, FR-019                                                         | done |
-| S-05 | cap-roster-size                   | is blocked from adding a 6th army to our team roster or to an opponent's roster                                       | S-01, S-02     | FR-018                                                                 | done |
-| S-06 | live-match-recommender            | live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup and the downstream refused-attacker impact, instead of a random pick | S-03           | FR-008, FR-010, FR-013                                                 | done |
+| ID   | Change ID                    | Outcome (user can …)                                                                                                                                              | Prerequisites  | PRD refs           | Status   |
+| ---- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------- | -------- |
+| S-07 | pairing-simulation-session    | run a solo pairing-simulation session against a prepared opponent matrix, making their own choices manually while the app auto-picks the opponent's moves at random and shows what was picked | S-02, S-03, F-01 | MS-01, MS-02, MS-03 | planning |
+| S-08 | pairing-simulation-recommender | have their solo pairing-simulation opponent play using the existing minimax engine's opponent-optimal-for-them logic instead of a random pick                    | S-07           | MS-04               | proposed |
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-09-04` (auto-researched + user-confirmed).
-Foundations below assume these are present and do NOT re-scaffold them.
+What's already in place in the codebase as of `2026-09-12` (auto-researched via targeted probe of the live-match-mode session architecture).
+Foundations/slices below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** present — per `tech-stack.md`: Astro 6 + React 19 islands + TypeScript; `src/pages/*.astro`, `src/components/**`.
-- **Backend / API:** present — per `tech-stack.md`: Astro server-output on Cloudflare Workers; `src/pages/api/auth/{signin,signup,signout}.ts`.
-- **Data:** partial — Supabase (Postgres) provider wired (`src/lib/supabase.ts`), but zero domain schema exists yet (`README.md`: "No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only"). No tables for teams, armies, opponent rosters, or pairing-matrix estimates. Estimate data must be durably persisted server-side — directly required by the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved, including mid-tournament" (user-confirmed during baseline review).
-- **Auth:** present — full flow verified live in production: `src/middleware.ts` sets `context.locals.user`, `PROTECTED_ROUTES` guards `/dashboard`, sign-in/up/out routes confirmed working against real Supabase credentials during the Cloudflare Workers deploy (`context/deployment/deploy-plan.md`).
-- **Deploy / infra:** present — deployed and verified on Cloudflare Workers: `https://pairing-assistant.michal-nowak-7b3.workers.dev` (`context/deployment/deploy-plan.md`). CI (`.github/workflows/ci.yml`) runs lint + build only, no deploy automation yet.
-- **Observability:** partial — `wrangler.jsonc`: `observability.enabled: true` (basic Cloudflare Workers logs, confirmed working via `wrangler tail`). No dedicated app-level error tracking; not required by any PRD NFR at MVP scale.
+- **Frontend:** present — `src/components/match/MatchSession.tsx` already renders all three opponent-entry decision points (their-defender, their-pick, their-attacker-pair) as human `onPick`/`onConfirm` callbacks (lines 277-319), reached via `src/pages/dashboard/opponents/[id]/match.astro`.
+- **Backend / API:** present — `src/lib/matchSessionEngine.ts` defines the full session state machine (`MatchSessionPhase`: `our-defender → their-defender → our-attacker-pair → their-pick → their-attacker-pair → our-accept → complete`) and the captain's own confirm functions (`confirmOurDefender`, `confirmOurAttackerPair`, `confirmOurAccept`).
+- **Data:** present — schema landed in M-1 (`teams`, `team_armies`, `opponents`, `opponent_armies`, `pairing_matrix_estimates`, all RLS-scoped to `auth.uid()`).
+- **Auth:** present — unchanged since M-1.
+- **Deploy / infra:** present — unchanged since M-1.
+- **Observability:** partial — unchanged since M-1; not required by any stated NFR for this milestone.
+- **Opponent-decision automation:** absent — the three opponent-entry points (`enterTheirDefender`, `enterTheirPick`, `enterTheirAttackerPair` in `matchSessionEngine.ts`) currently require a human to type in what the opponent did; there is no automated-pick path.
+- **Opponent-optimal suggestion logic:** partial — `src/lib/matchSuggestions.ts`'s `minimaxSuggestionProvider` already computes the opponent's worst-case-for-us (i.e. best-for-them) play internally during its search (`searchTheirDefender`, `searchTheirPick`, `searchTheirAttackerPair`), but the public `MatchSuggestionProvider` interface only exposes suggestions for the captain's own side — nothing exposes an opponent-facing pick today.
+- **Session-mode discriminator:** absent — `MatchSessionState` and `matchSessionStorage.ts`'s `StoredSession` carry no `mode`/`type` field; storage assumes "only one match-mode session is ever active" in a single global slot, with no notion of a solo/simulation session distinct from a live one.
 
 ## Foundations
 
-### F-01: Team/opponent/pairing-matrix schema with RLS
-
-- **Outcome:** (foundation) Postgres schema landed for `teams`, `team_armies` (roster), `opponents`, `opponent_armies`, and `pairing_matrix_estimates` (integer score 0-20 per our-army/opponent-army pair — revised 2026-09-06 from the original color-band-storage decision, see PRD FR-004) — every table scoped to `auth.uid()` via Row Level Security so a captain's data is never visible to another account.
-- **Change ID:** schema-teams-opponents-matrix
-- **PRD refs:** FR-001, FR-003, FR-004, FR-006, Access Control, NFR ("A captain's pairing-matrix estimates are never visible to anyone outside their own account")
-- **Unlocks:** S-01, S-02
-- **Prerequisites:** —
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Schema decisions here (roster-size flexibility, integer score representation — revised 2026-09-06 from the original color-band storage decision, see PRD FR-004) ripple into every downstream slice — worth getting right once, but scope stays to exactly the 5 tables S-01/S-02 need, not a speculative generalized schema. Live-match-session state (committed armies, current sub-round) is deliberately NOT part of this foundation — it's introduced in S-03, the only slice that needs it.
-- **Status:** done
+None for this milestone. The two absent capabilities identified in Baseline (session-mode discriminator; opponent-decision automation) are each consumed by exactly one slice (S-07) and are introduced there directly, per the progressive-disclosure rule, rather than pre-built as a standalone cross-cutting foundation.
 
 ## Slices
 
-### S-01: Create a team roster
+### S-07: Run a solo pairing-simulation session (opponent plays randomly)
 
-- **Outcome:** captain can create a team with a name and a roster of armies (default 5).
-- **Change ID:** create-team-roster
-- **PRD refs:** FR-001
-- **Prerequisites:** F-01
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Smallest possible vertical slice and the entry point every other slice depends on. Keep the roster-size field flexible (not hardcoded to exactly 5) so FR-016 (parked, see below) stays cheap to pick up later without a schema rewrite.
-- **Status:** done
-
-### S-02: Prepare an opponent pairing-matrix
-
-- **Outcome:** captain can add an opponent team's roster and enter/edit a point estimate (integer, 0-20) against them — displayed as a derived color band, not stored as one — repeated for multiple different opponents ahead of a tournament.
-- **Change ID:** prepare-opponent-matrix
-- **PRD refs:** FR-003, FR-004, FR-005, FR-006
-- **Prerequisites:** S-01, F-01
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** This is the north star — the smallest complete flow that proves captains will actually use the tool to prepare matrices, independent of whether live match-mode ships on time. Numeric point input (0–20), with the color band derived for display, is the confirmed domain decision as of 2026-09-06 (PRD FR-004, `shape-notes.md`) — don't let this regress to storing a color enum directly.
-- **Status:** done
-
-### S-03: Run a live match-mode session
-
-- **Outcome:** captain can run a full live match-mode session against a prepared opponent matrix — pick defender, enter opponent's defender, get an attacker-pair suggestion, enter opponent's pick, repeat for sub-round 2, and get the final refused-attacker auto-paired — using only currently-available (uncommitted) armies at every step. **Increment 1 of 2** (split decided 2026-09-11 during `/10x-plan`): this slice delivers the full session mechanics with a random pick at each suggestion point, behind an interface S-06 later swaps for the real algorithm.
-- **Change ID:** live-match-mode-session
-- **PRD refs:** US-01, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015
-- **Prerequisites:** S-02
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** — (both prior unknowns resolved during `/10x-plan`, 2026-09-11: the scoring-formula question moved to S-06, which now owns it; the exactly-5-roster gate is designed and delivered by this slice's own plan, `context/changes/live-match-mode-session/plan.md` Phase 3.)
-- **Risk:** PRD's US-01 acceptance criteria treat the full two-sub-round sequence as one indivisible round-completion test (all 3 suggestion types plus the auto-paired refused attacker, in one Given/When/Then) — splitting by sub-round or by suggestion-type would produce a slice with no standalone captain-usable value, a horizontal cut. Splitting off the *scoring algorithm* into S-06 is a different kind of cut — it keeps this slice's mechanics vertical and captain-usable (with a placeholder suggestion quality), while removing this slice's single largest source of risk (the previously-unpinned formula). Given the 2-week after-hours budget and the 2026-09-13 deadline, this reduces (but does not eliminate) the risk of not landing in time.
-- **Status:** done
-
-### S-04: Remove an army from the roster
-
-- **Outcome:** captain can remove an army from their team roster or from an opponent's roster, with a confirmation naming how many previously-entered pairing-matrix estimates involving that army would be lost.
-- **Change ID:** remove-team-army
-- **PRD refs:** FR-017, FR-019
-- **Prerequisites:** S-01, S-02
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** F-01's schema already cascade-deletes any `pairing_matrix_estimates` rows referencing a removed army — the confirmation step is what keeps this from silently violating the PRD guardrail "No loss of previously entered pairing-matrix estimates once saved." Added 2026-09-07 — not in the original PRD; surfaced as a real gap once S-01 shipped without any removal path. Widened 2026-09-07 (during `/10x-plan`) to also cover opponent-side removal (FR-019), which S-02's plan had explicitly deferred as a separate gap — bundled in now at the user's request rather than left dangling. Change ID kept as `remove-team-army` (already tracked as GitHub issue #5) despite the now-broader scope.
-- **Status:** done
-
-### S-05: Cap roster size at 5 armies
-
-- **Outcome:** captain is blocked (with a clear message) from adding a 6th army to our team roster or to any opponent's roster.
-- **Change ID:** cap-roster-size
-- **PRD refs:** FR-018
-- **Prerequisites:** S-01, S-02
-- **Parallel with:** S-03, S-04
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Low — a validation-only change on top of S-01's `createTeamWithArmies`/`addArmyToTeam` and S-02's `createOpponentWithArmies`/`addArmyToOpponent`; app-layer enforcement only, no DB-level check (confirmed during `/10x-plan`, matches S-01's "one team per captain" precedent). Added 2026-09-07, after S-02 shipped without any upper bound on either roster — deliberately its own changeset rather than reopening S-02, per the user's explicit instruction. During planning (2026-09-08) the user raised captain-configurable roster size (PRD FR-016, parked) and explicitly deferred it — this slice stays a hardcoded 5.
-- **Status:** done
-
-### S-06: Real scoring for live match-mode suggestions
-
-- **Outcome:** captain's live match-mode suggestions (defender, attacker pair, accepted attacker) weigh the immediate matchup estimate together with the downstream refused-attacker impact, replacing the random pick S-03 uses for increment 1.
-- **Change ID:** live-match-recommender
-- **PRD refs:** FR-008, FR-010, FR-013
-- **Prerequisites:** S-03 (specifically its `MatchSuggestionProvider` interface, `src/lib/matchSuggestions.ts`)
+- **Outcome:** captain can start and complete a solo pairing-simulation session against a prepared opponent matrix without a second human present — making their own defender / attacker-pair / accept choices manually, with the same suggestion-engine recommendations as live match-mode — while the app automatically picks the opponent's move at each of the opponent's three decision points (uniformly at random among the opponent's still-available armies) and shows the captain what was picked, ending in the same auto-paired refused-attacker outcome as a live session.
+- **Change ID:** pairing-simulation-session
+- **PRD refs:** MS-01, MS-02, MS-03
+- **Prerequisites:** S-02, S-03, F-01 (all `done` — reuses the opponent matrix, the live-match session engine/state machine, and the underlying schema)
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
-  - FR-013's exact scoring function (weighing the immediate matchup against the downstream refused-attacker impact) is described as a domain rule in PRD's Business Logic but not as a precise formula — `/10x-plan` will need to pin down the exact algorithm. Owner: user/team. Block: no.
-- **Risk:** Carries the one unknown split off from S-03 during that slice's planning (2026-09-11) — the exact scoring formula still isn't pinned down anywhere, only its qualitative shape. Deliberately sequenced after S-03 so this slice swaps a suggestion-provider implementation behind an already-built, already-tested state machine, rather than building suggestion logic and session mechanics together.
-- **Status:** done
+  - Session storage currently assumes only one live match-mode session is ever active in a single global slot (`matchSessionStorage.ts`) with no mode discriminator — this slice needs to design how a simulation session coexists with / is distinguished from a live one without breaking the existing live flow. Owner: team. Block: no — a small state-shape addition `/10x-plan` can design.
+  - How should the random opponent pick sample among the opponent's still-available armies — pure uniform random at each decision point, or weighted some other way? Owner: user/team. Block: no — uniform random is a safe default to proceed with.
+- **Risk:** This is the north star for M-2 — the smallest end-to-end slice that proves solo training works as a mode. Mirrors the M-1 `S-03` precedent (ship full session mechanics behind a swappable opponent-decision interface) rather than building the harder algorithmic-opponent logic first.
+- **Status:** planning
+
+### S-08: Opponent plays algorithmically in solo pairing simulation
+
+- **Outcome:** captain's solo pairing-simulation opponent moves are no longer random — the app picks the opponent's move at each decision point using the existing minimax engine's opponent-optimal-for-them search (already computed internally by `minimaxSuggestionProvider` but not yet exposed), replacing S-07's random pick with a more realistic training opponent.
+- **Change ID:** pairing-simulation-recommender
+- **PRD refs:** MS-04
+- **Prerequisites:** S-07 (specifically its swappable opponent-decision interface)
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - Should the algorithmic opponent's search reuse the captain's own pairing-matrix estimates, mirrored as the opponent's assumed perspective (since no independent opponent-side estimate data exists in the schema), or does this need a genuinely separate opponent estimate model? Owner: user/team. Block: no — `/10x-plan` can proceed with the mirrored-estimates default, flagged for revisit if simulation feels unrealistic once built.
+- **Risk:** Carries the domain decision flagged during roadmap framing (top blocker: decisions) — the mirrored-estimate assumption is the only plausible default given the current schema, but is named explicitly here so a future reader doesn't mistake it for an independently modeled opponent.
+- **Status:** proposed
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                      | Suggested issue title                                              | Ready for `/10x-plan` | Notes                    |
-| ---------- | -------------------------------- | ---------------------------------------------------------------------- | ---------------------- | ------------------------ |
-| F-01       | schema-teams-opponents-matrix    | Design team/opponent/pairing-matrix schema with RLS                    | yes                     | —                         |
-| S-01       | create-team-roster               | Captain can create a team with a roster of armies                      | no                      | Waiting on F-01           |
-| S-02       | prepare-opponent-matrix          | Captain can prepare a pairing-matrix estimate against an opponent      | no                      | Waiting on S-01            |
-| S-03       | live-match-mode-session          | Captain can run a full live match-mode session (increment 1: mechanics, random suggestions) | no | Waiting on S-02 |
-| S-04       | remove-team-army                 | Captain can remove an army from a team or opponent roster              | no                      | Waiting on S-01, S-02      |
-| S-05       | cap-roster-size                  | Cap team and opponent rosters at 5 armies                              | no                      | Waiting on S-01, S-02      |
-| S-06       | live-match-recommender           | Live match-mode suggestions use the real scoring algorithm             | no                      | Waiting on S-03            |
+| Roadmap ID | Change ID                      | Suggested issue title                                                  | Ready for `/10x-plan` | Notes                |
+| ---------- | -------------------------------- | ------------------------------------------------------------------------ | ---------------------- | -------------------- |
+| S-07       | pairing-simulation-session        | Captain can run a solo pairing-simulation session (random opponent)      | yes                     | —                     |
+| S-08       | pairing-simulation-recommender    | Solo pairing-simulation opponent plays algorithmically, not randomly     | no                      | Waiting on S-07       |
 
 ## Open Roadmap Questions
 
-None — PRD had 0 Open Questions, and no cross-cutting questions surfaced during roadmap framing. (S-06 carries one slice-local, non-blocking Unknown — see above.)
+None new — the two open domain decisions (opponent random-sampling rule; mirrored-matrix assumption for the algorithmic opponent) are non-blocking per-slice Unknowns; see S-07 and S-08 above.
 
 ## Parked
 
-- **Managing multiple of our own teams (FR-002)** — Why parked: PRD Non-Goals — demoted to nice-to-have to protect the 2-week budget; MVP is scoped to one team per captain.
+- **Multiple opponent-behavior modes for simulation (MS-05)** — Why parked: user explicitly deferred to a later increment beyond this milestone ("in some next increment") — random / same-matrix-as-captain's / "similar" (varied) matrix modes, selectable per session.
+- **Managing multiple of our own teams (FR-002)** — Why parked: PRD Non-Goals — demoted to nice-to-have to protect the original 2-week MVP budget; still not in scope.
 - **Team-vs-team round pairing (Swiss system between teams)** — Why parked: PRD Non-Goals — the organizer's job, determined externally.
 - **Post-match score tracking / historical stats** — Why parked: PRD Non-Goals — out of scope for live pairing decisions.
-- **A teammate/viewer role for non-captain team members** — Why parked: PRD Non-Goals — deferred per Access Control; MVP is captain-only access.
-- **Roster size configurable beyond 5 players (FR-016)** — Why parked: nice-to-have; `main_goal: speed` + `top_blocker: time` bias toward the strict must-have path. S-01's schema stays flexible enough to pick this up later without a rewrite (see S-01 Risk), but the feature itself isn't sequenced in this milestone.
+- **A teammate/viewer role for non-captain team members** — Why parked: PRD Non-Goals — deferred per Access Control.
+- **Roster size configurable beyond 5 players (FR-016)** — Why parked: nice-to-have; not sequenced in this milestone either.
 
 ## Milestone History
 
-(empty — first milestone)
+- **M-1: live-pairing-mvp** (`live-pairing-mvp`) — closed 2026-09-12. Full must-have MVP shipped: team/roster setup, opponent pairing-matrix preparation, and live match-mode with real (non-random) suggestions at all three decision points across both sub-rounds.
 
 ## Done
 
