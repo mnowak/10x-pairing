@@ -25,7 +25,7 @@ const OPPONENT_BEHAVIOR_OPTIONS: { value: OpponentBehavior; label: string; descr
   {
     value: "similar",
     label: "Similar",
-    description: "Like Mirrored, but with a fixed random skew per matchup — an imperfect read on the matrix.",
+    description: "Like Mirrored, but assumes their per-matchup estimates may differ from ours.",
   },
 ];
 
