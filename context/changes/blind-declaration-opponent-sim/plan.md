@@ -245,25 +245,25 @@ No data migration — `MatchSessionState` is ephemeral (localStorage only, one s
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npx astro sync && npm run lint`
-- [x] 1.2 Unit tests pass: `npm test`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Type checking passes: `npx astro sync && npm run lint` — 2c4967a
+- [x] 1.2 Unit tests pass: `npm test` — 2c4967a
+- [x] 1.3 Production build succeeds: `npm run build` — 2c4967a
 
 #### Manual
 
-- [x] 1.4 Same opponent matrix, different first-defender reveal → same opponent defender pick both times
-- [x] 1.5 Full Mirrored practice session completes end-to-end with no thrown errors
-- [x] 1.6 Full Similar practice session completes end-to-end with no thrown errors
-- [x] 1.7 Live match-mode visibly unaffected
+- [x] 1.4 Same opponent matrix, different first-defender reveal → same opponent defender pick both times — 2c4967a
+- [x] 1.5 Full Mirrored practice session completes end-to-end with no thrown errors — 2c4967a
+- [x] 1.6 Full Similar practice session completes end-to-end with no thrown errors — 2c4967a
+- [x] 1.7 Live match-mode visibly unaffected — 2c4967a
 
 ### Phase 2: Persisted-session compatibility guard
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npm test`
-- [x] 2.2 Type checking passes: `npx astro sync && npm run lint`
+- [x] 2.1 Unit tests pass: `npm test` — 2c4967a
+- [x] 2.2 Type checking passes: `npx astro sync && npm run lint` — 2c4967a
 
 #### Manual
 
-- [x] 2.3 Hand-written pre-fix-shaped localStorage session recovers gracefully (fresh session, no crash)
-- [x] 2.4 A session saved and resumed after this fix ships resumes correctly at any phase
+- [x] 2.3 Hand-written pre-fix-shaped localStorage session recovers gracefully (fresh session, no crash) — 2c4967a
+- [x] 2.4 A session saved and resumed after this fix ships resumes correctly at any phase — 2c4967a

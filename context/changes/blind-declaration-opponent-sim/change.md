@@ -1,7 +1,7 @@
 ---
 change_id: blind-declaration-opponent-sim
 title: Fix simultaneous-declaration leaks in practice-mode opponent simulation
-status: implementing
+status: implemented
 created: 2026-09-12
 updated: 2026-09-12
 archived_at: null
