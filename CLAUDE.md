@@ -16,7 +16,7 @@ Pairing Assistant — a live pairing tool for Warhammer 40k team-tournament capt
 - No test script/framework is configured yet.
 - `npx supabase start` / `stop` — local Supabase stack (Docker required); Studio at `http://localhost:54323`
 
-CI (`.github/workflows/ci.yml`): `npm ci` → `npx astro sync` → `npm run lint` → `npm run build`, with `SUPABASE_URL`/`SUPABASE_KEY` from repo secrets.
+CI (`.github/workflows/ci.yml`), on push/PR to `main`: 4 independent parallel jobs — `lint`, `typecheck` (`npx astro check`), `build`, and `test` (spins up a local Supabase instance via the Supabase CLI, then runs the full suite). No GitHub secrets are required — `astro build` succeeds with `SUPABASE_URL`/`SUPABASE_KEY` unset (both `optional: true`), and the test suite's DB-dependent files use hardcoded local-only demo credentials (see `src/lib/testSupport/twoCaptains.ts`), bypassing `astro:env` entirely. All 4 checks are required on `main` via branch protection.
 
 ## Architecture
 

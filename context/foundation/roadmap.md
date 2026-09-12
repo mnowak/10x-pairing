@@ -46,7 +46,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 
 | ID   | Change ID                     | Outcome (user can …)                                                                                                                      | Prerequisites            | PRD refs | Status   |
 | ---- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------- | -------- |
-| S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | ready    |
+| S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | in-progress |
 | S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | ready    |
 | S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | ready    |
 | S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | ready    |
@@ -82,7 +82,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is the north star — the single fix that would have caught today's two incidents earlier, and the one every other hardening slice in this milestone benefits from landing under. Low risk: the fix is a config change (branch trigger + add a test step to the existing workflow), not new infrastructure.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-10: Security/RLS + GRANT audit across all tables
 
