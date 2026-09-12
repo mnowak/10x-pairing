@@ -281,13 +281,13 @@ Not applicable — no data model or schema changes.
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx astro check`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Build succeeds: `npm run build`
-- [x] 3.4 Full test suite passes: `npm test`
+- [x] 3.1 Type checking passes: `npx astro check` — 911672d
+- [x] 3.2 Linting passes: `npm run lint` — 911672d
+- [x] 3.3 Build succeeds: `npm run build` — 911672d
+- [x] 3.4 Full test suite passes: `npm test` — 911672d
 
 #### Manual
 
-- [x] 3.5 Forced API-route failure shows a server-side `logError` line and unchanged redirect/message
-- [x] 3.6 Forced client-side network failure shows a browser-console `logError` line and unchanged cell message
-- [x] 3.7 Smoke-test pass across team/opponents/match/simulate pages confirms no regression
+- [x] 3.5 Forced API-route failure shows a server-side `logError` line and unchanged redirect/message — 911672d
+- [x] 3.6 Forced client-side network failure shows a browser-console `logError` line and unchanged cell message — 911672d
+- [x] 3.7 Smoke-test pass across team/opponents/match/simulate pages confirms no regression — 911672d
