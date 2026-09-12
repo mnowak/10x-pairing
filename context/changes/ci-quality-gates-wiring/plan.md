@@ -155,23 +155,23 @@ No data migration. This is a CI/repo-configuration change only; no application c
 
 #### Automated
 
-- [x] 1.1 `.github/workflows/ci.yml` is valid YAML and passes GitHub's workflow syntax validation
-- [x] 1.2 Local equivalents of each job's commands pass: `npm run lint`, `npx astro check`, `npm run build`, `npm test`
+- [x] 1.1 `.github/workflows/ci.yml` is valid YAML and passes GitHub's workflow syntax validation — 65da410
+- [x] 1.2 Local equivalents of each job's commands pass: `npm run lint`, `npx astro check`, `npm run build`, `npm test` — 65da410
 
 #### Manual
 
-- [ ] 1.3 First-ever CI run triggers on push to `main`; all 4 jobs appear and complete
-- [ ] 1.4 `test` job's log shows `supabase start` succeeding and all tests passing
-- [ ] 1.5 `build` job succeeds with no secrets configured, confirmed in real CI
+- [x] 1.3 First-ever CI run triggers on push to `main`; all 4 jobs appear and complete — 65da410
+- [x] 1.4 `test` job's log shows `supabase start` succeeding and all tests passing — 65da410
+- [x] 1.5 `build` job succeeds with no secrets configured, confirmed in real CI — 65da410
 
 ### Phase 2: Configure branch protection on `main`
 
 #### Automated
 
-- [ ] 2.1 `gh api .../branches/main/protection` returns 200 listing all 4 job names as required checks
+- [x] 2.1 `gh api .../branches/main/protection` returns 200 listing all 4 job names as required checks
 
 #### Manual
 
-- [ ] 2.2 Throwaway PR shows all 4 checks as required; merge button blocked until they pass
-- [ ] 2.3 Direct push to `main` still succeeds (not blocked) after branch protection is applied
-- [ ] 2.4 Throwaway PR and its branch deleted after verification
+- [x] 2.2 Throwaway PR shows all 4 checks as required; merge button blocked until they pass
+- [x] 2.3 Direct push to `main` still succeeds (not blocked) after branch protection is applied
+- [x] 2.4 Throwaway PR and its branch deleted after verification
