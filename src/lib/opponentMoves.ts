@@ -2,8 +2,11 @@ import {
   bestTheirAttackerPair,
   bestTheirDefender,
   bestTheirPick,
+  cellKey,
   mirroredValue,
+  NO_SIGNAL_VALUE,
   type ArmyId,
+  type CellScore,
 } from "@/lib/matchSuggestions";
 import type { MatrixGridData } from "@/lib/matrix";
 
@@ -39,6 +42,14 @@ export interface OpponentMoveProvider {
 
 function randomIndex(length: number, random: () => number): number {
   return Math.floor(random() * length);
+}
+
+function randomIntInclusive(min: number, max: number, random: () => number): number {
+  return min + Math.floor(random() * (max - min + 1));
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
 }
 
 // Picks 2 distinct random indices from `items` — not hardcoded to "the
@@ -79,3 +90,76 @@ export const mirroredOpponentProvider: OpponentMoveProvider = {
   pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
     bestTheirAttackerPair(theirAvailable, ourAvailable, ourDefender, matrixGrid, mirroredValue),
 };
+
+/**
+ * Generates Similar mode's per-session-fixed matchup values, covering
+ * every (our, their) combination across the FULL initial rosters — armies
+ * only ever leave the available pool during a session, never rejoin, so
+ * this one-time full cross-product covers every combination the search
+ * could later ask for. Non-purple/estimated cells get `mirroredValue ± 4`
+ * (clamped to [0,20]); purple/unestimated cells get a fully random integer
+ * uniform in [0,20] — deliberately NOT the narrower mirrored±4 band, since
+ * "no signal" should stay maximally uncertain, not merely noisy around a
+ * placeholder constant.
+ */
+export function generateSimilarScoreTable(
+  matrixGrid: MatrixGridData,
+  ourArmyIds: ArmyId[],
+  theirArmyIds: ArmyId[],
+  random: () => number = Math.random,
+): Record<string, number> {
+  const table: Record<string, number> = {};
+  for (const our of ourArmyIds) {
+    for (const their of theirArmyIds) {
+      const mirrored = mirroredValue(matrixGrid, our, their);
+      table[cellKey(our, their)] =
+        mirrored === NO_SIGNAL_VALUE
+          ? randomIntInclusive(0, 20, random)
+          : clamp(mirrored + randomIntInclusive(-4, 4, random), 0, 20);
+    }
+  }
+  return table;
+}
+
+/**
+ * Builds a Similar-mode provider backed by a noisy score table — either
+ * freshly generated (new session) or restored verbatim via
+ * `options.existingTable` (resuming a persisted session), so a resumed
+ * session's opponent behaves identically to before the refresh: the table
+ * must stay fixed for the whole session, since the minimax lookahead at an
+ * early phase evaluates hypothetical FUTURE opponent decisions using the
+ * same table that will actually govern them later — regenerating it per
+ * decision point would make the search self-contradictory. The returned
+ * `provider`'s CellScore ignores the `matrixGrid` argument passed through
+ * by `bestTheir*` — the table is already fully materialized, so no further
+ * matrix lookups are needed.
+ */
+export function createSimilarOpponentProvider(
+  matrixGrid: MatrixGridData,
+  ourArmyIds: ArmyId[],
+  theirArmyIds: ArmyId[],
+  options?: { random?: () => number; existingTable?: Record<string, number> },
+): { provider: OpponentMoveProvider; table: Record<string, number> } {
+  const table =
+    options?.existingTable ?? generateSimilarScoreTable(matrixGrid, ourArmyIds, theirArmyIds, options?.random);
+
+  const score: CellScore = (_matrixGrid, ourArmyId, theirArmyId) => {
+    // Widened to Partial: a genuinely reachable key is always present per
+    // the full-cross-product generation above, but this stays defensive
+    // (matching cellValue's own Partial-widening pattern) rather than
+    // trusting Record<string, number>'s unsound total-map typing.
+    const values: Partial<Record<string, number>> = table;
+    return values[cellKey(ourArmyId, theirArmyId)] ?? NO_SIGNAL_VALUE;
+  };
+
+  const provider: OpponentMoveProvider = {
+    pickDefender: (theirAvailable, ourAvailable, ourDefender, mg) =>
+      bestTheirDefender(theirAvailable, ourAvailable, ourDefender, mg, score),
+    pickAttackerChoice: (offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, mg) =>
+      bestTheirPick(offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, mg, score),
+    pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, mg) =>
+      bestTheirAttackerPair(theirAvailable, ourAvailable, ourDefender, mg, score),
+  };
+
+  return { provider, table };
+}

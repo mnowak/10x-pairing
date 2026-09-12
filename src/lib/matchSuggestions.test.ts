@@ -11,7 +11,7 @@ import {
   theirReserveStrength,
   type ArmyId,
 } from "@/lib/matchSuggestions";
-import { mirroredOpponentProvider } from "@/lib/opponentMoves";
+import { createSimilarOpponentProvider, mirroredOpponentProvider } from "@/lib/opponentMoves";
 import {
   confirmOurAccept,
   confirmOurAttackerPair,
@@ -636,5 +636,109 @@ describe("mirroredOpponentProvider — full 5-vs-5 walkthrough via the real engi
     ]);
     expect(committedOurs).toEqual(new Set(ourArmies));
     expect(committedTheirs).toEqual(new Set(theirArmies));
+  });
+});
+
+describe("createSimilarOpponentProvider — full 3v3 walkthrough via the real engine", () => {
+  it("a uniform table produces the exact, hand-provable outcome via the real engine", () => {
+    // Same technique as mirroredOpponentProvider's own hand-provable test
+    // above: a uniform table (every entry the same value) makes every
+    // decision at every phase a full tie, so pickBest/bestTheir*'s
+    // tie-break loop always keeps the FIRST candidate in each phase's
+    // current available-list order — for both minimaxSuggestionProvider
+    // (ours, via the real cellValue grid, also uniform) and the Similar
+    // provider (theirs, via the hand-crafted uniform table). This proves
+    // the real engine + createSimilarOpponentProvider integrate correctly
+    // end-to-end, with the exact same predictable outcome as the Mirrored
+    // walkthrough: defender "o1", their-defender "t1", forced pair
+    // [o2,o3], their-pick "o2", forced pair [t2,t3], our-accept "t2",
+    // forced refusal o3 vs t3.
+    const ourArmies3 = ["o1", "o2", "o3"];
+    const theirArmies3 = ["t1", "t2", "t3"];
+    const estimates3: Record<string, Estimate> = {};
+    for (const our of ourArmies3) {
+      for (const their of theirArmies3) {
+        estimates3[`${our}:${their}`] = "yellow";
+      }
+    }
+    const grid3 = gridOf(estimates3);
+
+    const uniformTable: Record<string, number> = {};
+    for (const our of ourArmies3) {
+      for (const their of theirArmies3) {
+        uniformTable[`${our}:${their}`] = 10;
+      }
+    }
+    const { provider: similarProvider } = createSimilarOpponentProvider(grid3, ourArmies3, theirArmies3, {
+      existingTable: uniformTable,
+    });
+
+    let state3 = createSession(ourArmies3, theirArmies3, minimaxSuggestionProvider, grid3);
+
+    while (!isSessionComplete(state3)) {
+      switch (state3.phase) {
+        case "our-defender":
+          state3 = confirmOurDefender(state3, "o1");
+          break;
+        case "their-defender": {
+          const ourDefender = state3.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
+          const picked = similarProvider.pickDefender(state3.theirAvailable, state3.ourAvailable, ourDefender, grid3);
+          state3 = enterTheirDefender(state3, picked, minimaxSuggestionProvider, grid3);
+          break;
+        }
+        case "our-attacker-pair":
+          state3 = confirmOurAttackerPair(state3, [state3.ourAvailable[0], state3.ourAvailable[1]]);
+          break;
+        case "their-pick": {
+          const offered = state3.working.ourOfferedPair;
+          const theirDefender = state3.working.theirDefender;
+          const ourDefender = state3.working.ourDefender;
+          if (!offered || !theirDefender || !ourDefender) {
+            throw new Error("Expected ourOfferedPair/theirDefender/ourDefender to be set in their-pick phase");
+          }
+          const picked = similarProvider.pickAttackerChoice(
+            offered,
+            theirDefender,
+            state3.ourAvailable,
+            state3.theirAvailable,
+            ourDefender,
+            grid3,
+          );
+          state3 = enterTheirPick(state3, picked);
+          break;
+        }
+        case "their-attacker-pair": {
+          const ourDefender = state3.working.ourDefender;
+          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-attacker-pair phase");
+          const pair = similarProvider.pickAttackerPair(state3.theirAvailable, state3.ourAvailable, ourDefender, grid3);
+          state3 = enterTheirAttackerPair(state3, pair, minimaxSuggestionProvider, grid3);
+          break;
+        }
+        case "our-accept":
+          state3 = confirmOurAccept(
+            state3,
+            state3.working.theirOfferedPair?.[0] ?? "",
+            minimaxSuggestionProvider,
+            grid3,
+          );
+          break;
+        case "complete":
+          break;
+      }
+    }
+
+    expect(state3.history).toEqual([
+      {
+        subRound: 1,
+        ourDefender: "o1",
+        theirDefender: "t1",
+        ourOfferedPair: ["o2", "o3"],
+        theirPick: "o2",
+        theirOfferedPair: ["t2", "t3"],
+        ourAccepted: "t2",
+      },
+    ]);
+    expect(state3.refusedAttacker).toEqual({ ours: "o3", theirs: "t3" });
   });
 });
