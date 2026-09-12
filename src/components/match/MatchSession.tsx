@@ -9,6 +9,7 @@ import {
   enterTheirAttackerPair,
   enterTheirDefender,
   enterTheirPick,
+  isResumableSessionState,
   type MatchSessionState,
 } from "@/lib/matchSessionEngine";
 import { minimaxSuggestionProvider, type ArmyId } from "@/lib/matchSuggestions";
@@ -256,8 +257,19 @@ export default function MatchSession(props: Props) {
   // render — matchSessionStorage's globalThis.localStorage read is safe
   // here and never runs during SSR. Captured once (not re-read on every
   // render) so a Similar-mode session's restored table (below) stays
-  // stable for the component's lifetime.
-  const [initialLoaded] = useState(() => loadSession(opponentId, mode));
+  // stable for the component's lifetime. A loaded session that predates
+  // the blind-declaration-opponent-sim fix (missing the new snapshot
+  // fields at a phase that now always sets them) is treated as absent —
+  // resuming it would compute from a half-migrated state — and cleared so
+  // it isn't re-encountered on a later load.
+  const [initialLoaded] = useState(() => {
+    const loaded = loadSession(opponentId, mode);
+    if (loaded && !isResumableSessionState(loaded.state)) {
+      clearSession(mode);
+      return null;
+    }
+    return loaded;
+  });
 
   const [state, setState] = useState<MatchSessionState>(
     () => initialLoaded?.state ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
@@ -404,8 +416,7 @@ export default function MatchSession(props: Props) {
             pick={() =>
               opponentProvider.pickDefender(
                 state.theirAvailable,
-                state.ourAvailable,
-                requireWorking(state.working.ourDefender, "Our defender"),
+                requireWorking(state.working.ourAvailableBeforeOurDefender, "Our available pool before our defender"),
                 matrixGrid,
               )
             }
@@ -471,7 +482,7 @@ export default function MatchSession(props: Props) {
             pick={() =>
               opponentProvider.pickAttackerPair(
                 state.theirAvailable,
-                state.ourAvailable,
+                requireWorking(state.working.ourAvailableAtDefenderReveal, "Our available pool at defender reveal"),
                 requireWorking(state.working.ourDefender, "Our defender"),
                 matrixGrid,
               )

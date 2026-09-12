@@ -138,7 +138,7 @@ describe("bestTheirDefender / bestTheirPick / bestTheirAttackerPair — bounds",
 
   it("bestTheirDefender always returns an army from theirAvailable", () => {
     const theirAvailable = ["x", "y", "z"];
-    const result = bestTheirDefender(theirAvailable, ["a", "b", "c"], "d", grid, cellValue);
+    const result = bestTheirDefender(theirAvailable, ["a", "b", "c"], grid, cellValue);
     expect(theirAvailable).toContain(result);
   });
 
@@ -159,26 +159,19 @@ describe("bestTheirDefender / bestTheirPick / bestTheirAttackerPair — bounds",
 
 describe("bestTheirDefender — hand-verified scenario (mirror of bestOurDefender's own tie-break test)", () => {
   it("a tied primary value correctly falls through to the theirReserveStrength tie-break", () => {
-    // Exact mirror of the "suggestDefender: a tied primary value..." scenario
-    // below, with roles swapped (their candidates a/b/c, our armies x/y/z)
-    // and an external, neutral ourDefender "d" whose matchup value is the
-    // SAME constant against every candidate — it shifts every path's total
-    // by the same amount without disturbing the comparison, so the exact
-    // same tie-and-tie-break reasoning transfers: committing "a" and "c" as
-    // defender both yield the same primary value, and the tie-break must
-    // prefer the LOWER-theirReserveStrength candidate — "c".
-    //
-    // The recursion shape isn't byte-identical to bestOurDefender's own:
-    // bestOurDefender's candidate is threaded through as the fixed
-    // ourDefender across its ENTIRE downstream (it recurses through
-    // searchTheirDefender first), whereas bestTheirDefender's ourDefender
-    // ("d") is a SEPARATE, externally-fixed value — its search skips
-    // straight to searchOurAttackerPair since there's no analogous "their
-    // defender already committed" step to recurse through first. The mirror
-    // still holds because "d" contributes the SAME constant to every leaf
-    // regardless of which candidate (a/b/c) is being evaluated, so it only
-    // shifts every path's total uniformly — it can't change which candidate
-    // wins the comparison.
+    // Transpose of the "suggestDefender: a tied primary value..." scenario
+    // below: their candidates a/b/c take the role bestOurDefender's own
+    // candidates played, our armies x/y/z take the role bestOurDefender's
+    // theirAvailable played — but bestTheirDefender's search now has one
+    // MORE aggregation layer than bestOurDefender's (it searches over
+    // ourAvailable via searchOurDefenderForTheirChoice instead of taking a
+    // fixed ourDefender), and the config's oursMaximize flips (false, not
+    // true), so the recursion is not byte-identical and the outcome isn't
+    // derivable by simply reusing bestOurDefender's own reasoning. Verified
+    // directly: every candidate's primary value ties at 14 (transposing the
+    // original grid happens to preserve that number, though the search
+    // shape differs), and reserveStrength(a)=30 > reserveStrength(b)=22 >
+    // reserveStrength(c)=6, so the tie-break correctly prefers "c".
     const grid = gridOf({
       "x:a": "yellow",
       "y:a": "yellow",
@@ -189,12 +182,60 @@ describe("bestTheirDefender — hand-verified scenario (mirror of bestOurDefende
       "x:c": "red",
       "y:c": "red",
       "z:c": "red",
-      "x:d": "yellow",
-      "y:d": "yellow",
-      "z:d": "yellow",
     });
-    const result = bestTheirDefender(["a", "b", "c"], ["x", "y", "z"], "d", grid, cellValue);
+    const result = bestTheirDefender(["a", "b", "c"], ["x", "y", "z"], grid, cellValue);
     expect(result).toBe("c");
+  });
+});
+
+describe("mirroredOpponentProvider.pickDefender — blind-decision regression (F1 / blind-declaration-opponent-sim)", () => {
+  it("returns a single, defender-choice-independent pick against the real Expedition 2137 vs Wujasy matrix", () => {
+    // Real pairing-matrix data pulled from the local dev DB, 2026-09-12 —
+    // "Expedition 2137" (ours) vs "Wujasy" (theirs), the exact matchup that
+    // originally surfaced this bug (see
+    // context/changes/blind-declaration-opponent-sim/frame.md). Raw DB
+    // scores map 1:1 onto COLOR_BANDS' representativeScore, so the bands
+    // below reproduce the stored estimates exactly (Demony:DG and Tau:CSM
+    // are genuinely purple in the real data).
+    const grid = gridOf({
+      "BA:CSM": "dark-green",
+      "BA:DA": "yellow",
+      "BA:DG": "red",
+      "BA:TS": "green",
+      "BA:WE": "green",
+      "CK:CSM": "green",
+      "CK:DA": "orange",
+      "CK:DG": "yellow",
+      "CK:TS": "orange",
+      "CK:WE": "yellow",
+      "Custo:CSM": "yellow",
+      "Custo:DA": "yellow",
+      "Custo:DG": "yellow",
+      "Custo:TS": "yellow",
+      "Custo:WE": "green",
+      "Demony:CSM": "green",
+      "Demony:DA": "red",
+      "Demony:DG": "purple",
+      "Demony:TS": "red",
+      "Demony:WE": "dark-green",
+      "Tau:CSM": "purple",
+      "Tau:DA": "yellow",
+      "Tau:DG": "orange",
+      "Tau:TS": "yellow",
+      "Tau:WE": "green",
+    });
+    const ourAvailable = ["BA", "CK", "Custo", "Demony", "Tau"];
+    const theirAvailable = ["CSM", "DA", "DG", "TS", "WE"];
+
+    // Verified directly against the pre-fix code shape: computing this same
+    // search with a concrete, fixed ourDefender (as the original bug did)
+    // yields a DIFFERENT opponent pick depending on which army is fixed
+    // (e.g. "CSM" for BA/CK/Demony, "WE" for Custo, "TS" for Tau) — a real
+    // reactive leak against this exact matrix. mirroredOpponentProvider no
+    // longer accepts an ourDefender argument at all, closing that leak at
+    // the type level; this locks in the single, blind value it now computes.
+    const result = mirroredOpponentProvider.pickDefender(theirAvailable, ourAvailable, grid);
+    expect(result).toBe("WE");
   });
 });
 
@@ -261,8 +302,8 @@ describe("bestTheirPick — hand-verified scenarios", () => {
 describe("mirroredOpponentProvider — wiring", () => {
   it("pickDefender delegates to bestTheirDefender with mirroredValue as the score function", () => {
     const grid = gridOf({ "x:a": "red", "x:b": "dark-green", "y:a": "red", "y:b": "dark-green" });
-    const expected = bestTheirDefender(["a", "b"], ["x", "y"], "d", grid, mirroredValue);
-    expect(mirroredOpponentProvider.pickDefender(["a", "b"], ["x", "y"], "d", grid)).toBe(expected);
+    const expected = bestTheirDefender(["a", "b"], ["x", "y"], grid, mirroredValue);
+    expect(mirroredOpponentProvider.pickDefender(["a", "b"], ["x", "y"], grid)).toBe(expected);
   });
 });
 
@@ -469,14 +510,7 @@ describe("mirroredOpponentProvider — full 5-vs-5 walkthrough via the real engi
           state3 = confirmOurDefender(state3, "o1");
           break;
         case "their-defender": {
-          const ourDefender = state3.working.ourDefender;
-          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
-          const picked = mirroredOpponentProvider.pickDefender(
-            state3.theirAvailable,
-            state3.ourAvailable,
-            ourDefender,
-            grid3,
-          );
+          const picked = mirroredOpponentProvider.pickDefender(state3.theirAvailable, state3.ourAvailable, grid3);
           state3 = enterTheirDefender(state3, picked, minimaxSuggestionProvider, grid3);
           break;
         }
@@ -569,14 +603,7 @@ describe("mirroredOpponentProvider — full 5-vs-5 walkthrough via the real engi
           state = confirmOurDefender(state, ourSuggested());
           break;
         case "their-defender": {
-          const ourDefender = state.working.ourDefender;
-          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
-          const picked = mirroredOpponentProvider.pickDefender(
-            state.theirAvailable,
-            state.ourAvailable,
-            ourDefender,
-            grid,
-          );
+          const picked = mirroredOpponentProvider.pickDefender(state.theirAvailable, state.ourAvailable, grid);
           state = enterTheirDefender(state, picked, minimaxSuggestionProvider, grid);
           break;
         }
@@ -681,9 +708,7 @@ describe("createSimilarOpponentProvider — full 3v3 walkthrough via the real en
           state3 = confirmOurDefender(state3, "o1");
           break;
         case "their-defender": {
-          const ourDefender = state3.working.ourDefender;
-          if (!ourDefender) throw new Error("Expected ourDefender to be set in their-defender phase");
-          const picked = similarProvider.pickDefender(state3.theirAvailable, state3.ourAvailable, ourDefender, grid3);
+          const picked = similarProvider.pickDefender(state3.theirAvailable, state3.ourAvailable, grid3);
           state3 = enterTheirDefender(state3, picked, minimaxSuggestionProvider, grid3);
           break;
         }

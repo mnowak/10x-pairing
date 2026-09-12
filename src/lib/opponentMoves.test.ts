@@ -27,12 +27,12 @@ describe("createRandomOpponentProvider", () => {
   describe("pickDefender", () => {
     it("returns the first candidate for a boundary-low random value", () => {
       const provider = createRandomOpponentProvider(sequence(0));
-      expect(provider.pickDefender(["a", "b", "c"], [], "our-defender", emptyGrid)).toBe("a");
+      expect(provider.pickDefender(["a", "b", "c"], [], emptyGrid)).toBe("a");
     });
 
     it("returns the last candidate for a boundary-high random value", () => {
       const provider = createRandomOpponentProvider(sequence(0.999999));
-      expect(provider.pickDefender(["a", "b", "c"], [], "our-defender", emptyGrid)).toBe("c");
+      expect(provider.pickDefender(["a", "b", "c"], [], emptyGrid)).toBe("c");
     });
   });
 
@@ -119,7 +119,7 @@ describe("createSimilarOpponentProvider", () => {
     const { provider: original, table } = createSimilarOpponentProvider(grid, ["x", "y", "z"], ["a", "b", "c"], {
       random: sequence(0.1, 0.9, 0.4, 0.6, 0.2, 0.8, 0.5, 0.3, 0.7),
     });
-    const originalPick = original.pickDefender(["a", "b", "c"], ["x", "y", "z"], "d", grid);
+    const originalPick = original.pickDefender(["a", "b", "c"], ["x", "y", "z"], grid);
 
     const { provider: restored } = createSimilarOpponentProvider(grid, ["x", "y", "z"], ["a", "b", "c"], {
       existingTable: table,
@@ -127,7 +127,7 @@ describe("createSimilarOpponentProvider", () => {
         throw new Error("existingTable path must not draw new randomness");
       },
     });
-    const restoredPick = restored.pickDefender(["a", "b", "c"], ["x", "y", "z"], "d", grid);
+    const restoredPick = restored.pickDefender(["a", "b", "c"], ["x", "y", "z"], grid);
 
     expect(restoredPick).toBe(originalPick);
   });

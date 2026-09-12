@@ -195,16 +195,52 @@ function bestOurDefender(ourAvailable: ArmyId[], theirAvailable: ArmyId[], matri
 }
 
 /**
+ * Mirror of `searchTheirDefender`, aggregating over `ourAvailable` instead
+ * of `theirAvailable` — models the captain's own defender choice as unknown
+ * to the opponent at their decision time (the blind/simultaneous
+ * declaration rule), the same way `searchTheirDefender` models the
+ * opponent's defender choice as unknown to us. "Our" node convention
+ * (`agg = oursMaximize ? Math.max : Math.min`) applies since this is our
+ * (unknown-to-them) choice being searched.
+ */
+function searchOurDefenderForTheirChoice(
+  ourAvailable: ArmyId[],
+  theirDefender: ArmyId,
+  remainingTheirs: ArmyId[],
+  matrixGrid: MatrixGridData,
+  config: SearchConfig,
+): number {
+  const agg = config.oursMaximize ? Math.max : Math.min;
+  return agg(
+    ...ourAvailable.map((ourDefenderCandidate) => {
+      const remainingOurs = withoutArmy(ourAvailable, ourDefenderCandidate);
+      return searchOurAttackerPair(
+        remainingOurs,
+        theirDefender,
+        remainingTheirs,
+        ourDefenderCandidate,
+        matrixGrid,
+        config,
+      );
+    }),
+  );
+}
+
+/**
  * The opponent's actual best defender choice, via the same search run from
  * their point of view (`oursMaximize: false` — their nodes maximize
- * `score`, ours minimize it). Commits one of the opponent's own armies, so
- * — mirroring `bestOurDefender`'s own tie-break — ties are broken by
+ * `score`, ours minimize it). Does NOT take a concrete `ourDefender` — under
+ * the blind/simultaneous declaration rule, the opponent's defender pick
+ * must not react to which specific army the captain reveals as their own
+ * defender, so this aggregates over every candidate in `ourAvailable` via
+ * `searchOurDefenderForTheirChoice` instead of conditioning on one fixed
+ * identity. Commits one of the opponent's own armies, so — mirroring
+ * `bestOurDefender`'s own tie-break — ties are broken by
  * `theirReserveStrength`.
  */
 export function bestTheirDefender(
   theirAvailable: ArmyId[],
   ourAvailable: ArmyId[],
-  ourDefender: ArmyId,
   matrixGrid: MatrixGridData,
   score: CellScore,
 ): ArmyId {
@@ -213,7 +249,7 @@ export function bestTheirDefender(
     theirAvailable,
     (candidate) => {
       const remainingTheirs = withoutArmy(theirAvailable, candidate);
-      return searchOurAttackerPair(ourAvailable, candidate, remainingTheirs, ourDefender, matrixGrid, config);
+      return searchOurDefenderForTheirChoice(ourAvailable, candidate, remainingTheirs, matrixGrid, config);
     },
     (candidate) => theirReserveStrength(matrixGrid, candidate, ourAvailable, score),
   );

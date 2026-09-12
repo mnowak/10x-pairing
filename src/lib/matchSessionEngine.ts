@@ -28,6 +28,23 @@ export interface RefusedAttackerPairing {
 interface WorkingSubRound {
   ourDefender?: ArmyId;
   theirDefender?: ArmyId;
+  // Snapshot of ourAvailable taken BEFORE our own defender was committed
+  // (in confirmOurDefender) — the pool as it genuinely stood at the moment
+  // their-defender's blind pick logically happens, still including
+  // whichever army we go on to commit as our defender. their-defender's
+  // opponent decision must search over this, not the live state.ourAvailable
+  // (which by the their-defender phase has already been reduced by OUR OWN
+  // committed pick — a fact the opponent shouldn't be able to react to
+  // either directly, via ourDefender's identity, or indirectly, via which
+  // specific army is missing from the pool it searches).
+  ourAvailableBeforeOurDefender?: ArmyId[];
+  // Snapshot of ourAvailable taken the moment both defenders become public
+  // (in enterTheirDefender) — before any attacker-pair offer (a later,
+  // independent exchange under the blind/simultaneous declaration rule) has
+  // touched it. their-attacker-pair's opponent decision reads this instead
+  // of the live state.ourAvailable, which by then has already been reduced
+  // by the parallel our-offer/their-pick exchange.
+  ourAvailableAtDefenderReveal?: ArmyId[];
   ourOfferedPair?: [ArmyId, ArmyId];
   theirPick?: ArmyId;
   theirOfferedPair?: [ArmyId, ArmyId];
@@ -110,7 +127,7 @@ export function confirmOurDefender(state: MatchSessionState, chosen: ArmyId): Ma
     ourAvailable: withoutArmy(state.ourAvailable, chosen),
     phase: "their-defender",
     suggested: null,
-    working: { ...state.working, ourDefender: chosen },
+    working: { ...state.working, ourDefender: chosen, ourAvailableBeforeOurDefender: [...state.ourAvailable] },
   };
 }
 
@@ -137,7 +154,7 @@ export function enterTheirDefender(
     theirAvailable,
     phase: "our-attacker-pair",
     suggested: provider.suggestAttackerPair(state.ourAvailable, revealed, theirAvailable, ourDefender, matrixGrid),
-    working: { ...state.working, theirDefender: revealed },
+    working: { ...state.working, theirDefender: revealed, ourAvailableAtDefenderReveal: [...state.ourAvailable] },
   };
 }
 
@@ -267,4 +284,22 @@ export function confirmOurAccept(
 
 export function isSessionComplete(state: MatchSessionState): boolean {
   return state.phase === "complete";
+}
+
+/**
+ * A loaded session predates the blind-declaration-opponent-sim fix (and
+ * must not be resumed) if it has committed a step that, under the current
+ * engine, always sets a snapshot alongside it, but the snapshot is missing
+ * — i.e. the session was persisted by an older build that didn't write
+ * that field yet. Narrow and purpose-built: not a general schema-version
+ * check, just the two specific shapes this fix introduced.
+ */
+export function isResumableSessionState(state: MatchSessionState): boolean {
+  if (state.working.ourDefender !== undefined && state.working.ourAvailableBeforeOurDefender === undefined) {
+    return false;
+  }
+  if (state.working.theirDefender !== undefined && state.working.ourAvailableAtDefenderReveal === undefined) {
+    return false;
+  }
+  return true;
 }

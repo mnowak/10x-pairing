@@ -17,13 +17,12 @@ import type { MatrixGridData } from "@/lib/matrix";
 // signature change. Widened from S-07's original shape (which lacked
 // ourDefender/ourAvailable/theirAvailable in places) once the Mirrored/
 // Similar modes' lookahead search revealed it didn't carry enough context.
+// `pickDefender` deliberately does NOT take `ourDefender`: under the
+// blind/simultaneous declaration rule the opponent's defender pick must not
+// react to which specific army the captain reveals as their own defender —
+// no implementation should ever condition on it, so it isn't offered.
 export interface OpponentMoveProvider {
-  pickDefender(
-    theirAvailable: ArmyId[],
-    ourAvailable: ArmyId[],
-    ourDefender: ArmyId,
-    matrixGrid: MatrixGridData,
-  ): ArmyId;
+  pickDefender(theirAvailable: ArmyId[], ourAvailable: ArmyId[], matrixGrid: MatrixGridData): ArmyId;
   pickAttackerChoice(
     offeredPair: [ArmyId, ArmyId],
     theirDefender: ArmyId,
@@ -83,8 +82,8 @@ export const randomOpponentProvider: OpponentMoveProvider = createRandomOpponent
  * than `createRandomOpponentProvider`'s injectable-randomness factory.
  */
 export const mirroredOpponentProvider: OpponentMoveProvider = {
-  pickDefender: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
-    bestTheirDefender(theirAvailable, ourAvailable, ourDefender, matrixGrid, mirroredValue),
+  pickDefender: (theirAvailable, ourAvailable, matrixGrid) =>
+    bestTheirDefender(theirAvailable, ourAvailable, matrixGrid, mirroredValue),
   pickAttackerChoice: (offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid) =>
     bestTheirPick(offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, matrixGrid, mirroredValue),
   pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, matrixGrid) =>
@@ -153,8 +152,7 @@ export function createSimilarOpponentProvider(
   };
 
   const provider: OpponentMoveProvider = {
-    pickDefender: (theirAvailable, ourAvailable, ourDefender, mg) =>
-      bestTheirDefender(theirAvailable, ourAvailable, ourDefender, mg, score),
+    pickDefender: (theirAvailable, ourAvailable, mg) => bestTheirDefender(theirAvailable, ourAvailable, mg, score),
     pickAttackerChoice: (offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, mg) =>
       bestTheirPick(offeredPair, theirDefender, ourAvailable, theirAvailable, ourDefender, mg, score),
     pickAttackerPair: (theirAvailable, ourAvailable, ourDefender, mg) =>

@@ -7,6 +7,7 @@ import {
   enterTheirAttackerPair,
   enterTheirDefender,
   enterTheirPick,
+  isResumableSessionState,
   isSessionComplete,
   type MatchSessionState,
 } from "@/lib/matchSessionEngine";
@@ -173,5 +174,84 @@ describe("matchSessionEngine — committed-army exclusion guardrail", () => {
   it("rejects calling a transition out of phase order", () => {
     const state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
     expect(() => enterTheirDefender(state, "t1", firstAvailableProvider, emptyGrid)).toThrow();
+  });
+});
+
+describe("matchSessionEngine — ourAvailableBeforeOurDefender snapshot", () => {
+  it("still includes our own committed defender — the pool as it stood before that commit", () => {
+    let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    state = confirmOurDefender(state, "o1");
+    // The their-defender phase's blind pick must search over the FULL
+    // pre-commit pool, including "o1" — the live state.ourAvailable at this
+    // point has already excluded it, which is exactly the leak this
+    // snapshot exists to avoid.
+    expect(state.working.ourAvailableBeforeOurDefender).toEqual(["o1", "o2", "o3", "o4", "o5"]);
+    expect(state.ourAvailable).not.toContain("o1");
+  });
+
+  it("is independent of which army was committed as our defender", () => {
+    let stateA = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    stateA = confirmOurDefender(stateA, "o1");
+    let stateB = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    stateB = confirmOurDefender(stateB, "o3");
+
+    // Different committed defenders still snapshot to the same full pool —
+    // this is the invariant the reported bug violated at the call-site level.
+    expect(new Set(stateA.working.ourAvailableBeforeOurDefender)).toEqual(new Set(ourArmies));
+    expect(new Set(stateB.working.ourAvailableBeforeOurDefender)).toEqual(new Set(ourArmies));
+  });
+});
+
+describe("matchSessionEngine — ourAvailableAtDefenderReveal snapshot", () => {
+  it("survives enterTheirPick's later, independent reduction of ourAvailable", () => {
+    let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    state = confirmOurDefender(state, "o1");
+    state = enterTheirDefender(state, "t1", firstAvailableProvider, emptyGrid);
+    // Snapshot taken here should contain every army still available right
+    // after our own defender was committed (o1 removed, nothing else yet).
+    expect(state.working.ourAvailableAtDefenderReveal).toEqual(["o2", "o3", "o4", "o5"]);
+
+    state = confirmOurAttackerPair(state, ["o2", "o3"]);
+    state = enterTheirPick(state, "o2");
+    // enterTheirPick just removed "o2" from the live ourAvailable — the
+    // snapshot must be unaffected by that later, independent mutation.
+    expect(state.ourAvailable).not.toContain("o2");
+    expect(state.working.ourAvailableAtDefenderReveal).toEqual(["o2", "o3", "o4", "o5"]);
+  });
+});
+
+describe("isResumableSessionState", () => {
+  it("is true for a freshly-created session", () => {
+    const state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    expect(isResumableSessionState(state)).toBe(true);
+  });
+
+  it("is true for a real mid-flight session (both snapshots set alongside their committed step)", () => {
+    let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    state = confirmOurDefender(state, "o1");
+    expect(isResumableSessionState(state)).toBe(true);
+    state = enterTheirDefender(state, "t1", firstAvailableProvider, emptyGrid);
+    expect(isResumableSessionState(state)).toBe(true);
+  });
+
+  it("is false when ourDefender is committed but ourAvailableBeforeOurDefender is missing (pre-fix shape)", () => {
+    let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    state = confirmOurDefender(state, "o1");
+    const staleState: MatchSessionState = {
+      ...state,
+      working: { ...state.working, ourAvailableBeforeOurDefender: undefined },
+    };
+    expect(isResumableSessionState(staleState)).toBe(false);
+  });
+
+  it("is false when theirDefender is committed but ourAvailableAtDefenderReveal is missing (pre-fix shape)", () => {
+    let state = createSession(ourArmies, theirArmies, firstAvailableProvider, emptyGrid);
+    state = confirmOurDefender(state, "o1");
+    state = enterTheirDefender(state, "t1", firstAvailableProvider, emptyGrid);
+    const staleState: MatchSessionState = {
+      ...state,
+      working: { ...state.working, ourAvailableAtDefenderReveal: undefined },
+    };
+    expect(isResumableSessionState(staleState)).toBe(false);
   });
 });
