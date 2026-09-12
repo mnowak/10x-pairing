@@ -1,10 +1,10 @@
 ---
 change_id: pairing-simulation-session
 title: Solo pairing simulation (opponent plays randomly)
-status: impl_reviewed
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
-archived_at: null
+archived_at: 2026-09-12T11:07:45Z
 ---
 
 ## Notes
