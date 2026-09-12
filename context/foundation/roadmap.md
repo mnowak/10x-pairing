@@ -46,7 +46,7 @@ M-1 shipped the live, two-human pairing flow: a captain negotiating defender/att
 
 | ID   | Change ID                    | Outcome (user can …)                                                                                                                                              | Prerequisites  | PRD refs           | Status   |
 | ---- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------- | -------- |
-| S-07 | pairing-simulation-session    | run a solo pairing-simulation session against a prepared opponent matrix, making their own choices manually while the app auto-picks the opponent's moves at random and shows what was picked | S-02, S-03, F-01 | MS-01, MS-02, MS-03 | planning |
+| S-07 | pairing-simulation-session    | run a solo pairing-simulation session against a prepared opponent matrix, making their own choices manually while the app auto-picks the opponent's moves at random and shows what was picked | S-02, S-03, F-01 | MS-01, MS-02, MS-03 | in-progress |
 | S-08 | pairing-simulation-recommender | have their solo pairing-simulation opponent play using the existing minimax engine's opponent-optimal-for-them logic instead of a random pick                    | S-07           | MS-04               | proposed |
 
 ## Baseline
@@ -82,7 +82,7 @@ None for this milestone. The two absent capabilities identified in Baseline (ses
   - Session storage currently assumes only one live match-mode session is ever active in a single global slot (`matchSessionStorage.ts`) with no mode discriminator — this slice needs to design how a simulation session coexists with / is distinguished from a live one without breaking the existing live flow. Owner: team. Block: no — a small state-shape addition `/10x-plan` can design.
   - How should the random opponent pick sample among the opponent's still-available armies — pure uniform random at each decision point, or weighted some other way? Owner: user/team. Block: no — uniform random is a safe default to proceed with.
 - **Risk:** This is the north star for M-2 — the smallest end-to-end slice that proves solo training works as a mode. Mirrors the M-1 `S-03` precedent (ship full session mechanics behind a swappable opponent-decision interface) rather than building the harder algorithmic-opponent logic first.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-08: Opponent plays algorithmically in solo pairing simulation
 

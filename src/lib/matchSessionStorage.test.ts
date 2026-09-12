@@ -44,27 +44,46 @@ beforeEach(() => {
 
 describe("matchSessionStorage", () => {
   it("round-trips a saved session through load for the same opponent", () => {
-    saveSession("opp-1", sampleState);
-    expect(loadSession("opp-1")).toEqual(sampleState);
+    saveSession("opp-1", sampleState, "live");
+    expect(loadSession("opp-1", "live")).toEqual(sampleState);
   });
 
   it("returns null when nothing has been saved", () => {
-    expect(loadSession("opp-1")).toBeNull();
+    expect(loadSession("opp-1", "live")).toBeNull();
   });
 
   it("returns null when the stored session belongs to a different opponent", () => {
-    saveSession("opp-1", sampleState);
-    expect(loadSession("opp-2")).toBeNull();
+    saveSession("opp-1", sampleState, "live");
+    expect(loadSession("opp-2", "live")).toBeNull();
   });
 
   it("returns null (not a throw) on corrupt stored data", () => {
     globalThis.localStorage.setItem("pairing-assistant:match-session", "{not valid json");
-    expect(loadSession("opp-1")).toBeNull();
+    expect(loadSession("opp-1", "live")).toBeNull();
   });
 
-  it("clearSession removes the stored session", () => {
-    saveSession("opp-1", sampleState);
-    clearSession();
-    expect(loadSession("opp-1")).toBeNull();
+  it("clearSession removes the stored session for that mode", () => {
+    saveSession("opp-1", sampleState, "live");
+    clearSession("live");
+    expect(loadSession("opp-1", "live")).toBeNull();
+  });
+
+  it("keeps a live session and a simulation session for the same opponent separate", () => {
+    const simulationState: MatchSessionState = { ...sampleState, subRound: 2 };
+    saveSession("opp-1", sampleState, "live");
+    saveSession("opp-1", simulationState, "simulation");
+
+    expect(loadSession("opp-1", "live")).toEqual(sampleState);
+    expect(loadSession("opp-1", "simulation")).toEqual(simulationState);
+  });
+
+  it("clearing one mode's session leaves the other mode's session intact", () => {
+    saveSession("opp-1", sampleState, "live");
+    saveSession("opp-1", sampleState, "simulation");
+
+    clearSession("simulation");
+
+    expect(loadSession("opp-1", "live")).toEqual(sampleState);
+    expect(loadSession("opp-1", "simulation")).toBeNull();
   });
 });

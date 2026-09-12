@@ -1,10 +1,20 @@
 import type { MatchSessionState } from "@/lib/matchSessionEngine";
 
-// A single app-wide slot — only one match-mode session is ever active at a
-// time (starting a session for a different opponent silently replaces
-// whatever was here before). Accessed via globalThis rather than window so
-// this module stays trivially testable under a runtime with no DOM.
-const STORAGE_KEY = "pairing-assistant:match-session";
+export type SessionMode = "live" | "simulation";
+
+// One app-wide slot per mode — only one match-mode session and one
+// simulation session are ever active at a time (starting a session for a
+// different opponent in the same mode silently replaces whatever was here
+// before). Separate keys per mode let a live session and a practice
+// session for the same opponent coexist without clobbering each other.
+// The "live" key is unchanged from before mode separation existed, so a
+// captain's in-progress live session isn't silently dropped by this
+// change. Accessed via globalThis rather than window so this module stays
+// trivially testable under a runtime with no DOM.
+const STORAGE_KEYS: Record<SessionMode, string> = {
+  live: "pairing-assistant:match-session",
+  simulation: "pairing-assistant:simulation-session",
+};
 
 // The opponent id travels with the stored state (not inside
 // MatchSessionState itself — the engine stays a pure game-mechanics module
@@ -16,10 +26,10 @@ interface StoredSession {
   state: MatchSessionState;
 }
 
-export function saveSession(opponentId: string, state: MatchSessionState): void {
+export function saveSession(opponentId: string, state: MatchSessionState, mode: SessionMode): void {
   const payload: StoredSession = { opponentId, state };
   try {
-    globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    globalThis.localStorage.setItem(STORAGE_KEYS[mode], JSON.stringify(payload));
   } catch {
     // Storage unavailable (quota exceeded, disabled site data, a
     // restrictive private-browsing context) — degrade to "not persisted
@@ -27,11 +37,11 @@ export function saveSession(opponentId: string, state: MatchSessionState): void 
   }
 }
 
-/** Returns the stored session only if it belongs to `opponentId`; otherwise null. */
-export function loadSession(opponentId: string): MatchSessionState | null {
+/** Returns the stored session for `mode` only if it belongs to `opponentId`; otherwise null. */
+export function loadSession(opponentId: string, mode: SessionMode): MatchSessionState | null {
   let raw: string | null;
   try {
-    raw = globalThis.localStorage.getItem(STORAGE_KEY);
+    raw = globalThis.localStorage.getItem(STORAGE_KEYS[mode]);
   } catch {
     return null;
   }
@@ -46,9 +56,9 @@ export function loadSession(opponentId: string): MatchSessionState | null {
   }
 }
 
-export function clearSession(): void {
+export function clearSession(mode: SessionMode): void {
   try {
-    globalThis.localStorage.removeItem(STORAGE_KEY);
+    globalThis.localStorage.removeItem(STORAGE_KEYS[mode]);
   } catch {
     // See saveSession — storage may be unavailable; nothing to clear then.
   }

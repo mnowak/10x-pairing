@@ -187,15 +187,16 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
   // render — matchSessionStorage's globalThis.localStorage read is safe
   // here and never runs during SSR.
   const [state, setState] = useState<MatchSessionState>(
-    () => loadSession(opponentId) ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
+    () =>
+      loadSession(opponentId, "live") ?? createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid),
   );
 
   useEffect(() => {
-    saveSession(opponentId, state);
+    saveSession(opponentId, state, "live");
   }, [opponentId, state]);
 
   function restart() {
-    clearSession();
+    clearSession("live");
     setState(createSession(ourArmyIds, theirArmyIds, minimaxSuggestionProvider, matrixGrid));
   }
 

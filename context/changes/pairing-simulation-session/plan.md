@@ -215,9 +215,9 @@ None — no schema or persisted-data changes; `matchSessionStorage.ts`'s existin
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass: `npm test`
-- [ ] 1.2 Type checking passes as part of build: `npm run build`
-- [ ] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npm test`
+- [x] 1.2 Type checking passes as part of build: `npm run build`
+- [x] 1.3 Linting passes: `npm run lint`
 
 ### Phase 2: Simulation UI wiring in MatchSession
 
