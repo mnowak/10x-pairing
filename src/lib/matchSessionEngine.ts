@@ -85,13 +85,20 @@ function assertDistinctAvailablePair(pair: [ArmyId, ArmyId], list: ArmyId[], lab
 }
 
 // The minimax search in matchSuggestions.ts assumes equal, non-empty rosters
-// that shrink in lockstep — an invariant this engine must guarantee, since the
-// search itself has no way to detect a violation (Math.max/min over an empty
-// candidate set silently returns -Infinity/Infinity instead of throwing).
+// that shrink in lockstep, terminating in a single forced final pairing —
+// an invariant this engine must guarantee, since the search itself has no
+// way to detect a violation (Math.max/min over an empty candidate set
+// silently returns -Infinity/Infinity instead of throwing). Equal and
+// non-empty alone aren't sufficient: an EVEN-sized roster reaches a
+// sub-round with exactly 2 remaining per side, commits a defender, and is
+// then left with only 1 army to offer as an attacker pair — one short of
+// the 2 a pair requires. Odd is required (not hardcoded to MAX_ROSTER_SIZE)
+// so any future roster-size cap (see PRD FR-016) stays supported by this
+// same check.
 function assertValidRosters(ourArmies: ArmyId[], theirArmies: ArmyId[]): void {
-  if (ourArmies.length === 0 || ourArmies.length !== theirArmies.length) {
+  if (ourArmies.length === 0 || ourArmies.length !== theirArmies.length || ourArmies.length % 2 === 0) {
     throw new Error(
-      `Match session requires equal, non-empty rosters on both sides (got ${ourArmies.length} of ours vs ${theirArmies.length} of theirs)`,
+      `Match session requires equal, non-empty rosters on both sides, with an odd count per side so sub-rounds terminate in a single forced final pairing (got ${ourArmies.length} of ours vs ${theirArmies.length} of theirs)`,
     );
   }
 }

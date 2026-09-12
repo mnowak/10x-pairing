@@ -56,6 +56,12 @@ describe("createSession — roster validation", () => {
   it("throws when a roster is empty", () => {
     expect(() => createSession([], [], firstAvailableProvider, emptyGrid)).toThrow(/equal, non-empty rosters/);
   });
+
+  it("throws when rosters are even-sized (a sub-round would run out of armies for an attacker-pair offer)", () => {
+    expect(() =>
+      createSession(["o1", "o2", "o3", "o4"], ["t1", "t2", "t3", "t4"], firstAvailableProvider, emptyGrid),
+    ).toThrow(/odd count/);
+  });
 });
 
 describe("matchSessionEngine — full 5-vs-5 walkthrough", () => {

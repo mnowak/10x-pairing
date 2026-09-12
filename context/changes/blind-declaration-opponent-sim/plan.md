@@ -144,16 +144,16 @@ Restructure `bestTheirDefender` to stop taking a concrete `ourDefender`, drop th
 
 #### Automated Verification:
 
-- [ ] Type checking passes: `npx astro sync && npm run lint`
-- [ ] Unit tests pass: `npm test`
-- [ ] Production build succeeds: `npm run build`
+- Type checking passes: `npx astro sync && npm run lint`
+- Unit tests pass: `npm test`
+- Production build succeeds: `npm run build`
 
 #### Manual Verification:
 
-- [ ] Starting a Mirrored practice session against the same opponent matrix twice, revealing a different first defender each time (e.g. the frame's CK/Tau vs. BA/Custo/Demony split), produces the *same* opponent defender pick both times.
-- [ ] A full Mirrored practice session still completes end-to-end with no thrown errors or stuck phases.
-- [ ] A full Similar practice session still completes end-to-end with no thrown errors or stuck phases.
-- [ ] Live match-mode (`mode: "live"`) is visibly unaffected — same phase sequence, same manual data-entry flow as before.
+- Starting a Mirrored practice session against the same opponent matrix twice, revealing a different first defender each time (e.g. the frame's CK/Tau vs. BA/Custo/Demony split), produces the *same* opponent defender pick both times.
+- A full Mirrored practice session still completes end-to-end with no thrown errors or stuck phases.
+- A full Similar practice session still completes end-to-end with no thrown errors or stuck phases.
+- Live match-mode (`mode: "live"`) is visibly unaffected — same phase sequence, same manual data-entry flow as before.
 
 ---
 
@@ -193,13 +193,13 @@ Ensure a practice session saved to `localStorage` before this fix ships, if resu
 
 #### Automated Verification:
 
-- [ ] Unit tests pass: `npm test`
-- [ ] Type checking passes: `npx astro sync && npm run lint`
+- Unit tests pass: `npm test`
+- Type checking passes: `npx astro sync && npm run lint`
 
 #### Manual Verification:
 
-- [ ] Manually write a pre-fix-shaped session object (defender revealed, no snapshot field) into `localStorage` under the simulation key, reload the practice session page, and confirm a fresh session starts rather than the app crashing or silently misbehaving.
-- [ ] A practice session saved and resumed *after* this fix ships (normal case) resumes correctly at any phase.
+- Manually write a pre-fix-shaped session object (defender revealed, no snapshot field) into `localStorage` under the simulation key, reload the practice session page, and confirm a fresh session starts rather than the app crashing or silently misbehaving.
+- A practice session saved and resumed *after* this fix ships (normal case) resumes correctly at any phase.
 
 ---
 
