@@ -172,6 +172,17 @@ function PairPicker({
   );
 }
 
+// Surfaces a violated phase invariant as a descriptive error, matching
+// matchSessionEngine.ts's own assertion style, instead of silently falling
+// through to a sentinel value that would only fail later and opaquely
+// inside enterTheirPick/enterTheirAttackerPair's own validation.
+function requireWorking<T>(value: T | undefined, label: string): T {
+  if (value === undefined) {
+    throw new Error(`${label} must be set before this phase can compute an auto-reveal`);
+  }
+  return value;
+}
+
 function AutoReveal<T>({
   pick,
   renderLabel,
@@ -351,8 +362,8 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
           <AutoReveal
             pick={() =>
               randomOpponentProvider.pickAttackerChoice(
-                state.working.ourOfferedPair ?? ["", ""],
-                state.working.theirDefender ?? "",
+                requireWorking(state.working.ourOfferedPair, "Our offered pair"),
+                requireWorking(state.working.theirDefender, "Their defender"),
                 matrixGrid,
               )
             }
@@ -376,7 +387,11 @@ export default function MatchSession({ opponentId, ourArmies, theirArmies, matri
         (mode === "simulation" ? (
           <AutoReveal
             pick={() =>
-              randomOpponentProvider.pickAttackerPair(state.theirAvailable, state.working.ourDefender ?? "", matrixGrid)
+              randomOpponentProvider.pickAttackerPair(
+                state.theirAvailable,
+                requireWorking(state.working.ourDefender, "Our defender"),
+                matrixGrid,
+              )
             }
             renderLabel={([a, b]) => `They offer: ${nameById.get(a) ?? a} and ${nameById.get(b) ?? b}`}
             onContinue={(pair) => {
