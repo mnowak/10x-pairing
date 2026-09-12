@@ -1,9 +1,10 @@
 ---
 change_id: similar-mode-copy-update
 title: Update "Similar" mode description copy
-status: implemented
+status: archived
 created: 2026-09-13
 updated: 2026-09-13
+archived_at: 2026-09-12T23:45:23Z
 ---
 
 ## Notes
