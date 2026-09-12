@@ -47,7 +47,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 | ID   | Change ID                     | Outcome (user can …)                                                                                                                      | Prerequisites            | PRD refs | Status   |
 | ---- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------- | -------- |
 | S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | done |
-| S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | ready    |
+| S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | in-progress |
 | S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | ready    |
 | S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | ready    |
 | S-13 | mvp-smoke-test-pass             | captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work                     | S-09, S-10, S-11, S-12     | MS-01    | proposed |
@@ -94,7 +94,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Today's actual production incident was exactly this class of gap on 2 of 5 tables (RLS present, GRANT missing). The remaining 3 tables were fixed by the same corrective migration, but this slice should independently verify all 5 plus check for any other class of RLS/grant mismatch (e.g. `anon` role exposure, missing `WITH CHECK` clauses) rather than assuming the fix generalized correctly.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-11: Error-handling/observability pass
 
