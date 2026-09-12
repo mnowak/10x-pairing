@@ -184,9 +184,9 @@ Not applicable — test-only change, no data model or schema changes.
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.1 Linting passes: `npm run lint` — f34e1b0
 
 #### Manual
 
-- [x] 2.2 test-plan.md §3 Phase 3 row reads complete with correct change-folder path
-- [x] 2.3 §6.3 accurately describes the existing e2e pattern, no longer TBD
+- [x] 2.2 test-plan.md §3 Phase 3 row reads complete with correct change-folder path — f34e1b0
+- [x] 2.3 §6.3 accurately describes the existing e2e pattern, no longer TBD — f34e1b0
