@@ -49,7 +49,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 | S-09 | ci-quality-gates-wiring         | (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build                | —                          | MS-01, MS-02 | done |
 | S-10 | production-security-audit       | (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed   | —                          | MS-01    | done |
 | S-11 | error-visibility-pass           | (project can) see a real error's actual cause in the next incident instead of a swallowed generic message                                    | —                          | MS-01    | done |
-| S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | in-progress    |
+| S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | done    |
 | S-13 | mvp-smoke-test-pass             | captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work                     | S-09, S-10, S-11, S-12     | MS-01    | proposed |
 | S-14 | similar-mode-copy-update        | captain sees an accurate one-line description of Similar mode when picking a practice opponent                                               | —                          | MS-03    | ready    |
 | S-15 | project-readme                  | a new reader (contributor or future-you) understands the pairing process and the product roadmap from the README alone                       | —                          | MS-04    | ready    |
@@ -118,7 +118,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** This is `test-plan.md` §3 Phase 3 (risks #1 and #6), the last "not started" test-coverage phase before Phase 4 (quality gates) can mean anything. Sequenced independent of S-09 (CI wiring) — the tests are valuable whether or not CI enforces them yet — but finishing it is what gives S-09's gate real teeth for this area.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-13: Final smoke-test pass across all shipped MVP features
 
@@ -214,3 +214,4 @@ None cross-cutting. This milestone's two per-slice Unknowns (S-15's README depth
 - **S-09: (project can) trust that every merge to `main` is gated by lint, typecheck, and the full test suite — not just lint and build** — Archived 2026-09-12 → `context/archive/2026-09-12-ci-quality-gates-wiring/`. Lesson: —.
 - **S-11: (project can) see a real error's actual cause in the next incident instead of a swallowed generic message** — Archived 2026-09-12 → `context/archive/2026-09-12-error-visibility-pass/`. Lesson: —.
 - **S-10: (captain can) trust that every table's data is protected by both RLS *and* the base privilege grants RLS depends on — audited, not assumed** — Archived 2026-09-12 → `context/archive/2026-09-12-production-security-audit/`. Lesson: —.
+- **S-12: (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side** — Archived 2026-09-12 → `context/archive/2026-09-12-live-match-mode-test-coverage/`. Lesson: —.

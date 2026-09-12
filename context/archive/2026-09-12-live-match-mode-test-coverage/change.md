@@ -1,7 +1,8 @@
 ---
 change_id: live-match-mode-test-coverage
 title: Live match-mode test coverage (test-plan Phase 3)
-status: impl_reviewed
+status: archived
+archived_at: 2026-09-12T21:33:43Z
 created: 2026-09-12
 updated: 2026-09-12
 ---
