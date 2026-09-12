@@ -168,10 +168,10 @@ No data migration. This is a CI/repo-configuration change only; no application c
 
 #### Automated
 
-- [x] 2.1 `gh api .../branches/main/protection` returns 200 listing all 4 job names as required checks
+- [x] 2.1 `gh api .../branches/main/protection` returns 200 listing all 4 job names as required checks — ddce4a3
 
 #### Manual
 
-- [x] 2.2 Throwaway PR shows all 4 checks as required; merge button blocked until they pass
-- [x] 2.3 Direct push to `main` still succeeds (not blocked) after branch protection is applied
-- [x] 2.4 Throwaway PR and its branch deleted after verification
+- [x] 2.2 Throwaway PR shows all 4 checks as required; merge button blocked until they pass — ddce4a3
+- [x] 2.3 Direct push to `main` still succeeds (not blocked) after branch protection is applied — ddce4a3
+- [x] 2.4 Throwaway PR and its branch deleted after verification — ddce4a3
