@@ -1,8 +1,24 @@
-# 10x Astro Starter
+# Pairing Assistant
 
-![](./public/template.png)
+A live pairing tool for Warhammer 40k team-tournament captains — walks you through the defender/attacker reveal sequence against a pre-entered pairing-matrix, so you don't have to eyeball a multi-step optimization live at the table.
 
-A modern, opinionated starter template for building fast, accessible web applications.
+## What it does
+
+At the start of each round in a team tournament, captains reveal armies in a secret, time-boxed negotiation: one side declares a defender, the other offers two attackers, the defender picks one to fight, and the leftover armies on each side are forced into a final pairing. Get it wrong and you can walk your defender into a bad matchup, or end up holding a weak army for that forced final pairing. Pairing Assistant tracks your pre-entered pairing-matrix estimates against a given opponent together with which armies are still available, and suggests the choice that protects your team's *total* score — not just the immediate matchup — at each decision point.
+
+### The live reveal sequence
+
+1. **Defender declared** — the app suggests your safest available defender; you enter whichever army the opponent reveals as theirs.
+2. **Attackers offered** — when you're attacking, the app suggests your best pair of armies to send against their defender.
+3. **Attacker accepted** — when you're defending, the app suggests which of the opponent's two offered attackers to accept, weighing not just that matchup but which of your armies gets left over for the final pairing.
+4. **Sub-round 2** — roles reverse (defender ↔ attacker) and the cycle repeats with the now-smaller pool of remaining armies.
+5. **Refused attacker auto-paired** — the one army left uncommitted on each side is automatically paired as the round's final matchup.
+
+A **solo practice mode** runs the same flow against a simulated opponent (Random, Mirrored, or Similar behavior) so a captain can rehearse without a second person present.
+
+## Project Status
+
+Shipped: the full MVP — team/roster setup, opponent pairing-matrix preparation, live match-mode, and solo practice simulation against three opponent styles (milestones M-1 and M-2). In progress: a release-hardening pass — CI, security audit, error visibility, test coverage, and this README (milestone M-3). See [`context/foundation/roadmap.md`](context/foundation/roadmap.md) for the full milestone/slice breakdown.
 
 ## Tech Stack
 
@@ -13,162 +29,52 @@ A modern, opinionated starter template for building fast, accessible web applica
 - [Supabase](https://supabase.com/) - Authentication and backend-as-a-service
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Edge deployment runtime
 
-## Prerequisites
+## Local Development
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
-
-## Getting Started
-
-1. Clone the repository:
+Requires Node.js v22.14.0 (see `.nvmrc`) and, for local Supabase, [Docker](https://www.docker.com/) (~7 GB RAM).
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
-
-2. Install dependencies:
-
-```bash
+git clone git@github.com:mnowak/10x-pairing.git
+cd 10x-pairing
 npm install
-```
-
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
-
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
-
-```bash
+cp .env.example .env
 cp .env.example .dev.vars
-```
-
-5. Run the development server:
-
-```bash
+npx supabase init   # first time only, creates supabase/
+npx supabase start  # prints local SUPABASE_URL / SUPABASE_KEY
 npm run dev
 ```
 
+Paste the `SUPABASE_URL` / `SUPABASE_KEY` the CLI prints into both `.env` and `.dev.vars` — they need to stay in sync or the dev server and `astro:env` will disagree on config. Local Supabase Studio is at `http://localhost:54323`; stop the stack with `npx supabase stop`.
+
+To use a hosted Supabase project instead, put its URL/anon key (**Settings → API** in the Supabase dashboard) into the same two files.
+
+Supabase requires email confirmation before sign-in by default — for local dev, turn it off under **Authentication → Email → Confirm email** in the Supabase dashboard so sign-up doesn't require clicking a confirmation link.
+
 ## Available Scripts
 
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
+- `npm run dev` - Start development server (Cloudflare `workerd` runtime)
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with type-checked rules
-- `npm run lint:fix` - Auto-fix ESLint issues
-- `npm run format` - Run Prettier
-
-## Project Structure
-
-```md
-.
-├── src/
-│ ├── layouts/ # Astro layouts
-│ ├── pages/ # Astro pages
-│ │ └── api/ # API endpoints
-│ ├── components/ # UI components (Astro & React)
-│ └── assets/ # Static assets
-├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
-```
-
-## Supabase Configuration
-
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
-
-### First-time setup (local, no cloud project needed)
-
-Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
-
-1. Create your `.env` file:
-
-```bash
-cp .env.example .env
-```
-
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
-
-```bash
-npx supabase init
-```
-
-3. Start the local stack (downloads Docker images on first run):
-
-```bash
-npx supabase start
-```
-
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
-
-```
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
-```
-
-5. To stop the stack when done:
-
-```bash
-npx supabase stop
-```
-
-The local Studio UI is available at `http://localhost:54323`.
-
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
-
-### Using a cloud Supabase project instead
-
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
-
-| Variable       | Description                                                |
-| -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
-
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-key>
-```
-
-### Email confirmation in local development
-
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
-
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
-
-### Auth routes
-
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
-
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
+- `npm run lint` / `npm run lint:fix` - ESLint
+- `npm run format` - Prettier (writes)
+- `npm test` / `npm run test:watch` - Vitest unit/integration suite
+- `npm run test:e2e` - Playwright end-to-end suite
+- `npm run db:types` - Regenerate `src/db/database.types.ts` from the local Supabase schema
 
 ## Deployment
 
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
-
-1. Build the project:
+Deploys to [Cloudflare Workers](https://workers.cloudflare.com/):
 
 ```bash
 npm run build
-```
-
-2. Deploy with Wrangler:
-
-```bash
 npx wrangler deploy
 ```
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+Set `SUPABASE_URL` and `SUPABASE_KEY` as Cloudflare secrets (dashboard, or `npx wrangler secret put <name>`).
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions (`.github/workflows/ci.yml`) runs 4 independent jobs on every push/PR to `main`: `lint`, `typecheck` (`astro check`), `build`, and `test` (spins up a local Supabase instance via the Supabase CLI, then runs the full suite). All 4 are required to merge.
 
 ## License
 

@@ -52,7 +52,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 | S-12 | live-match-mode-test-coverage   | (project can) trust that the suggestion engine never reuses a committed army and that a session can't start without exactly 5 armies per side | —                          | MS-02    | done    |
 | S-13 | mvp-smoke-test-pass             | captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work                     | S-09, S-10, S-11, S-12     | MS-01    | done |
 | S-14 | similar-mode-copy-update        | captain sees an accurate one-line description of Similar mode when picking a practice opponent                                               | —                          | MS-03    | done |
-| S-15 | project-readme                  | a new reader (contributor or future-you) understands the pairing process and the product roadmap from the README alone                       | —                          | MS-04    | ready    |
+| S-15 | project-readme                  | a new reader (contributor or future-you) understands the pairing process and the product roadmap from the README alone                       | —                          | MS-04    | in-progress |
 | S-16 | frontpage-redesign              | a first-time visitor sees a purpose-built landing page instead of the Astro-starter default                                                  | —                          | MS-05    | ready    |
 
 ## Baseline
@@ -155,7 +155,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Unknowns:**
   - How much depth should the pairing-process description go into (a one-paragraph summary vs. a full walkthrough of the reveal sequence)? Owner: user. Block: no — will draft a reasonable version and the user can adjust.
 - **Risk:** Low — this is a documentation task with no code dependency. The main judgment call is what else (beyond process + roadmap) is "important" enough to include, per the user's own open-ended ask.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-16: Redesign the frontpage
 
