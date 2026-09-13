@@ -9,7 +9,7 @@ main_goal: quality
 top_blocker: decisions
 milestone_id: mvp-release-preparation
 milestone_seq: 3
-milestone_status: open
+milestone_status: done
 ---
 
 # Roadmap: Pairing Assistant
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-3: mvp-release-preparation** — Status: open
+**M-3: mvp-release-preparation** — Status: done
 
 - **Intent:** Harden and prepare the shipped MVP for real release. Two real production incidents surfaced during M-2's tail (a database missing base privilege grants, and a schema migration that was never applied) — both were configuration gaps a systematic audit would have caught before they reached production, not product bugs. M-3 closes that gap: the app's operational safety net (CI gates, security posture, observability, test coverage) is hardened to match what's already been built, the project's own test plan is finished, and the app's public-facing presentation (frontpage, README) catches up to the product's actual maturity.
 - **Source materials:** user description (anchors below)
@@ -199,6 +199,7 @@ None cross-cutting. This milestone's two per-slice Unknowns (S-15's README depth
 
 - **M-1: live-pairing-mvp** (`live-pairing-mvp`) — closed 2026-09-12. Full must-have MVP shipped: team/roster setup, opponent pairing-matrix preparation, and live match-mode with real (non-random) suggestions at all three decision points across both sub-rounds.
 - **M-2: pairing-simulation** (`pairing-simulation`) — closed 2026-09-12. Solo pairing-simulation training shipped end-to-end: a captain can run a session without a second human present (S-07), and pick among three opponent-behavior modes — Random, Mirrored (minimax-derived, default), or Similar (Mirrored plus session-fixed noise) — via a pre-session picker (S-08). A blind-declaration leak in the Mirrored/Similar opponent's decision logic (found during S-08's own impl-review) was fixed as a follow-up change (`blind-declaration-opponent-sim`, archived separately) and a production database misconfiguration (missing GRANTs + a never-applied migration) was also fixed during this milestone's tail.
+- **M-3: mvp-release-preparation** (`mvp-release-preparation`) — closed 2026-09-13. MVP hardened for real release: CI now gates every merge to `main` on lint, typecheck, and the full test suite (S-09); RLS+GRANT posture audited across all 5 tables (S-10); silent error catches replaced with real visibility (S-11); live match-mode suggestion-engine and roster-gating test coverage added (S-12); a full smoke-test pass confirmed every shipped MVP capability works end-to-end (S-13); the Similar-mode description copy was corrected (S-14); the README was rewritten with the pairing process and roadmap (S-15); and the frontpage was redesigned away from the Astro-starter default (S-16). One follow-up filed during S-13's smoke-test pass remains open outside this milestone: `context/changes/matrix-grid-multiset-verification` (unconfirmed rapid-click race in `MatrixGrid.tsx`, not yet reproduced or resolved).
 
 ## Done
 
