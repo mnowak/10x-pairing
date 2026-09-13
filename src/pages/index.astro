@@ -1,8 +1,191 @@
 ---
-import Welcome from "@/components/Welcome.astro";
 import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import CreateTeamForm from "@/components/team/CreateTeamForm";
+import TeamView from "@/components/team/TeamView";
+import OpponentsList from "@/components/opponent/OpponentsList";
+import { createClient } from "@/lib/supabase";
+import { getTeamWithArmies, getEstimateCountsForTeamArmies } from "@/lib/teams";
+import { getOpponentsWithArmies } from "@/lib/opponents";
+import { logError } from "@/lib/logError";
+
+const { user } = Astro.locals;
+let teamError = Astro.url.searchParams.get("teamError");
+let opponentError = Astro.url.searchParams.get("opponentError");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let team = null;
+let estimateCounts: Record<string, number> = {};
+let opponents: Awaited<ReturnType<typeof getOpponentsWithArmies>> = [];
+
+if (supabase && user) {
+  try {
+    team = await getTeamWithArmies(supabase, user.id);
+    if (team) {
+      estimateCounts = await getEstimateCountsForTeamArmies(
+        supabase,
+        user.id,
+        team.armies.map((army) => army.id),
+      );
+    }
+  } catch (err) {
+    logError("index.astro: getTeamWithArmies/getEstimateCountsForTeamArmies", err);
+    teamError ??= "Something went wrong loading your team";
+  }
+
+  try {
+    opponents = await getOpponentsWithArmies(supabase, user.id);
+  } catch (err) {
+    logError("index.astro: getOpponentsWithArmies", err);
+    opponentError ??= "Something went wrong loading your opponents";
+  }
+}
 ---
 
-<Layout>
-  <Welcome />
+<Layout title={user ? "Pairing Assistant — Dashboard" : "Pairing Assistant"}>
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <!-- Cosmic orbs -->
+    <div
+      class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute top-2/3 -right-16 h-[250px] w-[250px] rounded-full bg-blue-500/15 blur-[100px]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute top-0 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-indigo-400/10 blur-[140px]"
+    >
+    </div>
+
+    <!-- Star field -->
+    <div
+      class="pointer-events-none absolute inset-0"
+      style="background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px); background-size: 200px 200px, 150px 150px, 100px 100px; background-position: 0 0, 40px 60px, 80px 30px;"
+    >
+    </div>
+
+    <div class="relative z-10 p-4 sm:p-8">
+      <Topbar />
+
+      {
+        user ? (
+          <div class="mx-auto max-w-3xl px-4 py-8">
+            <div class="mb-8 text-center">
+              <h1 class="mb-1 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-3xl font-bold text-transparent">
+                Pairing Assistant
+              </h1>
+              <p class="text-sm text-blue-100/70">A live pairing tool for Warhammer 40k team-tournament captains.</p>
+            </div>
+
+            <div class="space-y-6">
+              <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+                <h2 class="mb-6 text-center text-xl font-bold text-white">{team ? "Your Team" : "Create Your Team"}</h2>
+                {team ? (
+                  <TeamView team={team} estimateCounts={estimateCounts} serverError={teamError} client:load />
+                ) : (
+                  <CreateTeamForm serverError={teamError} client:load />
+                )}
+              </div>
+
+              <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+                <h2 class="mb-6 text-center text-xl font-bold text-white">Opponents</h2>
+                <OpponentsList opponents={opponents} serverError={opponentError} client:load />
+              </div>
+            </div>
+
+            <div class="mt-10 rounded-2xl border border-white/10 bg-white/5 p-8 text-white backdrop-blur-xl">
+              <h2 class="mb-4 text-lg font-semibold text-white">How it works</h2>
+              <ol class="space-y-2 text-sm text-blue-100/70">
+                <li>
+                  <span class="font-semibold text-blue-100">1. Defender declared</span> — the app suggests your safest
+                  available defender; enter whichever army the opponent reveals.
+                </li>
+                <li>
+                  <span class="font-semibold text-blue-100">2. Attackers offered</span> — when attacking, the app
+                  suggests your best pair of armies to send against their defender.
+                </li>
+                <li>
+                  <span class="font-semibold text-blue-100">3. Attacker accepted</span> — when defending, the app
+                  suggests which offered attacker to accept, weighing which army is left over.
+                </li>
+                <li>
+                  <span class="font-semibold text-blue-100">4. Sub-round 2</span> — the cycle repeats with the smaller
+                  pool of remaining armies.
+                </li>
+                <li>
+                  <span class="font-semibold text-blue-100">5. Refused attacker auto-paired</span> — the one army left
+                  uncommitted on each side is automatically paired as the round's final matchup.
+                </li>
+              </ol>
+              <p class="mt-4 text-sm text-blue-100/60">
+                A solo practice mode runs the same flow against a simulated opponent, so you can rehearse without a
+                second person present.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
+              <h1 class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl">
+                Pairing Assistant
+              </h1>
+              <p class="mb-10 max-w-2xl text-lg text-blue-100/70 sm:text-xl">
+                A live pairing tool for Warhammer 40k team-tournament captains — walks you through the defender/attacker
+                reveal sequence against your pre-entered pairing-matrix, so you don't have to eyeball a multi-step
+                optimization live at the table.
+              </p>
+              <div class="flex flex-col gap-4 sm:flex-row">
+                <a
+                  href="/auth/signin"
+                  class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-purple-500"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/auth/signup"
+                  class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
+                >
+                  Sign Up
+                </a>
+              </div>
+            </div>
+
+            <div class="mx-auto max-w-2xl px-4 pb-24">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-8 text-white backdrop-blur-xl">
+                <h2 class="mb-4 text-center text-2xl font-bold text-white">How it works</h2>
+                <ol class="space-y-3 text-blue-100/70">
+                  <li>
+                    <span class="font-semibold text-blue-100">1. Defender declared</span> — the app suggests your safest
+                    available defender; enter whichever army the opponent reveals.
+                  </li>
+                  <li>
+                    <span class="font-semibold text-blue-100">2. Attackers offered</span> — when attacking, the app
+                    suggests your best pair of armies to send against their defender.
+                  </li>
+                  <li>
+                    <span class="font-semibold text-blue-100">3. Attacker accepted</span> — when defending, the app
+                    suggests which offered attacker to accept, weighing which army is left over.
+                  </li>
+                  <li>
+                    <span class="font-semibold text-blue-100">4. Sub-round 2</span> — the cycle repeats with the smaller
+                    pool of remaining armies.
+                  </li>
+                  <li>
+                    <span class="font-semibold text-blue-100">5. Refused attacker auto-paired</span> — the one army left
+                    uncommitted on each side is automatically paired as the round's final matchup.
+                  </li>
+                </ol>
+                <p class="mt-6 text-center text-sm text-blue-100/60">
+                  A solo practice mode runs the same flow against a simulated opponent, so you can rehearse without a
+                  second person present.
+                </p>
+              </div>
+            </div>
+          </>
+        )
+      }
+    </div>
+  </div>
 </Layout>
