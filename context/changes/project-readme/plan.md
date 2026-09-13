@@ -124,11 +124,11 @@ None — no data or code migration involved.
 
 #### Automated
 
-- [x] 1.1 Every relative link/path referenced in the README resolves to a real file
-- [x] 1.2 `npm run build` still succeeds
+- [x] 1.1 Every relative link/path referenced in the README resolves to a real file — a43fb0b
+- [x] 1.2 `npm run build` still succeeds — a43fb0b
 
 #### Manual
 
-- [x] 1.3 Read the rewritten README top-to-bottom — confirms understanding of product, pairing sequence, and roadmap status
-- [x] 1.4 CI and Available Scripts sections match actual `.github/workflows/ci.yml` and `package.json`
-- [x] 1.5 Local-dev setup steps remain sufficient for a fresh clone
+- [x] 1.3 Read the rewritten README top-to-bottom — confirms understanding of product, pairing sequence, and roadmap status — a43fb0b
+- [x] 1.4 CI and Available Scripts sections match actual `.github/workflows/ci.yml` and `package.json` — a43fb0b
+- [x] 1.5 Local-dev setup steps remain sufficient for a fresh clone — a43fb0b

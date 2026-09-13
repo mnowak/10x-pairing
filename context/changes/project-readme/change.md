@@ -1,7 +1,7 @@
 ---
 change_id: project-readme
 title: Write/refresh the project README
-status: implementing
+status: implemented
 created: 2026-09-13
 updated: 2026-09-13
 ---
