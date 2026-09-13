@@ -9,7 +9,7 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/dashboard/opponents?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`/?opponentError=${encodeURIComponent("Supabase is not configured")}`);
   }
 
   const form = await context.request.formData();
@@ -17,7 +17,7 @@ export const POST: APIRoute = async (context) => {
   const name = typeof rawName === "string" ? rawName.trim() : "";
 
   if (!name) {
-    return context.redirect(`/dashboard/opponents?error=${encodeURIComponent("Opponent name is required")}`);
+    return context.redirect(`/?opponentError=${encodeURIComponent("Opponent name is required")}`);
   }
 
   const armyNames = form
@@ -33,7 +33,7 @@ export const POST: APIRoute = async (context) => {
       result.error.type === "duplicate_army"
         ? `"${result.error.name}" is already in that roster`
         : result.error.message;
-    return context.redirect(`/dashboard/opponents?error=${encodeURIComponent(message)}`);
+    return context.redirect(`/?opponentError=${encodeURIComponent(message)}`);
   }
 
   return context.redirect(`/dashboard/opponents/${result.opponent.id}`);

@@ -220,25 +220,25 @@ No data migration. The three retired pages become permanent redirect stubs rathe
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npx astro check`
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Build succeeds: `npm run build`
+- [x] 1.1 Type checking passes: `npx astro check` — e026786
+- [x] 1.2 Linting passes: `npm run lint` — e026786
+- [x] 1.3 Build succeeds: `npm run build` — e026786
 
 #### Manual
 
-- [ ] 1.4 Anonymous visit to `/` shows project name, summary, pitch, and Sign In / Sign Up buttons — no team or opponent content
-- [ ] 1.5 Authenticated visit to `/` with no team yet shows compact header, Create Your Team form, and opponents section with add-form open
-- [ ] 1.6 Authenticated visit to `/` with existing team/opponents shows compact header, team roster (add/remove persists after reload), opponents list, and pitch below dashboard content
-- [ ] 1.7 Adding an opponent from `/` shows it in the list and clicking it opens `/dashboard/opponents/[id]` unchanged
+- [x] 1.4 Anonymous visit to `/` shows project name, summary, pitch, and Sign In / Sign Up buttons — no team or opponent content — e026786
+- [x] 1.5 Authenticated visit to `/` with no team yet shows compact header, Create Your Team form, and opponents section with add-form open — e026786
+- [x] 1.6 Authenticated visit to `/` with existing team/opponents shows compact header, team roster (add/remove persists after reload), opponents list, and pitch below dashboard content — e026786
+- [x] 1.7 Adding an opponent from `/` shows it in the list and clicking it opens `/dashboard/opponents/[id]` unchanged — e026786
 
 ### Phase 2: Retire old dashboard pages & fix redirects
 
 #### Automated
 
-- [ ] 2.1 No stray `/dashboard/team` or index-level `/dashboard/opponents` references remain outside the redirect stubs (grep)
-- [ ] 2.2 Type checking passes: `npx astro check`
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Build succeeds: `npm run build`
+- [x] 2.1 No stray `/dashboard/team` or index-level `/dashboard/opponents` references remain outside the redirect stubs (grep)
+- [x] 2.2 Type checking passes: `npx astro check`
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Build succeeds: `npm run build`
 
 #### Manual
 

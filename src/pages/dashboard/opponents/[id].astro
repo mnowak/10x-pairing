@@ -12,7 +12,7 @@ const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase || !user || !id) {
-  return Astro.redirect("/dashboard/opponents");
+  return Astro.redirect("/");
 }
 
 let opponent;
@@ -20,12 +20,10 @@ try {
   opponent = await getOpponentWithArmies(supabase, user.id, id);
 } catch (err) {
   logError("opponents/[id].astro: getOpponentWithArmies", err);
-  return Astro.redirect(
-    `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
-  );
+  return Astro.redirect(`/?opponentError=${encodeURIComponent("Something went wrong loading that opponent")}`);
 }
 if (!opponent) {
-  return Astro.redirect("/dashboard/opponents");
+  return Astro.redirect("/");
 }
 
 let matrixGrid;
@@ -33,10 +31,10 @@ try {
   matrixGrid = await getMatrixGrid(supabase, user.id, opponent);
 } catch (err) {
   logError("opponents/[id].astro: getMatrixGrid", err);
-  return Astro.redirect(`/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading the matrix")}`);
+  return Astro.redirect(`/?opponentError=${encodeURIComponent("Something went wrong loading the matrix")}`);
 }
 if (!matrixGrid) {
-  return Astro.redirect(`/dashboard/team?error=${encodeURIComponent("Create your team before building a matrix")}`);
+  return Astro.redirect(`/?teamError=${encodeURIComponent("Create your team before building a matrix")}`);
 }
 
 let estimateCounts: Record<string, number>;
@@ -48,9 +46,7 @@ try {
   );
 } catch (err) {
   logError("opponents/[id].astro: getEstimateCountsForOpponentArmies", err);
-  return Astro.redirect(
-    `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading estimate counts")}`,
-  );
+  return Astro.redirect(`/?opponentError=${encodeURIComponent("Something went wrong loading estimate counts")}`);
 }
 ---
 
@@ -70,7 +66,7 @@ try {
         client:load
       />
       <p class="mt-4 text-center text-sm text-blue-100/60">
-        <a href="/dashboard/opponents" class="text-purple-300 hover:underline">← Back to opponents</a>
+        <a href="/" class="text-purple-300 hover:underline">← Back to dashboard</a>
       </p>
     </div>
   </div>

@@ -10,7 +10,7 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/dashboard/team?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`/?teamError=${encodeURIComponent("Supabase is not configured")}`);
   }
 
   let existingTeam;
@@ -18,10 +18,10 @@ export const POST: APIRoute = async (context) => {
     existingTeam = await getTeamWithArmies(supabase, context.locals.user.id);
   } catch (error) {
     logError("api/teams/index.ts: getTeamWithArmies", error);
-    return context.redirect(`/dashboard/team?error=${encodeURIComponent("Something went wrong loading your team")}`);
+    return context.redirect(`/?teamError=${encodeURIComponent("Something went wrong loading your team")}`);
   }
   if (existingTeam) {
-    return context.redirect("/dashboard/team");
+    return context.redirect("/");
   }
 
   const form = await context.request.formData();
@@ -29,7 +29,7 @@ export const POST: APIRoute = async (context) => {
   const name = typeof rawName === "string" ? rawName.trim() : "";
 
   if (!name) {
-    return context.redirect(`/dashboard/team?error=${encodeURIComponent("Team name is required")}`);
+    return context.redirect(`/?teamError=${encodeURIComponent("Team name is required")}`);
   }
 
   const armyNames = form
@@ -45,8 +45,8 @@ export const POST: APIRoute = async (context) => {
       result.error.type === "duplicate_army"
         ? `"${result.error.name}" is already in your roster`
         : result.error.message;
-    return context.redirect(`/dashboard/team?error=${encodeURIComponent(message)}`);
+    return context.redirect(`/?teamError=${encodeURIComponent(message)}`);
   }
 
-  return context.redirect("/dashboard/team");
+  return context.redirect("/");
 };

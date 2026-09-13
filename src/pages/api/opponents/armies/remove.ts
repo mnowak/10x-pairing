@@ -10,7 +10,7 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/dashboard/opponents?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`/?opponentError=${encodeURIComponent("Supabase is not configured")}`);
   }
 
   const form = await context.request.formData();
@@ -20,7 +20,7 @@ export const POST: APIRoute = async (context) => {
   const opponentArmyId = typeof rawOpponentArmyId === "string" ? rawOpponentArmyId : "";
 
   if (!opponentId) {
-    return context.redirect(`/dashboard/opponents?error=${encodeURIComponent("Missing opponent")}`);
+    return context.redirect(`/?opponentError=${encodeURIComponent("Missing opponent")}`);
   }
   if (!opponentArmyId) {
     return context.redirect(`/dashboard/opponents/${opponentId}?error=${encodeURIComponent("Missing army to remove")}`);

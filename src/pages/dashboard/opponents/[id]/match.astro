@@ -13,7 +13,7 @@ const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase || !user || !id) {
-  return Astro.redirect("/dashboard/opponents");
+  return Astro.redirect("/");
 }
 
 let opponent;
@@ -21,12 +21,10 @@ try {
   opponent = await getOpponentWithArmies(supabase, user.id, id);
 } catch (err) {
   logError("match.astro: getOpponentWithArmies", err);
-  return Astro.redirect(
-    `/dashboard/opponents?error=${encodeURIComponent("Something went wrong loading that opponent")}`,
-  );
+  return Astro.redirect(`/?opponentError=${encodeURIComponent("Something went wrong loading that opponent")}`);
 }
 if (!opponent) {
-  return Astro.redirect("/dashboard/opponents");
+  return Astro.redirect("/");
 }
 
 let team;
@@ -39,7 +37,7 @@ try {
   );
 }
 if (!team) {
-  return Astro.redirect(`/dashboard/team?error=${encodeURIComponent("Create your team before starting match mode")}`);
+  return Astro.redirect(`/?teamError=${encodeURIComponent("Create your team before starting match mode")}`);
 }
 
 let matrixGrid;
