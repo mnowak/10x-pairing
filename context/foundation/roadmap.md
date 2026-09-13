@@ -53,7 +53,7 @@ M-1 and M-2 shipped and validated the full captain-facing MVP: team/roster setup
 | S-13 | mvp-smoke-test-pass             | captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work                     | S-09, S-10, S-11, S-12     | MS-01    | done |
 | S-14 | similar-mode-copy-update        | captain sees an accurate one-line description of Similar mode when picking a practice opponent                                               | —                          | MS-03    | done |
 | S-15 | project-readme                  | a new reader (contributor or future-you) understands the pairing process and the product roadmap from the README alone                       | —                          | MS-04    | done |
-| S-16 | frontpage-redesign              | a first-time visitor sees a purpose-built landing page instead of the Astro-starter default                                                  | —                          | MS-05    | ready    |
+| S-16 | frontpage-redesign              | a first-time visitor sees a purpose-built landing page instead of the Astro-starter default                                                  | —                          | MS-05    | done |
 
 ## Baseline
 
@@ -168,7 +168,7 @@ None for this milestone. Every item is either independent hardening work or a te
 - **Unknowns:**
   - What visual direction/tone should the new frontpage take? Owner: user. Block: no — will propose a concrete direction per the user's own request, for the user to accept or redirect.
 - **Risk:** Low technical risk (a static/SSR page, no data dependency); the real risk is proposing a direction the user doesn't like — mitigated by presenting the proposal before building it out fully.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -218,3 +218,4 @@ None cross-cutting. This milestone's two per-slice Unknowns (S-15's README depth
 - **S-13: captain can rely on every shipped MVP capability working end-to-end, verified fresh after this milestone's hardening work** — Archived 2026-09-12 → `context/archive/2026-09-12-mvp-smoke-test-pass/`. Lesson: —.
 - **S-14: captain sees an accurate one-line description of Similar mode when picking a practice opponent** — Archived 2026-09-13 → `context/archive/2026-09-13-similar-mode-copy-update/`. Lesson: —.
 - **S-15: a new reader (contributor or future-you) understands the pairing process and the product roadmap from the README alone** — Archived 2026-09-13 → `context/archive/2026-09-13-project-readme/`. Lesson: —.
+- **S-16: a first-time visitor sees a purpose-built landing page instead of the Astro-starter default** — Archived 2026-09-13 → `context/archive/2026-09-13-frontpage-redesign/`. Lesson: —.
