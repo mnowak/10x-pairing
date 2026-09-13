@@ -1,7 +1,7 @@
 ---
 change_id: frontpage-redesign
 title: Redesign the frontpage away from the Astro-starter default
-status: implementing
+status: implemented
 created: 2026-09-13
 updated: 2026-09-13
 archived_at: null

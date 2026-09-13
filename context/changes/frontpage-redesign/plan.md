@@ -251,4 +251,4 @@ No data migration. The three retired pages become permanent redirect stubs rathe
 
 #### Automated
 
-- [x] 3.1 Full E2E suite passes: `npm run test:e2e`
+- [x] 3.1 Full E2E suite passes: `npm run test:e2e` — 143a5ef
