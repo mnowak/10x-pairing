@@ -4,10 +4,10 @@ import { test, expect } from "@playwright/test";
 // see tests/e2e/README.md for the rules this pattern encodes.
 test("added team army persists after page reload", async ({ page }) => {
   const armyName = `Seed Army ${Date.now()}`;
-  await page.goto("/dashboard/team");
+  await page.goto("/");
 
   await page.getByRole("textbox", { name: "Add an army" }).fill(armyName);
-  await page.getByRole("button", { name: "Add" }).click();
+  await page.getByRole("button", { name: "Add", exact: true }).click();
 
   // Scoped to the roster's listitem role, not a bare page-wide text match:
   // Astro's dev-mode toolbar injects a hidden debug panel elsewhere in the

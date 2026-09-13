@@ -235,20 +235,20 @@ No data migration. The three retired pages become permanent redirect stubs rathe
 
 #### Automated
 
-- [x] 2.1 No stray `/dashboard/team` or index-level `/dashboard/opponents` references remain outside the redirect stubs (grep)
-- [x] 2.2 Type checking passes: `npx astro check`
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Build succeeds: `npm run build`
+- [x] 2.1 No stray `/dashboard/team` or index-level `/dashboard/opponents` references remain outside the redirect stubs (grep) — 19a5a1c
+- [x] 2.2 Type checking passes: `npx astro check` — 19a5a1c
+- [x] 2.3 Linting passes: `npm run lint` — 19a5a1c
+- [x] 2.4 Build succeeds: `npm run build` — 19a5a1c
 
 #### Manual
 
-- [ ] 2.5 `/dashboard`, `/dashboard/team`, `/dashboard/opponents` each redirect to `/` when signed in
-- [ ] 2.6 `/dashboard` redirects to `/auth/signin` when signed out
-- [ ] 2.7 A team-flow error redirects to `/?teamError=...` and shows against the team section only
-- [ ] 2.8 An opponent-flow index-level error redirects to `/?opponentError=...` and shows against the opponents section only
+- [x] 2.5 `/dashboard`, `/dashboard/team`, `/dashboard/opponents` each redirect to `/` when signed in — 19a5a1c
+- [x] 2.6 `/dashboard` redirects to `/auth/signin` when signed out — 19a5a1c
+- [x] 2.7 A team-flow error redirects to `/?teamError=...` and shows against the team section only — 19a5a1c
+- [x] 2.8 An opponent-flow index-level error redirects to `/?opponentError=...` and shows against the opponents section only — 19a5a1c
 
 ### Phase 3: Update E2E tests
 
 #### Automated
 
-- [ ] 3.1 Full E2E suite passes: `npm run test:e2e`
+- [x] 3.1 Full E2E suite passes: `npm run test:e2e`

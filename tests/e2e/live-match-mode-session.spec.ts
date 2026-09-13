@@ -31,8 +31,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function clearTeamRoster(page: Page) {
-  await page.goto("/dashboard/team");
-  const removeButtons = page.getByRole("button", { name: /^Remove /, exact: false });
+  await page.goto("/");
+  // Scoped to the roster's listitem role: the unified page also renders the
+  // opponents section's "Add opponent" form alongside the team roster, and
+  // its per-field "Remove army N" buttons (not inside a listitem) would
+  // otherwise collide with this same-prefix match.
+  const removeButtons = page.getByRole("listitem").getByRole("button", { name: /^Remove /, exact: false });
   while ((await removeButtons.count()) > 0) {
     await removeButtons.first().click();
     await page.getByRole("button", { name: "Confirm" }).click();
